@@ -150,22 +150,18 @@ const CALENDAR_DAYS = [
   // If you are adding value for one, you needn't for the other.
   const CALENDAR_EVENTS = [
     {
-      name: 'event test 1',
-      day: 'Monday',
-      time: '10:00 am',
-      modality: 'In Person',
-      location: 'Boulder',
-      url: 'test',
-      attendees: 'John, Mark, Bob',
+      className: 'Math',
+      studentName: 'Bob',
+      dueDate: 'Friday',
+      time: '3pm',
+      assignmentName: 'Homework 1',
     },
     {
-      name: 'event test 2',
-      day: 'Friday',
-      time: '1pm',
-      modality: 'Remote',
-      location: 'Zoom',
-      url: 'zoom',
-      attendees: '1',
+      className: 'English',
+      studentName: 'Joe',
+      dueDate: 'Wednesday',
+      time: '7pm',
+      assignmentName: 'Essay 1',
     },
   ];
   
@@ -190,13 +186,11 @@ const CALENDAR_DAYS = [
   
       // Initializing an empty event
       event = {
-        name: '',
-        day: day,
+        className: '',
+        studentName: '',
+        dueDate: day,
         time: '',
-        modality: '',
-        location: '',
-        url: '',
-        attendees: '',
+        assignmentName: '',
       };
   
       // Allocate a new event id. Note that nothing is inserted into the CALENDAR_EVENTS yet.
@@ -209,7 +203,7 @@ const CALENDAR_DAYS = [
   
     // Once the event is fetched/created, populate the modal.
     // Update all form fields of the modal with suitable values from the event.
-    const eventNameInput = document.querySelector('#inputEventName');
+    const eventNameInput = document.querySelector('#inputClassName');
     eventNameInput.value = event.name;
   
     const eventDayInput = document.querySelector('#weekday');
@@ -218,17 +212,20 @@ const CALENDAR_DAYS = [
     const eventTimeInput = document.querySelector('#time');
     eventTimeInput.value = event.time;
   
-    const eventModalityInput = document.querySelector('#event-modality');
-    eventModalityInput.value = event.modality;
+    const eventAssignmentInput = document.querySelector('#inputAssignmentName');
+    eventAssignmentInput.value = event.assignmentName;
+
+    // const eventModalityInput = document.querySelector('#event-modality');
+    // eventModalityInput.value = event.modality;
   
-    const eventLocationInput = document.querySelector('#event-location');
-    eventLocationInput.value = event.location;
+    // const eventLocationInput = document.querySelector('#event-location');
+    // eventLocationInput.value = event.location;
   
-    const eventUrlInput = document.querySelector('#remote_url');
-    eventUrlInput.value = event.url;
+    // const eventUrlInput = document.querySelector('#remote_url');
+    // eventUrlInput.value = event.url;
   
-    const eventAttendeesInput = document.querySelector('#attendees');
-    eventAttendeesInput.value = event.attendees;
+    // const eventAttendeesInput = document.querySelector('#attendees');
+    // eventAttendeesInput.value = event.attendees;
   
     // Location options depend on the event modality
     updateLocationOptions(event.modality);
@@ -243,13 +240,14 @@ const CALENDAR_DAYS = [
   
   function updateEventFromModal(id) {
     CALENDAR_EVENTS[id] = {
-      name: document.querySelector('#event-name').value,
-      day: document.querySelector('#weekday').value,
+      className: document.querySelector('#event-ClassName').value,
+      dueDate: document.querySelector('#weekday').value,
       time: document.querySelector('#time').value,
-      modality: document.querySelector('#event-modality').value,
-      location: document.querySelector('#event-location').value,
-      url: document.querySelector('#remote_url').value,
-      attendees: document.querySelector('#attendees').value
+      assignmentName: document.querySelector('#event-AssignmentName').value
+      // modality: document.querySelector('#event-modality').value,
+      // location: document.querySelector('#event-location').value,
+      // url: document.querySelector('#remote_url').value,
+      // attendees: document.querySelector('#attendees').value
     };
   
     // Update the DOM and hide the event modal
@@ -263,7 +261,7 @@ const CALENDAR_DAYS = [
     eventElements.forEach((eventElement) => {
       const eventName = eventElement.querySelector('.event-title').textContent;
       const eventTime = eventElement.querySelector('.event-time').textContent;
-      const eventLocation = eventElement.querySelector('.event-location').textContent;
+      // const eventLocation = eventElement.querySelector('.event-location').textContent;
   
       const tooltipContent = `Name: ${eventName}<br>Time: ${eventTime}<br>Location: ${eventLocation}`;
   
