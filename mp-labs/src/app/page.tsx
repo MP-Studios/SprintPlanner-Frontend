@@ -1,99 +1,148 @@
-import Image from "next/image";
+"use client"
+import { useState, useEffect } from "react";
 
-export default function Home() {
+const monthNames = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+const isLeapYear = (year: number) =>
+  (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+
+const getFebDays = (year: number) => (isLeapYear(year) ? 29 : 28);
+
+export default function Calendar() {
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [showMonthList, setShowMonthList] = useState(false);
+  const [time, setTime] = useState(new Date());
+
+  // Days in each month
+  const daysOfMonth = [
+    31,
+    getFebDays(currentYear),
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+  ];
+
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Generate days array with blanks for first day offset
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+  const totalDays = daysOfMonth[currentMonth];
+  const daysArray = [];
+
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    daysArray.push(null); // empty slots for offset
+  }
+  for (let day = 1; day <= totalDays; day++) {
+    daysArray.push(day);
+  }
+
+  const today = new Date();
+
+  const toggleMonthList = () => setShowMonthList(!showMonthList);
+
+  const selectMonth = (index: number) => {
+    setCurrentMonth(index);
+    setShowMonthList(false);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/mplab.svg"
-          alt="Next.js logo"
-          width={480}
-          height={100}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-           SPRINT PLANNER FRONT END
-          </li>
-          <li className="tracking-[-.01em]">
-              Basic Front End for Sprint Planner.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="calendar-container p-6 flex-1 min-h-screen bg-white rounded-3xl shadow-lg overflow-hidden">
+      <div className="calendar-header flex justify-between items-center mb-4">
+        <span
+          className="month-picker cursor-pointer font-semibold text-lg"
+          onClick={toggleMonthList}
+        >
+          {monthNames[currentMonth]}
+        </span>
+        <div className="year-picker flex items-center space-x-4">
+          <button
+            onClick={() => setCurrentYear((y) => y - 1)}
+            className="year-change cursor-pointer px-2 rounded hover:bg-gray-200"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            &lt;
+          </button>
+          <span id="year" className="font-semibold text-lg">{currentYear}</span>
+          <button
+            onClick={() => setCurrentYear((y) => y + 1)}
+            className="year-change cursor-pointer px-2 rounded hover:bg-gray-200"
           >
-            Read our docs
-          </a>
+            &gt;
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+
+      {showMonthList && (
+        <div className="month-list grid grid-cols-3 gap-2 mb-4">
+          {monthNames.map((name, idx) => (
+            <div
+              key={name}
+              className="cursor-pointer p-2 rounded hover:bg-blue-100 text-center"
+              onClick={() => selectMonth(idx)}
+            >
+              {name}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="calendar-week-days grid grid-cols-7 text-center font-medium mb-2 text-gray-700">
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+          <div key={d}>{d}</div>
+        ))}
+      </div>
+
+      <div className="calendar-days grid grid-cols-7 gap-1 text-center">
+        {daysArray.map((day, idx) =>
+          day ? (
+            <div
+              key={idx}
+              className={`p-2 rounded ${
+                day === today.getDate() &&
+                currentMonth === today.getMonth() &&
+                currentYear === today.getFullYear()
+                  ? "bg-blue-500 text-white font-bold"
+                  : "text-gray-800"
+              }`}
+            >
+              {day}
+            </div>
+          ) : (
+            <div key={idx} />
+          )
+        )}
+      </div>
+
+      <div className="date-time-formate mt-6 text-center space-y-2">
+        <div className="day-text-formate text-sm font-semibold text-gray-600">TODAY</div>
+        <div className="date-time-value text-lg font-semibold">
+          <div className="time-formate">
+            {time.toLocaleTimeString()}
+          </div>
+          <div className="date-formate">
+            {time.toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              weekday: "long",
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
