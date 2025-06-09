@@ -29,7 +29,7 @@ export default function AssignmentsPage() {
   }, []);
 
   return (
-    <div>
+    <div className="assignment p-6 bg-white rounded-3xl shadow-lg overflow-hidden w-1/4 h-screen">
       <h1>Assignments</h1>
       {error ? (
         <p style={{ color: 'red' }}>{error}</p>
