@@ -3,8 +3,9 @@ import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 
 type Assignment = {
   className: string;
-  name: string;
-  dueDate: string;
+  Name: string;
+  DueDate: string;
+  TaskDetails: string;
 };
 
 export default function AssignmentsPage() {
@@ -13,8 +14,9 @@ export default function AssignmentsPage() {
 
   const [form, setForm] = useState<Assignment>({
     className: '',
-    name: '',
-    dueDate: '',
+    Name: '',
+    DueDate: '',
+    TaskDetails: '',
   });
   
   useEffect(() => {
@@ -59,20 +61,20 @@ export default function AssignmentsPage() {
     e.preventDefault();
 
     // simple validation
-    if (!form.className || !form.name || !form.dueDate) {
+    if (!form.className || !form.Name || !form.DueDate) {
       alert('Please fill out all fields.');
       return;
     }
 
     try {
-      const res = await fetch('http://localhost:8080/api/assignments', {
+      const res = await fetch('http://localhost:8080/api/add-assignment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
       if (!res.ok) throw new Error('Failed to save');
       // reset form
-      setForm({ className: '', name: '', dueDate: '' });
+      setForm({ className: '', Name: '', DueDate: '' , TaskDetails: ''});
       // re-fetch the list
       fetchAssignments();
     } catch (err) {
@@ -85,7 +87,7 @@ export default function AssignmentsPage() {
     <div className="assignment p-6 bg-white rounded-3xl shadow-lg overflow-hidden w-1/4 h-screen flex flex-col">
       <h1 className="text-xl font-semibold mb-4">Assignments</h1>
 
-      {/* ► New Assignment Form */}
+      {/*  New Assignment Form */}
       <form onSubmit={handleSubmit} className="mb-6 space-y-3">
         <div>
           <label className="block mb-1 font-medium" htmlFor="className">
@@ -103,14 +105,14 @@ export default function AssignmentsPage() {
         </div>
 
         <div>
-          <label className="block mb-1 font-medium" htmlFor="name">
+          <label className="block mb-1 font-medium" htmlFor="Name">
             Assignment Name
           </label>
           <input
-            id="name"
-            name="name"
+            id="Name"
+            name="Name"
             type="text"
-            value={form.name}
+            value={form.Name}
             onChange={handleChange}
             className="w-full border rounded px-2 py-1"
             placeholder="e.g. Problem Set 5"
@@ -118,14 +120,28 @@ export default function AssignmentsPage() {
         </div>
 
         <div>
-          <label className="block mb-1 font-medium" htmlFor="dueDate">
+          <label className="block mb-1 font-medium" htmlFor="DueDate">
             Due Date
           </label>
           <input
-            id="dueDate"
-            name="dueDate"
+            id="DueDate"
+            name="DueDate"
             type="date"
-            value={form.dueDate}
+            value={form.DueDate}
+            onChange={handleChange}
+            className="w-full border rounded px-2 py-1"
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 font-medium" htmlFor="TaskDetails">
+            Task Details
+          </label>
+          <input
+            id="TaskDetails"
+            name="TaskDetails"
+            type="text"
+            value={form.TaskDetails}
             onChange={handleChange}
             className="w-full border rounded px-2 py-1"
           />
@@ -147,7 +163,7 @@ export default function AssignmentsPage() {
           assignments.map((a, i) => (
             <p key={i} className="mb-2">
               <strong>{a.className}</strong>: {a.name}{' '}
-              <span className="text-gray-500">(Due: {a.dueDate})</span>
+              <span className="text-gray-500">(Due: {a.DueDate})</span>
             </p>
           ))
         )}
