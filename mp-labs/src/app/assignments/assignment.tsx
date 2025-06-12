@@ -162,7 +162,7 @@ export default function AssignmentsPage() {
         ) : (
           assignments.map((a, i) => (
             <p key={i} className="mb-2">
-              <strong>{a.className}</strong>: {a.name}{' '}
+              <strong>{a.className}</strong>: {a.Name}{' '}
               <span className="text-gray-500">(Due: {a.DueDate})</span>
             </p>
           ))
