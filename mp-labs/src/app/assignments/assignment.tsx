@@ -9,6 +9,7 @@ type Assignment = {
 };
 
 export default function AssignmentsPage() {
+  const [showAlternativeView, setShowAlternativeView] = useState(false);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,6 +71,14 @@ export default function AssignmentsPage() {
   return (
     <div className="assignment p-6 bg-white shadow-lg overflow-hidden w-1/4 h-screen flex flex-col">
       <h1 className="text-xl font-semibold mb-4">Assignments</h1>
+      {showAlternativeView ? <AlternateView /> : <DefaultView />}
+      
+      <button
+        onClick={() => setShowAlternativeView(!showAlternativeView)}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        {showAlternativeView ? '=' : '='}
+      </button>
 
       {/*  New Assignment Form */}
       <form onSubmit={handleSubmit} className="mb-6 space-y-3">
@@ -154,4 +163,14 @@ export default function AssignmentsPage() {
       </div>
     </div>
   );
+}
+
+function DefaultView(){
+  return <p>Place 'default' creating assignments code in here</p>
+  /* Might need to move entire code logic into this function or make two seperate files in this folder for different views */
+}
+
+function AlternateView(){
+  return <p>Create the 'edit' code for assignments here</p>
+  /* Will need to create new logic here for editing assignments which will either be in one file or a seperate one in this folder */
 }
