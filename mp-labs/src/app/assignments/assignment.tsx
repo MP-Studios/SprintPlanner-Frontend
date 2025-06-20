@@ -23,22 +23,6 @@ export default function AssignmentsPage() {
     fetchAssignments();
   }, []);
 
-  // useEffect(() => {
-  //   fetch("http://localhost:8080/api/assignments")
-  //     .then(res => {
-  //       if (!res.ok) {
-  //         throw new Error('Failed to fetch');
-  //       }
-  //       return res.json();
-  //     })
-  //     .then(data => {
-  //       setAssignments(data);
-  //     })
-  //     .catch(err => {
-  //       console.error(err);
-  //       setError('Error fetching assignments');
-  //     });
-  // }, []);
 
   const fetchAssignments = async () => {
     try {
@@ -84,7 +68,7 @@ export default function AssignmentsPage() {
   };
 
   return (
-    <div className="assignment p-6 bg-white rounded-3xl shadow-lg overflow-hidden w-1/4 h-screen flex flex-col">
+    <div className="assignment p-6 bg-white shadow-lg overflow-hidden w-1/4 h-screen flex flex-col">
       <h1 className="text-xl font-semibold mb-4">Assignments</h1>
 
       {/*  New Assignment Form */}
