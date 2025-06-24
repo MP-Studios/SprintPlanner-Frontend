@@ -68,8 +68,15 @@ export default function AssignmentsPage() {
     }
   };
 
+  /* Adding new stuff for actually having multiple forms this is not functional yet until I add something else */
+  const handleAddForm = () => {
+    if(assignments.length < 6){
+      setAssignments([...assignments, {className: '', Name: '', DueDate: '', TaskDetails: ''}])
+    }
+  };
+
   return (
-    <div className="assignment p-6 bg-white shadow-lg overflow-hidden w-1/4 h-screen flex flex-col">
+    <div className="assignment p-6 bg-white shadow-lg overflow-hidden h-screen flex flex-col">
       <h1 className="text-xl font-semibold mb-4">Assignments</h1>
       {showAlternativeView ? <AlternateView /> : <DefaultView />}
       
@@ -81,7 +88,7 @@ export default function AssignmentsPage() {
       </button>
 
       {/*  New Assignment Form */}
-      <form onSubmit={handleSubmit} className="mb-6 space-y-3">
+      <form onSubmit={handleSubmit} className="mb-6 space-y-3 flex">
         <div>
           <label className="block mb-1 font-medium" htmlFor="className">
             Class Name
@@ -142,9 +149,9 @@ export default function AssignmentsPage() {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+          className="w-[20%] self-end block mb-1 bg-blue-500 text-white rounded hover:bg-blue-600 flex-center"
         >
-          Add Assignment
+          Submit
         </button>
       </form>
 

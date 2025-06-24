@@ -62,7 +62,7 @@ export default function Calendar() {
   };
 
   return (
-    <div className="calendar p-6 bg-white shadow-lg overflow-hidden w-3/4 h-screen ml-auto">
+    <div className="calendar p-6 bg-white shadow-lg overflow-hidden h-screen ml-auto">
       <div className="calendar-header flex justify-between items-center mb-4">
         <span
           className="month-picker cursor-pointer font-semibold text-lg"
