@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
+import EditAssignments from './editAssignmentView';
 
 type Assignment = {
   className: string;
@@ -178,6 +179,6 @@ function DefaultView(){
 }
 
 function AlternateView(){
-  return <p>Create the 'edit' code for assignments here</p>
+  return <div> <EditAssignments /> </div>
   /* Will need to create new logic here for editing assignments which will either be in one file or a seperate one in this folder */
 }

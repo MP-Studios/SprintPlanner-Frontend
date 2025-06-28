@@ -8,30 +8,39 @@ type Assignment = {
     TaskDetails: string;
   };
 
-export default function AlternateView() {
+export default function EditAssignments() {
     const [assignments, setAssignments] = useState<Assignment[]>([]);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetchAssignments();
+        fetch('http://localhost:8080/api/assignments')
+          .then((res) => {
+            if (!res.ok) throw new Error('Failed to fetch assignments');
+            return res.json();
+          })
+          .then(setAssignments)
+          .catch((err) => {
+            console.error(err);
+            setError('Could not load assignments');
+          });
       }, []);
 
-    const fetchAssignments = async () => {
-        try {
-          const res = await fetch('http://localhost:8080/api/assignments');
-          if (!res.ok) throw new Error('Failed to fetch');
-          const data = await res.json();
-          setAssignments(data);
-        } catch (err) {
-          console.error(err);
-          setError('Error fetching assignments');
-        }
-      }; 
-
       return (
-        <div className="editAssignment p-6 bg-white shadow-lg overflow-hidden h-screen flex flex-col">
-            <h1 className="text-xl font-semibold mb-4">Assignments</h1>
+        <div className="editAssignment p-6 shadow-lg overflow-hidden h-screen flex flex-col">
+            <h3 className="text-xl font-semibold mb-4">Your Assignments</h3>
             
+            {error && <p className="text-red-500">{error}</p>}
+
+            <ul className="space-y-4">
+                {assignments.map((a) => (
+                    <li key={a.className} className="border p-4 rounded-sm">
+                        <div><strong>Class:</strong> {a.className}</div>
+                        <div><strong>Name:</strong> {a.Name}</div>
+                        <div><strong>Due:</strong> {a.DueDate}</div>
+                        <div><strong>Details:</strong> {a.TaskDetails}</div>
+                    </li>
+                ))}
+            </ul>
         </div>
       );
 }
