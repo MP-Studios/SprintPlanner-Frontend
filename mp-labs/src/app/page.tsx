@@ -1,6 +1,6 @@
 'use client'
 
-import Calendar from "./calendar";
+import Calendar from "./calendar/calendar";
 import AssignmentsPage from "./assignments/assignment";
 
 export default function Dashboard() {
