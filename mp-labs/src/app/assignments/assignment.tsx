@@ -10,7 +10,6 @@ type Assignment = {
 };
 
 export default function AssignmentsPage() {
-  const [showAlternativeView, setShowAlternativeView] = useState(false);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,18 +78,11 @@ export default function AssignmentsPage() {
   return (
     <div className="assignment p-6 bg-white shadow-lg overflow-hidden h-screen flex flex-col">
       <h1 className="text-xl font-semibold mb-4">Assignments</h1>
-      {showAlternativeView ? <AlternateView /> : <DefaultView />}
-      <button
-        onClick={() => setShowAlternativeView(!showAlternativeView)}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-      >
-        {showAlternativeView ? '=' : '='}
-      </button>
 
       {/*  New Assignment Form */}
       <form onSubmit={handleSubmit} className="mb-6 space-y-3 flex">
         <div>
-          <label className="block mb-1 font-medium" htmlFor="className">
+          <label className="block mb-1 font-medium flex" htmlFor="className">
             Class Name
           </label>
           <input
@@ -105,7 +97,7 @@ export default function AssignmentsPage() {
         </div>
 
         <div>
-          <label className="block mb-1 font-medium" htmlFor="Name">
+          <label className="block mb-1 font-medium flex" htmlFor="Name">
             Assignment
           </label>
           <input
@@ -120,7 +112,7 @@ export default function AssignmentsPage() {
         </div>
 
         <div>
-          <label className="block mb-1 font-medium" htmlFor="DueDate">
+          <label className="block mb-1 font-medium flex" htmlFor="DueDate">
             Due Date
           </label>
           <input
@@ -134,7 +126,7 @@ export default function AssignmentsPage() {
         </div>
 
         <div>
-          <label className="block mb-1 font-medium" htmlFor="TaskDetails">
+          <label className="block mb-1 font-medium flex" htmlFor="TaskDetails">
             Details
           </label>
           <input
@@ -170,14 +162,4 @@ export default function AssignmentsPage() {
       </div>
     </div>
   );
-}
-
-function DefaultView(){
-  return <p>Input your assignments in here</p>
-  /* Might need to move entire code logic into this function or make two seperate files in this folder for different views */
-}
-
-function AlternateView(){
-  return <div> <EditAssignments /> </div>
-  /* Will need to create new logic here for editing assignments which will either be in one file or a seperate one in this folder */
 }
