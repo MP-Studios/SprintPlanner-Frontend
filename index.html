@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Calendar</title>
+    <!-- TO DO: include all external resources - Bootstrap libraries, index.js and style.css -->
+    <!-- Bootstrap CSS library -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous" />
+    <!-- Bootstrap JS library -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8"
+        crossorigin="anonymous"></script>
+    <!-- Bootstrap icons library -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" />
+    <script src="./resources/js/script.js"></script>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<!-- Replace myFunction() with initializeContent() -->
+
+<body onload="initializeContent()"></body>
+<div class="container">
+    <!-- You may choose another container class of your liking -->
+    <!-- All elements of the webpage will be added within this div -->
+    <div id="calendar">
+
+    </div>
+</div>
+<!-- Calendar elements -->
+<div class="modal" tabindex="-1" id="event-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3" id="event_name">
+                        <label for="inputEventName" class="form-label">Event Name</label>
+                        <input type="text" class="form-control">
+                        <div class="form-text">Enter your Event here</div>
+                    </div>
+                    <div class="mb-3" id="weekday">
+                        <select class="form-select">
+                            <option selected>Days of the Week</option>
+                            <option value="1">Sunday</option>
+                            <option value="2">Monday</option>
+                            <option value="3">Tuesday</option>
+                            <option value="4">Wednesday</option>
+                            <option value="5">Thursday</option>
+                            <option value="6">Friday</option>
+                            <option value="7">Saturday</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="time">
+                        <label for="inputTime" class="form-label">Time</label>
+                        <input type="text" class="form-control">
+                    </div>
+                    <div class="mb-3" id="modality">
+                        <!-- "this.value" passed to updateLocationOptions() refers to the text in the "value" attribute of the option that is chosen by the user -->
+                        <select class="form-control" id="event-modality" required
+                            onchange="updateLocationOptions(this.value)">
+                            <option value="in-person" default>In Person</option>
+                            <option value="remote">Remote</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="location">
+                        <label for="inputLocation" class="form-label">Location</label>
+                        <input type="text" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <div class="mb-3" id="remote_url">
+                        <label for="remoteUrl" class="form-label">Remote URL</label>
+                        <input type="url" pattern="^[A-Z].+" class="form-control" aria-describedby="urlHelp">
+                    </div>
+                    <div class="mb-3" id="attendees">
+                        <label for="Attendees" class="form-label">Attendees</label>
+                        <input type="attendeesName" class="form-control" aria-describedby="nameHelp">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="submit_button" class="btn btn-primary" type="submit">
+                    Create Event
+                  </button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>
