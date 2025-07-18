@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NavBar from "./navbar/NavBar";
-// import { createClient } from '@supabase/supabase-js'
+import { Inter } from 'next/font/google'
 
-// // Create a single supabase client for interacting with your database
-// const supabase = createClient('https://xyzcompany.supabase.co', 'public-anon-key')
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-sans' })
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.className}>
       <body>
       <NavBar />
       <main className="p-4">{children}</main>  
