@@ -100,7 +100,7 @@ export default function Login(){
         </form>
         <div className="text-center text-[#64748b] text-sm">
           Don’t have an account?{" "}
-          <a href="#" className="text-[#2563eb] hover:underline font-medium">Sign up</a>
+          <a href="/register" className="text-[#2563eb] hover:underline font-medium">Sign up</a>
         </div>
       </section>
     </main>
