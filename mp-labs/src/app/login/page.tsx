@@ -1,25 +1,13 @@
 'use client'
 
-import { createClient } from '@supabase/supabase-js'
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
+import { login, signup } from './actions'
 
 export default function Login(){
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-
-    const supabase = createClient('SUPABASE_URL', 'SUPABASE_ANON_KEY', {
-        auth: {
-          storage: {
-            getItem: () => {
-              return Promise.resolve('FETCHED_COOKIE')
-            },
-            setItem: () => {},
-            removeItem: () => {},
-          },
-        },
-      })
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
