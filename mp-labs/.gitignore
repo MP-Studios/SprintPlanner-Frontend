@@ -39,3 +39,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Supabase local dev (CLI)
+supabase/.env
+supabase/.temp/
+supabase/.branches/
+supabase/migrations/.snapshots/
+.env.local
+
+# Edge Functions / other subfolders
+supabase/functions/**/.env
+supabase/secrets/**
+
+# Misc secrets
+*.secret
+*.key
+*.pem
