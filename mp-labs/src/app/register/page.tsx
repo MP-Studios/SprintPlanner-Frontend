@@ -1,7 +1,6 @@
 'use client'
 
-import { createClient } from '@supabase/supabase-js'
-import { SupabaseAuthClient } from '@supabase/supabase-js/dist/module/lib/SupabaseAuthClient';
+import { register } from 'module';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 
 export default function Register(){
@@ -12,6 +11,8 @@ export default function Register(){
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
     
+
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -26,20 +27,22 @@ export default function Register(){
         }
         setLoading(true);
     
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
+        
+    // let { data, error } = await supabase.auth.signUp({
+    //     email: '',
+    //     password: ''
+    // })
+  
     
-        setLoading(false);
-        if (error) {
-          setError(error.message);
-        } else {
-          setSuccess("Check your email for a confirmation link!");
-          setEmail("");
-          setPassword("");
-          setConfirmPassword("");
-        }
+      //   setLoading(false);
+      //   if (error) {
+      //     setError(error.message);
+      //   } else {
+      //     setSuccess("Check your email for a confirmation link!");
+      //     setEmail("");
+      //     setPassword("");
+      //     setConfirmPassword("");
+      //   }
       };
 
       return (

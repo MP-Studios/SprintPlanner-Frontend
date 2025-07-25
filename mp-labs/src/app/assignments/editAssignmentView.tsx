@@ -1,10 +1,5 @@
 'use client';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
-// import { createClient } from '@supabase/supabase-js'
-
-// // Create a single supabase client for interacting with your database
-// const supabase = createClient('https://xyzcompany.supabase.co', 'public-anon-key')
-
 
 type Assignment = {
     className: string;

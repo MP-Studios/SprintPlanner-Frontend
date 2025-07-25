@@ -2,10 +2,6 @@
 import { useState } from "react"
 import AssignmentsPage from "./assignment"
 import EditAssignments from "./editAssignmentView"
-// import { createClient } from '@supabase/supabase-js'
-
-// // Create a single supabase client for interacting with your database
-// const supabase = createClient('https://xyzcompany.supabase.co', 'public-anon-key')
 
 export default function AssignmentContainer() {
     const [showAlternativeView, setShowAlternativeView] = useState(false);
