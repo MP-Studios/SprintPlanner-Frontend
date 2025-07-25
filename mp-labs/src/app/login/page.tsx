@@ -86,11 +86,10 @@ export default function Login(){
           >
             {isPending ? 'Signing in…' : 'Sign in'}
           </button>
-        </form>
-
-        <div className="text-center text-[#64748b] text-sm">
+          <div className="text-center text-[#64748b] text-sm">
           Don’t have an account?
           {/* Sign Up button */}
+        </div>
           <button
             type="submit"
             formAction={signup}
@@ -107,7 +106,7 @@ export default function Login(){
           >
             {isPending ? 'Signing up…' : 'Sign Up'}
           </button>
-        </div>
+        </form>
       </section>
     </main>
   );
