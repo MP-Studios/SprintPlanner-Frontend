@@ -4,9 +4,9 @@ import EditAssignments from './editAssignmentView';
 
 type Assignment = {
   className: string;
-  Name: string;
-  DueDate: string;
-  TaskDetails: string;
+  name: string;
+  dueDate: string;
+  taskDetails: string;
 };
 
 export default function AssignmentsPage() {
@@ -15,9 +15,9 @@ export default function AssignmentsPage() {
 
   const [form, setForm] = useState<Assignment>({
     className: '',
-    Name: '',
-    DueDate: '',
-    TaskDetails: '',
+    name: '',
+    dueDate: '',
+    taskDetails: '',
   });
   
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function AssignmentsPage() {
 
   const fetchAssignments = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/assignments');
+      const res = await fetch('http://localhost:8080/api/backlog');
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
       setAssignments(data);
@@ -46,7 +46,7 @@ export default function AssignmentsPage() {
     e.preventDefault();
 
     // simple validation
-    if (!form.className || !form.Name || !form.DueDate) {
+    if (!form.className || !form.name || !form.dueDate) {
       alert('Please fill out all fields.');
       return;
     }
@@ -57,9 +57,9 @@ export default function AssignmentsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
-      if (!res.ok) throw new Error('Failed to save');
+      if (!res.ok) throw new Error('Failed to save'); // Make this a seperate View
       // reset form
-      setForm({ className: '', Name: '', DueDate: '' , TaskDetails: ''});
+      setForm({ className: '', name: '', dueDate: '' , taskDetails: ''});
       // re-fetch the list
       fetchAssignments();
     } catch (err) {
@@ -71,7 +71,7 @@ export default function AssignmentsPage() {
   /* Adding new stuff for actually having multiple forms this is not functional yet until I add something else */
   const handleAddForm = () => {
     if(assignments.length < 6){
-      setAssignments([...assignments, {className: '', Name: '', DueDate: '', TaskDetails: ''}])
+      setAssignments([...assignments, {className: '', name: '', dueDate: '', taskDetails: ''}])
     }
   };
 
@@ -97,14 +97,14 @@ export default function AssignmentsPage() {
         </div>
 
         <div>
-          <label className="block mb-1 font-medium flex" htmlFor="Name">
+          <label className="block mb-1 font-medium flex" htmlFor="name">
             Assignment
           </label>
           <input
-            id="Name"
-            name="Name"
+            id="name"
+            name="name"
             type="text"
-            value={form.Name}
+            value={form.name}
             onChange={handleChange}
             className="w-full border rounded px-2 py-1"
             placeholder="Homework 1"
@@ -112,28 +112,28 @@ export default function AssignmentsPage() {
         </div>
 
         <div>
-          <label className="block mb-1 font-medium flex" htmlFor="DueDate">
+          <label className="block mb-1 font-medium flex" htmlFor="dueDate">
             Due Date
           </label>
           <input
-            id="DueDate"
-            name="DueDate"
+            id="dueDate"
+            name="dueDate"
             type="date"
-            value={form.DueDate}
+            value={form.dueDate}
             onChange={handleChange}
             className="w-full border rounded px-2 py-1"
           />
         </div>
 
         <div>
-          <label className="block mb-1 font-medium flex" htmlFor="TaskDetails">
+          <label className="block mb-1 font-medium flex" htmlFor="taskDetails">
             Details
           </label>
           <input
-            id="TaskDetails"
-            name="TaskDetails"
+            id="taskDetails"
+            name="taskDetails"
             type="text"
-            value={form.TaskDetails}
+            value={form.taskDetails}
             onChange={handleChange}
             className="w-full border rounded px-2 py-1"
           />
@@ -154,8 +154,8 @@ export default function AssignmentsPage() {
         ) : (
           assignments.map((a, i) => (
             <p key={i} className="mb-2">
-              <strong>{a.className}</strong>: {a.Name}{' '}
-              <span className="text-gray-500">(Due: {a.DueDate})</span>
+              <strong>{a.className}</strong>: {a.name}{' '}
+              <span className="text-gray-500">(Due: {a.dueDate})</span>
             </p>
           ))
         )}

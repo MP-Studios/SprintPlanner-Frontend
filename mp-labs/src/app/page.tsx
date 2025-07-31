@@ -1,6 +1,6 @@
 'use client'
 
-import Calendar from "./calendar/calendar";
+import CalendarView from "./calendar/page";
 import AssignmentContainer from "./assignments/assignmentsPage";
 
 export default function Dashboard() {
@@ -13,7 +13,7 @@ export default function Dashboard() {
   
         {/* Right: calendar (75% width) */}
         <div className="w-[65%] mx-auto h-full p-6">
-          <Calendar />
+          <CalendarView />
         </div>
   
       </div>

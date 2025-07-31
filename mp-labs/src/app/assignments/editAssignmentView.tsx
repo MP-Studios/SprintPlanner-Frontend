@@ -4,9 +4,9 @@ import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 
 type Assignment = {
     className: string;
-    Name: string;
-    DueDate: string;
-    TaskDetails: string;
+    name: string;
+    dueDate: string;
+    taskDetails: string;
   };
 
 export default function EditAssignments() {
@@ -14,7 +14,7 @@ export default function EditAssignments() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetch('http://localhost:8080/api/assignments')
+        fetch('http://localhost:8080/api/backlog') //api gateway?
           .then((res) => {
             if (!res.ok) throw new Error('Failed to fetch assignments');
             return res.json();
@@ -36,9 +36,9 @@ export default function EditAssignments() {
                 {assignments.map((a) => (
                     <li key={a.className} className="border p-4 rounded-sm">
                         <div><strong>Class:</strong> {a.className}</div>
-                        <div><strong>Name:</strong> {a.Name}</div>
-                        <div><strong>Due:</strong> {a.DueDate}</div>
-                        <div><strong>Details:</strong> {a.TaskDetails}</div>
+                        <div><strong>Name:</strong> {a.name}</div>
+                        <div><strong>Due:</strong> {a.dueDate}</div>
+                        <div><strong>Details:</strong> {a.taskDetails}</div>
                     </li>
                 ))}
             </ul>

@@ -134,7 +134,7 @@ export default function Calendar() {
         )}
       </div>
 
-      <div className="date-time-formate mt-6 text-center space-y-2">
+      {/* <div className="date-time-formate mt-6 text-center space-y-2">
         {showAlternativeView ? <AlternateView /> : <DefaultView />}
         <button
         onClick={() => setShowAlternativeView(!showAlternativeView)}
@@ -148,7 +148,7 @@ export default function Calendar() {
       </button>
         
        
-      </div>
+      </div> */}
     </div>
 
 

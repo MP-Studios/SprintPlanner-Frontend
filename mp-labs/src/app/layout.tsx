@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Sprint-Planner",
-  description: "Where is this",
+  description: "Organize your Homework",
 };
 
 

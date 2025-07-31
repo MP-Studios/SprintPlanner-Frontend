@@ -32,6 +32,20 @@ body {
 }
 
 
+.button-edit {
+  display: flex;
+  grid-template-columns: repeat(7, 1fr);
+  font-weight: 600;
+  cursor: pointer;
+  color: Black;
+}
+.button-edit div{
+  display: flex;
+  place-items: left;
+  color: #6D67CF;
+  height: 50px;
+}
+
 
 .calendar {
   height: 100vh;
@@ -72,11 +86,11 @@ body {
   color: rgb(104, 104, 104);
 }
 
-.calendar-week-days div:hover {
+/* .calendar-week-days div:hover {
   color: black;
   transform: scale(1.2);
   transition: all .2s ease-in-out;
-}
+} */
 
 .calendar-week-days div {
   display: grid;
