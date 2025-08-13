@@ -5,16 +5,6 @@ import { login, signup } from './actions'
 
 export default function Login(){
   const [isPending, startTransition] = useTransition();
-
-  // Generic click handler to submit the form to whichever action is set
-  const handleActionClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
-    e.preventDefault();
-    startTransition(() => {
-      const form = e.currentTarget.form as HTMLFormElement | undefined;
-      form?.requestSubmit();
-    });
-  };
-
   return (
     <main className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#3b82f6] via-[#6366f1] to-[#38bdf8] overflow-hidden">
       {/* Blurred background shapes */}
@@ -36,7 +26,7 @@ export default function Login(){
         </div>
 
         {/* NOTE: no onSubmit here – formAction on buttons handles it */}
-        <form className="flex flex-col gap-4" autoComplete="off">
+        <form method="post" className="flex flex-col gap-4" autoComplete="off">
           <label className="flex flex-col gap-2">
             <span className="text-[#64748b] text-sm font-medium">Email</span>
             <input
@@ -73,7 +63,6 @@ export default function Login(){
           <button
             type="submit"
             formAction={login}
-            onClick={handleActionClick}
             disabled={isPending}
             className="
               mt-4 w-full
@@ -93,7 +82,6 @@ export default function Login(){
           <button
             type="submit"
             formAction={signup}
-            onClick={handleActionClick}
             disabled={isPending}
             className="
               mt-4 w-full
