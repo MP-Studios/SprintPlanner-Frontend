@@ -1,10 +1,8 @@
 'use client'
 
-import { useTransition } from 'react';
 import { login, signup } from './actions'
 
 export default function Login(){
-  const [isPending, startTransition] = useTransition();
   return (
     <main className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#3b82f6] via-[#6366f1] to-[#38bdf8] overflow-hidden">
       {/* Blurred background shapes */}
@@ -63,7 +61,6 @@ export default function Login(){
           <button
             type="submit"
             formAction={login}
-            disabled={isPending}
             className="
               mt-4 w-full
               bg-[#2563eb] hover:bg-[#1d4ed8]
@@ -73,7 +70,7 @@ export default function Login(){
               shadow-sm
             "
           >
-            {isPending ? 'Signing in…' : 'Sign in'}
+            Sign In
           </button>
           <div className="text-center text-[#64748b] text-sm">
           Don’t have an account?
@@ -82,7 +79,6 @@ export default function Login(){
           <button
             type="submit"
             formAction={signup}
-            disabled={isPending}
             className="
               mt-4 w-full
               bg-[#2563eb] hover:bg-[#1d4ed8]
@@ -92,7 +88,7 @@ export default function Login(){
               shadow-sm
             "
           >
-            {isPending ? 'Signing up…' : 'Sign Up'}
+            Sign Up
           </button>
         </form>
       </section>
