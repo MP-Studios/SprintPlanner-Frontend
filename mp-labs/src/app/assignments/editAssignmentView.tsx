@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 
-
 type Assignment = {
     className: string;
     name: string;
