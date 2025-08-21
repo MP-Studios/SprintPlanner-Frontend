@@ -15,16 +15,106 @@ export default function NavBar() {
   }
 
   return (
-    <nav style={{ display: "flex", gap: "1rem", padding: "0.5rem", background: "#f0b040f0" }}>
-      <Link href="/">Home</Link>
-      <Link href="/about">About</Link>
-      <Link href="/settings" className="ml-auto">Settings</Link>
-      <div style={{ marginLeft: "auto", display: "flex", gap: "1rem" }}>
-        <Link href="/login">Login</Link>
-        {/*<Link href="/register">Register</Link>*/}
-        <button onClick={handleSignOut} style={{ background: "transparent", border: 0, cursor: "pointer" }}>
-          Sign Out
-        </button>
+    <nav style={{ display: "flex", gap: "1rem", padding: "0.5rem", backgroundColor: "var(--primary)", color: "white" }}>
+      <Link
+      href="/"
+      style={{
+        color: "inherit",
+        textDecoration: "none",
+        transition: "all 0.2s ease",
+      }}
+      onMouseOver={(e) => {
+        (e.target as HTMLElement).style.color = "var(--accent)";
+        (e.target as HTMLElement).style.transform = "scale(1.05)";
+      }}
+      onMouseOut={(e) => {
+        (e.target as HTMLElement).style.color = "inherit";
+        (e.target as HTMLElement).style.transform = "scale(1)";
+      }}
+    >
+      Home
+    </Link>
+
+    <Link
+      href="/about"
+      style={{
+        color: "inherit",
+        textDecoration: "none",
+        transition: "all 0.2s ease",
+      }}
+      onMouseOver={(e) => {
+        (e.target as HTMLElement).style.color = "var(--accent)";
+        (e.target as HTMLElement).style.transform = "scale(1.05)";
+      }}
+      onMouseOut={(e) => {
+        (e.target as HTMLElement).style.color = "inherit";
+        (e.target as HTMLElement).style.transform = "scale(1)";
+      }}
+    >
+      About
+    </Link>
+
+    <Link
+      href="/settings"
+      style={{
+        marginLeft: "auto",
+        color: "inherit",
+        textDecoration: "none",
+        transition: "all 0.2s ease",
+      }}
+      onMouseOver={(e) => {
+        (e.target as HTMLElement).style.color = "var(--accent)";
+        (e.target as HTMLElement).style.transform = "scale(1.05)";
+      }}
+      onMouseOut={(e) => {
+        (e.target as HTMLElement).style.color = "inherit";
+        (e.target as HTMLElement).style.transform = "scale(1)";
+      }}
+    >
+      Settings
+    </Link>
+
+    <div style={{ marginLeft: "auto", display: "flex", gap: "1rem" }}>
+      <Link
+        href="/login"
+        style={{
+          color: "inherit",
+          textDecoration: "none",
+          transition: "all 0.2s ease",
+        }}
+        onMouseOver={(e) => {
+          (e.target as HTMLElement).style.color = "var(--accent)";
+          (e.target as HTMLElement).style.transform = "scale(1.05)";
+        }}
+        onMouseOut={(e) => {
+          (e.target as HTMLElement).style.color = "inherit";
+          (e.target as HTMLElement).style.transform = "scale(1)";
+        }}
+      >
+        Login
+      </Link>
+
+      <button
+        onClick={handleSignOut}
+        style={{
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          font: "inherit",
+          color: "inherit",
+          transition: "all 0.2s ease",
+        }}
+        onMouseOver={(e) => {
+          (e.target as HTMLElement).style.color = "var(--accent)";
+          (e.target as HTMLElement).style.transform = "scale(1.05)";
+        }}
+        onMouseOut={(e) => {
+          (e.target as HTMLElement).style.color = "inherit";
+          (e.target as HTMLElement).style.transform = "scale(1)";
+        }}
+      >
+        Sign Out
+      </button>
       </div>
     </nav>
   );
