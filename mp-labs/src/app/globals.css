@@ -1,34 +1,91 @@
 @import "tailwindcss";
 
+/* Base light theme */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --background: #f8fafc;
+  /* very light neutral background */
+  --foreground: #1e293b;
+  /* dark text */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --surface: #f1f5f9;
+  /* << updated! not white */
+  --border: #e2e8f0;
+  /* subtle divider */
+  --muted: #64748b;
+  /* labels, secondary text */
+
+  --primary: #2563eb;
+  /* SaaS blue */
+  --primary-hover: #1d4ed8;
+  --focus: #93c5fd;
+  --error: #ef4444;
+
+  /* NEW */
+  --text-on-primary: #ffffff;
+  /* button text on primary */
+  --text-on-surface: #1e293b;
+  /* text on cards/panels */
+
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+/* Optional dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #f3eaea;
+    --background: #0b1220;
+    --foreground: #e2e8f0;
+
+    --surface: #0f172a;
+    --border: #1f2937;
+    --muted: #94a3b8;
+
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --focus: #60a5fa;
+    --error: #f87171;
+
+    /* NEW */
+    --text-on-primary: #ffffff;
+    /* keep white for contrast */
+    --text-on-surface: #e2e8f0;
+    /* light text on dark surfaces */
   }
 }
 
+
+/* Tailwind theme mapping */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-focus: var(--focus);
+  --color-error: var(--error);
+  --color-text-on-primary: var(--text-on-primary);
+  --color-text-on-surface: var(--text-on-surface);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Global defaults */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
 }
+
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
 }
+
 
 
 
@@ -48,7 +105,7 @@ body {
 }
 
 .calendar-header {
-  width:100%;
+  width: 100%;
   background: #8089FE;
   display: flex;
   justify-content: space-between;
