@@ -343,3 +343,97 @@ body {
     opacity: 1;
   }
 }
+
+.collection input {
+  display: none;
+}
+.collection input + div {
+  position: relative;
+  width: 24px;
+  height: 36px;
+  border-radius: 3px;
+  border: 2px solid #212533;
+  margin: 0 0 0 8px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+.collection input + div:before, 
+.collection input + div:after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 2px;
+  border-radius: 2px;
+  background: #212533;
+  right: 100%;
+  transition: all 0.4s ease, background 0.2s ease;
+}
+.collection input + div:before {
+  transform: translate(-4px, 0);
+  top: 4px;
+  bottom: 4px;
+}
+.collection input + div:after {
+  transform: translate(-8px, 0);
+  top: 8px;
+  bottom: 8px;
+}
+.collection input + div span {
+  display: block;
+  left: 50%;
+  top: 50%;
+  position: absolute;
+  transition: transform 0.4s ease;
+}
+.collection input + div span:before, 
+.collection input + div span:after {
+  content: "";
+  display: block;
+  position: absolute;
+  border-radius: 2px;
+  background: #212533;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: background 0.2s ease;
+}
+.collection input + div span:before {
+  width: 10px;
+  height: 2px;
+}
+.collection input + div span:after {
+  height: 10px;
+  width: 2px;
+}
+.collection input:checked + div {
+  height: 24px;
+  margin: 6px 4px;
+  background: #212533;
+}
+.collection input:checked + div:before, 
+.collection input:checked + div:after {
+  transform: translate(2px, 0);
+  opacity: 0;
+}
+.collection input:checked + div span {
+  transform: rotate(-225deg);
+}
+.collection input:checked + div span:before, 
+.collection input:checked + div span:after {
+  background: #fff;
+}
+
+body .dribbble {
+  position: static;
+  display: block;
+  opacity: 0.5;
+  transition: all 0.4s ease;
+}
+
+.dribbble:hover {
+  opacity: 1;
+}
+.dribbble img {
+  display: block;
+  height: 36px;
+}
