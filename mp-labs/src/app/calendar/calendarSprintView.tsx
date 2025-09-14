@@ -18,15 +18,7 @@ export default function Calendar(){
     const [error, setError] = useState<string | null>(null);
     const [editOpen, setEditOpen] = useState(false);
     const [currentAssignment, setCurrentAssignment] = useState<Assignment | null>(null);
-    const daysToIndex = {
-        Sun: 1,
-        Mon: 2,
-        Tue: 3,
-        Wed: 4,
-        Thu: 5,
-        Fri: 6,
-        Sat: 7,
-    };
+    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const [doneSet, setDoneSet] = useState<Set<number>>(new Set());
 
   const markAsDone = (index: number) => {
@@ -75,49 +67,81 @@ export default function Calendar(){
     }
     return(
     <div>
+      {error && <p className="text-red-500 mb-2">{error}</p>}
 
+      {/* Weekday labels */}
       <div className="calendar-week-days grid grid-cols-7 font-medium mb-2 text-gray-700">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-          <div key={d} className="flex items-left">{d}</div>
+        {daysOfWeek.map((d) => (
+          <div key={d} className="flex justify-center">
+            {d}
+          </div>
         ))}
       </div>
-       <div className="grid grid-cols-7 gap-2">
-                {assignments.map((a, i) => {
-                    const date = new Date(a.dueDate).getDay();
-                    const isDone = doneSet.has(i);
-                    return(
-                    <div
-                        key={i}
-                        className={`border p-4 rounded-sm ${isDone ? "bg-green-200" : "bg-blue-200"}  text-left`}
-                        style={{
-                            gridColumnStart:1,
-                            gridColumnEnd:date + 2,
-                           
-                        }}>
-                        <div
-                        className={`button-edit border p-4 rounded-sm text-left ${isDone ? "bg-green-200" : "bg-blue-200"}`}
-                        ><button
-                        onClick={() => {
-                          markAsDone(i);
-                          // setEditOpen(true);
-                          // setCurrentAssignment(a);
-                        }}
-                        >Mark as Done</button></div>
-                        <div><strong>Class:</strong> {a.className}</div>
-                        <div><strong>Name:</strong> {a.name}</div>
-                        {/* <div><strong>Due:</strong> {a.dueDate}</div> */}
-                        <div><strong>Details:</strong> {a.taskDetails}</div>
-                      {editOpen && currentAssignment && (
-                  <EditPage
-                  assignment={currentAssignment}
-                  onClose={()=> setEditOpen(false)}
-                  />
-                )}
-                </div>
-                );
-                })}
-            </div>
-        </div>
 
+      {/* Day columns */}
+      <div className="days grid grid-cols-7 border-t border-gray-300 h-150">
+        {daysOfWeek.map((day, index) => {
+          const dayAssignments = assignments.filter(
+            (a) => new Date(a.dueDate).getDay() === index
+          );
+
+          return (
+            <div
+              key={day}
+              className={`border-r border-gray-300 flex flex-col items-start p-2 ${
+                index === 6 ? "border-r-0" : ""
+              }`}
+            >
+              {dayAssignments.map((a, i) => {
+                const isDone = doneSet.has(i);
+                return (
+                  <div
+                    key={i}
+                    className={`border p-2 rounded-sm w-full ${
+                      isDone ? "bg-green-200" : "bg-blue-200"
+                    } mb-2`}
+                  >
+                    <div className="flex justify-between items-center mb-1">
+                      <button
+                        onClick={() => markAsDone(i)}
+                        className="bg-gray-300 px-2 py-1 rounded text-sm"
+                      >
+                        {isDone ? "Undo" : "Mark as Done"}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCurrentAssignment(a);
+                          setEditOpen(true);
+                        }}
+                        className="bg-yellow-300 px-2 py-1 rounded text-sm ml-2"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                    <div>
+                      <strong>Class:</strong> {a.className}
+                    </div>
+                    <div>
+                      <strong>Name:</strong> {a.name}
+                    </div>
+                    <div>
+                      <strong>Details:</strong> {a.taskDetails}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Edit modal */}
+      {editOpen && currentAssignment && (
+        <EditPage
+          assignment={currentAssignment}
+          onClose={() => setEditOpen(false)}
+        />
+      )}
+    </div>
     )
 }

@@ -82,7 +82,10 @@ body {
   grid-template-columns: repeat(7, 1fr);
   font-weight: 600;
   cursor: pointer;
-  color: rgb(104, 104, 104);
+}
+
+.days {
+  border-width:2px !important;
 }
 
 /* .calendar-week-days div:hover {
