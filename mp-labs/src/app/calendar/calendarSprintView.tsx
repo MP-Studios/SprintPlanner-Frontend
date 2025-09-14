@@ -20,6 +20,9 @@ export default function Calendar(){
     const [currentAssignment, setCurrentAssignment] = useState<Assignment | null>(null);
     const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const [doneSet, setDoneSet] = useState<Set<number>>(new Set());
+    const [weekdayModalOpen, setWeekdayModalOpen] = useState(false);
+    const [selectedWeekday, setSelectedWeekday] = useState<string | null>(null);
+
 
   const markAsDone = (index: number) => {
   setDoneSet((prev) => {
@@ -71,11 +74,21 @@ export default function Calendar(){
 
       {/* Weekday labels */}
       <div className="calendar-week-days grid grid-cols-7 font-medium mb-2 text-gray-700">
-        {daysOfWeek.map((d) => (
-          <div key={d} className="flex justify-center">
-            {d}
-          </div>
-        ))}
+        {daysOfWeek.map((d, index) => {
+          const fullNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+          return (
+            <button
+              key={d}
+              onClick={() => {
+                setSelectedWeekday(fullNames[index]); // store the full day name
+                setWeekdayModalOpen(true);            // open the modal
+              }}
+              className="flex justify-center p-2 rounded"
+            >
+              {d}
+            </button>
+          );
+          })}
       </div>
 
       {/* Day columns */}
@@ -142,6 +155,34 @@ export default function Calendar(){
           onClose={() => setEditOpen(false)}
         />
       )}
+
+      {weekdayModalOpen && selectedWeekday && (
+      <div className="fixed inset-0 flex justify-center items-center z-50">
+        <div className="bg-black rounded shadow-lg w-100 h-40 flex flex-col">
+          {/* Header */}
+          <h2 className="text-lg font-bold p-6 pb-2 text-center w-full">{selectedWeekday} Details</h2>
+      
+          {/* Scrollable content */}
+          <div className="flex-grow overflow-y-auto px-6 text-center">
+            <p>
+              Here you can add content specific to {selectedWeekday}.
+            </p>
+          </div>
+      
+          {/* Footer with Close button pinned bottom-right */}
+          <div className="p-4 flex justify-end border-t border-gray-700">
+            <button
+              onClick={() => setWeekdayModalOpen(false)}
+              className="bg-white text-blue-300 px-4 py-2 rounded"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    
+    )}
+
     </div>
     )
 }
