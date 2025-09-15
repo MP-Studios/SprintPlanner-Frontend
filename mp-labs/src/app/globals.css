@@ -30,7 +30,6 @@ body {
   box-sizing: border-box;
 }
 
-
 .button-edit {
   display: flex;
   grid-template-columns: repeat(7, 1fr);
@@ -38,6 +37,7 @@ body {
   cursor: pointer;
   color: Black;
 }
+
 .button-edit div{
   display: flex;
   place-items: left;
@@ -45,12 +45,10 @@ body {
   height: 50px;
 }
 
-
 .calendar {
   height: 100vh;
   width: 100%;
   background-color: #c5e7f5;
-  /* border-radi/us: 100px; */
   overflow: hidden;
   padding: 35px 50px 0px 50px;
   margin-left: auto;
@@ -81,21 +79,24 @@ body {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   font-weight: 600;
-  cursor: pointer;
-  color: rgb(104, 104, 104);
 }
 
-/* .calendar-week-days div:hover {
+.days {
+  border-width:2px !important;
+}
+
+.calendar-week-days button:hover {
   color: black;
   transform: scale(1.2);
   transition: all .2s ease-in-out;
-} */
+}
 
-.calendar-week-days div {
+.calendar-week-days button {
   display: grid;
   place-items: center;
   color: #6D67CF;
   height: 50px;
+  cursor: pointer;
 }
 
 .calendar-days {

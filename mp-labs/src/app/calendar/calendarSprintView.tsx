@@ -18,16 +18,11 @@ export default function Calendar(){
     const [error, setError] = useState<string | null>(null);
     const [editOpen, setEditOpen] = useState(false);
     const [currentAssignment, setCurrentAssignment] = useState<Assignment | null>(null);
-    const daysToIndex = {
-        Sun: 1,
-        Mon: 2,
-        Tue: 3,
-        Wed: 4,
-        Thu: 5,
-        Fri: 6,
-        Sat: 7,
-    };
+    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const [doneSet, setDoneSet] = useState<Set<number>>(new Set());
+    const [weekdayModalOpen, setWeekdayModalOpen] = useState(false);
+    const [selectedWeekday, setSelectedWeekday] = useState<string | null>(null);
+
 
   const markAsDone = (index: number) => {
   setDoneSet((prev) => {
@@ -75,49 +70,119 @@ export default function Calendar(){
     }
     return(
     <div>
+      {error && <p className="text-red-500 mb-2">{error}</p>}
 
+      {/* Weekday labels */}
       <div className="calendar-week-days grid grid-cols-7 font-medium mb-2 text-gray-700">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-          <div key={d} className="flex items-left">{d}</div>
-        ))}
+        {daysOfWeek.map((d, index) => {
+          const fullNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+          return (
+            <button
+              key={d}
+              onClick={() => {
+                setSelectedWeekday(fullNames[index]); // store the full day name
+                setWeekdayModalOpen(true);            // open the modal
+              }}
+              className="flex justify-center p-2 rounded"
+            >
+              {d}
+            </button>
+          );
+          })}
       </div>
-       <div className="grid grid-cols-7 gap-2">
-                {assignments.map((a, i) => {
-                    const date = new Date(a.dueDate).getDay();
-                    const isDone = doneSet.has(i);
-                    return(
-                    <div
-                        key={i}
-                        className={`border p-4 rounded-sm ${isDone ? "bg-green-200" : "bg-blue-200"}  text-left`}
-                        style={{
-                            gridColumnStart:1,
-                            gridColumnEnd:date + 2,
-                           
-                        }}>
-                        <div
-                        className={`button-edit border p-4 rounded-sm text-left ${isDone ? "bg-green-200" : "bg-blue-200"}`}
-                        ><button
-                        onClick={() => {
-                          markAsDone(i);
-                          // setEditOpen(true);
-                          // setCurrentAssignment(a);
-                        }}
-                        >Mark as Done</button></div>
-                        <div><strong>Class:</strong> {a.className}</div>
-                        <div><strong>Name:</strong> {a.name}</div>
-                        {/* <div><strong>Due:</strong> {a.dueDate}</div> */}
-                        <div><strong>Details:</strong> {a.taskDetails}</div>
-                      {editOpen && currentAssignment && (
-                  <EditPage
-                  assignment={currentAssignment}
-                  onClose={()=> setEditOpen(false)}
-                  />
-                )}
-                </div>
-                );
-                })}
-            </div>
-        </div>
 
+      {/* Day columns */}
+      <div className="days grid grid-cols-7 border-t border-gray-300 h-150">
+        {daysOfWeek.map((day, index) => {
+          const dayAssignments = assignments.filter(
+            (a) => new Date(a.dueDate).getDay() === index
+          );
+
+          return (
+            <div
+              key={day}
+              className={`border-r border-gray-300 flex flex-col items-start p-2 ${
+                index === 6 ? "border-r-0" : ""
+              }`}
+            >
+              {dayAssignments.map((a, i) => {
+                const isDone = doneSet.has(i);
+                return (
+                  <div
+                    key={i}
+                    className={`border p-2 rounded-sm w-full ${
+                      isDone ? "bg-green-200" : "bg-blue-200"
+                    } mb-2`}
+                  >
+                    <div className="flex justify-between items-center mb-1">
+                      <button
+                        onClick={() => markAsDone(i)}
+                        className="bg-gray-300 px-2 py-1 rounded text-sm"
+                      >
+                        {isDone ? "Undo" : "Mark as Done"}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCurrentAssignment(a);
+                          setEditOpen(true);
+                        }}
+                        className="bg-yellow-300 px-2 py-1 rounded text-sm ml-2"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                    <div>
+                      <strong>Class:</strong> {a.className}
+                    </div>
+                    <div>
+                      <strong>Name:</strong> {a.name}
+                    </div>
+                    <div>
+                      <strong>Details:</strong> {a.taskDetails}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Edit modal */}
+      {editOpen && currentAssignment && (
+        <EditPage
+          assignment={currentAssignment}
+          onClose={() => setEditOpen(false)}
+        />
+      )}
+
+      {weekdayModalOpen && selectedWeekday && (
+      <div className="fixed inset-0 flex justify-center items-center z-50">
+        <div className="bg-black rounded shadow-lg w-100 h-40 flex flex-col">
+          {/* Header */}
+          <h2 className="text-lg font-bold p-6 pb-2 text-center w-full">{selectedWeekday} Details</h2>
+      
+          {/* Scrollable content */}
+          <div className="flex-grow overflow-y-auto px-6 text-center">
+            <p>
+              Here you can add content specific to {selectedWeekday}.
+            </p>
+          </div>
+      
+          {/* Footer with Close button pinned bottom-right */}
+          <div className="p-4 flex justify-end border-t border-gray-700">
+            <button
+              onClick={() => setWeekdayModalOpen(false)}
+              className="bg-white text-blue-300 px-4 py-2 rounded"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    
+    )}
+
+    </div>
     )
 }
