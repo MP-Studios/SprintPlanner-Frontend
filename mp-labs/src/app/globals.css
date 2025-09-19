@@ -503,7 +503,7 @@ body .dribbble {
 .next-week-details:hover .next-week-arrow{
   border: 3px solid #000000;
   right: -25%;
-=======
+}
 .navbar {
   display: flex;
   gap: 1rem;
