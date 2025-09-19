@@ -439,6 +439,71 @@ body .dribbble {
   height: 36px;
 }
 
+.next-week-link{
+  position: fixed;
+  top: 93%;
+  left: 89%;
+  transform: translate(-50%, -50%);
+}
+
+.next-week-details{
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 250px;
+  height: 50px;
+  line-height: 50px;
+  font-weight: bold;
+  text-decoration: none;
+  background: #000000;
+  text-align: center;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 3px solid hsl(0, 0%, 100%);
+  transition: all .35s;
+  cursor: pointer;
+}
+
+.next-week-details a{
+  z-index: 1;
+  pointer-events: none;
+}
+
+.next-week-arrow{
+  width: 50px;
+  height: 50px;
+  border: 3px solid transparent;
+  position: absolute;
+  transform: rotate(45deg);
+  right: 0;
+  top: 0;
+  z-index: 0;
+  transition: all .35s;
+}
+
+.next-week-arrow svg{
+  width: 30px;
+  position: absolute;
+  top: calc(50% - 15px);
+  left: calc(50% - 15px);
+  transform: rotate(-45deg);
+  fill: #000000;
+  transition: all .35s;
+}
+
+.next-week-details:hover{
+  width: 200px;
+  border: 3px solid #000000;
+  background: transparent;
+  color: #000000;
+}
+
+.next-week-details:hover .next-week-arrow{
+  border: 3px solid #000000;
+  right: -25%;
+=======
 .navbar {
   display: flex;
   gap: 1rem;
