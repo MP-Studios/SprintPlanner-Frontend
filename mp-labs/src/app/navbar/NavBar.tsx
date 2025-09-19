@@ -2,29 +2,77 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 export default function NavBar() {
   const router = useRouter();
   const supabase = createClient();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   async function handleSignOut() {
-    await supabase.auth.signOut();      // default = global
-    router.refresh();                   // re-render any server comps
-    router.push("/login");              // send user to login
+    await supabase.auth.signOut();      
+    router.refresh();                   
+    router.push("/login");              
+    setIsDropdownOpen(false);           
   }
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const closeDropdown = () => {
+    setIsDropdownOpen(false);
+  };
+
   return (
-    <nav style={{ display: "flex", gap: "1rem", padding: "0.5rem", background: "#f0b040f0" }}>
+    <nav className="navbar">
       <Link href="/">Home</Link>
-      <Link href="/about">About</Link>
-      <Link href="/settings" className="ml-auto">Settings</Link>
-      <div style={{ marginLeft: "auto", display: "flex", gap: "1rem" }}>
+      <Link href="/timer">Timer</Link>
+      <div className="navbar-right">
         <Link href="/login">Login</Link>
-        {/*<Link href="/register">Register</Link>*/}
-        <button onClick={handleSignOut} style={{ background: "transparent", border: 0, cursor: "pointer" }}>
-          Sign Out
-        </button>
+        <span className="greeting">Hi Lina!</span>
+        <div className="dropdown-container">
+          <button 
+            onClick={toggleDropdown}
+            className="avatar-button"
+            style={{ backgroundColor: '#FFB6C1' }}
+          >
+            LH
+          </button>
+
+          {isDropdownOpen && (
+            <>
+              <div 
+                className="dropdown-overlay"
+                onClick={closeDropdown}
+              />
+              
+              <div className="dropdown-menu">
+                <Link 
+                  href="/settings" 
+                  onClick={closeDropdown}
+                  className="dropdown-item"
+                >
+                  Settings
+                </Link>
+                <Link 
+                  href="/stats" 
+                  onClick={closeDropdown}
+                  className="dropdown-item"
+                >
+                  Stats
+                </Link>
+                <button 
+                  onClick={handleSignOut}
+                  className="dropdown-item dropdown-button"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   );
