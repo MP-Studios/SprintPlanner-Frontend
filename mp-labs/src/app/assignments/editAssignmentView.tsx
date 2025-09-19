@@ -37,7 +37,7 @@ export default function EditAssignments() {
                         <div><strong>Class:</strong> {a.className}</div>
                         <div><strong>Name:</strong> {a.name}</div>
                         <div><strong>Due:</strong> {a.dueDate}</div>
-                        <div><strong>Details:</strong> {a.taskDetails}</div>
+                        <div><strong>Details=:</strong> {a.taskDetails}</div>
                     </li>
                 ))}
             </ul>

@@ -439,14 +439,14 @@ body .dribbble {
   height: 36px;
 }
 
-.wrapper{
+.next-week-link{
   position: fixed;
   top: 93%;
   left: 89%;
   transform: translate(-50%, -50%);
 }
 
-.link_wrapper{
+.next-week-details{
   position: relative;
   display: flex;
   align-items: center;
@@ -458,20 +458,20 @@ body .dribbble {
   text-decoration: none;
   background: #000000;
   text-align: center;
-  color: #fff;
+  color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 1px;
-  border: 3px solid #ffffff;
+  border: 3px solid hsl(0, 0%, 100%);
   transition: all .35s;
   cursor: pointer;
 }
 
-.link_wrapper a{
+.next-week-details a{
   z-index: 1;
   pointer-events: none;
 }
 
-.icon{
+.next-week-arrow{
   width: 50px;
   height: 50px;
   border: 3px solid transparent;
@@ -483,7 +483,7 @@ body .dribbble {
   transition: all .35s;
 }
 
-.icon svg{
+.next-week-arrow svg{
   width: 30px;
   position: absolute;
   top: calc(50% - 15px);
@@ -493,14 +493,14 @@ body .dribbble {
   transition: all .35s;
 }
 
-.link_wrapper:hover{
+.next-week-details:hover{
   width: 200px;
   border: 3px solid #000000;
   background: transparent;
   color: #000000;
 }
 
-.link_wrapper:hover .icon{
+.next-week-details:hover .next-week-arrow{
   border: 3px solid #000000;
   right: -25%;
 }

@@ -2,6 +2,9 @@
 import { useState } from "react"
 import AssignmentsPage from "./assignment"
 import EditAssignments from "./editAssignmentView"
+import { FC, ReactNode } from "react";
+import { Modal } from "react-bootstrap";
+import Draggable from "react-draggable";
 
 export default function AssignmentContainer() {
     const [showAlternativeView, setShowAlternativeView] = useState(false);
@@ -26,4 +29,6 @@ export default function AssignmentContainer() {
             </div>
         </div>
     );
+
+    
 }
