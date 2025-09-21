@@ -280,9 +280,9 @@ body {
 .assignment {
   height: 100vh;
   width: auto;
-  background-color: #ffffff;
+  background-color: #c6cccb;
   overflow: hidden;
-  padding: 20px 10px 10px 20px;
+  padding: 20px 10px 10px 20;
 }
 
 @keyframes to-top {
