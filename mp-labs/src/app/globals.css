@@ -94,7 +94,7 @@ body {
 .calendar-week-days button {
   display: grid;
   place-items: center;
-  color: #6D67CF;
+  color: #3a554c;
   height: 50px;
   cursor: pointer;
 }
@@ -169,11 +169,11 @@ body {
   color: #f8fbff;
 }
 
-.calendar-days div.current-date {
+/* .calendar-days div.current-date {
   color: #f8fbff;
-  background-color: #9796f0;
+  background-color: #e9f8eb;
   border-radius: 20%;
-}
+} */
 
 .month-list {
   position: relative;
@@ -280,7 +280,7 @@ body {
 .assignment {
   height: 100vh;
   width: auto;
-  background-color: #c6cccb;
+  background-color: #e9f8eb;
   overflow: hidden;
   padding: 20px 10px 10px 20px;
 }
@@ -456,12 +456,12 @@ body .dribbble {
   line-height: 50px;
   font-weight: bold;
   text-decoration: none;
-  background: #000000;
+  background: transparent;
   text-align: center;
-  color: #ffffff;
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 1px;
-  border: 3px solid hsl(0, 0%, 100%);
+  border: 3px solid hsl(0, 0%, 0%);
   transition: all .35s;
   cursor: pointer;
 }
@@ -496,7 +496,7 @@ body .dribbble {
 .next-week-details:hover{
   width: 200px;
   border: 3px solid #000000;
-  background: transparent;
+  background: #a2c9b8;
   color: #000000;
 }
 
@@ -508,7 +508,7 @@ body .dribbble {
   display: flex;
   gap: 1rem;
   padding: 0.5rem;
-  background: #bdd1cc;
+  background: #a2c9b8;
   position: relative;
   align-items: center;
 }
