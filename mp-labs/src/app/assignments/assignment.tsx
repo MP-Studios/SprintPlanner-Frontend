@@ -141,7 +141,7 @@ export default function AssignmentsPage() {
 
         <button
           type="submit"
-          className="w-[20%] self-end block mb-1 bg-blue-500 text-white rounded hover:bg-blue-600 flex-center"
+          className="globalButton w-[20%] self-end block mb-1 bg-blue-500 text-white rounded hover:bg-blue-600 flex-center"
         >
           Submit
         </button>
