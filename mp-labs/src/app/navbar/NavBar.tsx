@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import Image from "next/image";
 
 export default function NavBar() {
   const router = useRouter();
@@ -27,7 +28,11 @@ export default function NavBar() {
 
   return (
     <nav className="navbar">
-      <Link href="/">Home</Link>
+      {/* <Link href="/">Home</Link> */}
+      <Link href="/" className="flex items-center gap-2">
+          <Image src="/favicon.ico" alt="Home" width={20} height={20} />
+       {/* <span>Home</span> */}
+      </Link>
       <Link href="/timer">Timer</Link>
       <div className="navbar-right">
         <Link href="/login">Login</Link>
@@ -38,7 +43,7 @@ export default function NavBar() {
             className="avatar-button"
             style={{ backgroundColor: '#FFB6C1' }}
           >
-            LH
+            MW
           </button>
 
           {isDropdownOpen && (
