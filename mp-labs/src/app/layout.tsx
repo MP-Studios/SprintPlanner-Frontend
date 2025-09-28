@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sprint-Planner",
+  title: "Planlli",
   description: "Organize your Homework",
 };
 
