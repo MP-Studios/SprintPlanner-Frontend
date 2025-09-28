@@ -15,7 +15,7 @@ export default function NavBar() {
   }
 
   return (
-    <nav style={{ display: "flex", gap: "1rem", padding: "0.5rem", background: "#f0b040f0" }}>
+    <nav style={{ display: "flex", gap: "1rem", padding: "0.5rem", background: "#abd2fa" }}>
       <Link href="/">Home</Link>
       <Link href="/about">About</Link>
       <Link href="/settings" className="ml-auto">Settings</Link>
