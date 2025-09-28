@@ -1,6 +1,7 @@
 "use-client"
 
 import { useEffect, useState } from "react";
+import { getSprintAssignments } from "../auth/confirm/apiConstant";
 type Assignment = {
   className: string;
   name: string;
@@ -13,7 +14,7 @@ type EditPageProps = {
   onClose: () => void;
 };
 
-export default function Calendar(){
+export default function Calendar({ data }: {data: any}){
     const [assignments, setAssignments] = useState<Assignment[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [editOpen, setEditOpen] = useState(false);
@@ -41,7 +42,7 @@ export default function Calendar(){
   });
 };
      useEffect(() => {
-            fetch('http://localhost:8080/api/assignments')
+            fetch(getSprintAssignments)
               .then((res) => {
                 if (!res.ok) throw new Error('Failed to fetch assignments');
                 return res.json();

@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
-
 type Assignment = {
     className: string;
     name: string;
@@ -13,7 +12,7 @@ export default function EditAssignments() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetch('http://localhost:8080/api/backlog') //api gateway?
+        fetch('http://localhost:8080')
           .then((res) => {
             if (!res.ok) throw new Error('Failed to fetch assignments');
             return res.json();

@@ -1,36 +1,24 @@
-'use client';
-import { useState, useEffect } from "react";
+"use client";
+import { useState } from "react";
+
 type Assignment = {
   className: string;
   name: string;
   dueDate: string;
   taskDetails: string;
 };
+type DailyAssignmentViewProps = {
+  data: Assignment[];
+};
 
 
-export default function DailyCalendar() {
+export default function DailyCalendar({ data }: DailyAssignmentViewProps) {
     const [time, setTime] = useState(new Date());
-    const [error, setError] = useState<string | null>(null);
-    const [data, setAssignments] = useState<Assignment[]>([]);
+    // const [error, setError] = useState<string | null>(null);
+    // const [info, setAssignments] = useState<Assignment[]>([]);
+  
 
-  useEffect(() => {
-    fetchDaily();
-  }, []);
-
-
-  const fetchDaily = async () => {
-    try {
-      const res = await fetch('http://localhost:8080/api/assignments/daily');
-      if (!res.ok) throw new Error('Build out the API call monkey');
-      const data = await res.json();
-      setAssignments(data);
-    } catch (err) {
-      console.error(err);
-      setError('time to build that API you goober');
-    }
-  };
     return(
-        
          <div>
          <div className="day-text-formate text-sm font-semibold text-gray-600">TODAY</div>
         <div className="date-time-value text-lg font-semibold">

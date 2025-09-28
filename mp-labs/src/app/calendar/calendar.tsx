@@ -2,11 +2,6 @@
 import { useState, useEffect } from "react";
 import DailyCalendar from "./dailyAssignmentView";
 import Daily from "../favicon.ico";
-// import { createClient } from '@supabase/supabase-js'
-
-// // Create a single supabase client for interacting with your database
-// const supabase = createClient('https://xyzcompany.supabase.co', 'public-anon-key')
-
 
 const monthNames = [
   "January", "February", "March", "April", "May", "June",
@@ -138,32 +133,8 @@ export default function Calendar() {
         )}
       </div>
 
-      {/* <div className="date-time-formate mt-6 text-center space-y-2">
-        {showAlternativeView ? <AlternateView /> : <DefaultView />}
-        <button
-        onClick={() => setShowAlternativeView(!showAlternativeView)}
-        className="bg-#c5e7f5 text-black px-4 py-2 rounded hover:bg-blue-600"
-      >
-        {showAlternativeView ? (
-         <img src={"../favicon.ico"} alt="Alt icon" width={24} height={24} />
-        ) : (
-          <img src={"../favicon.ico"} alt="Default icon" width={24} height={24} />
-            )}
-      </button>
-        
-       
-      </div> */}
     </div>
 
 
   );
-}
-
-
-function DefaultView(){
-  return <p></p>
-}
-
-function AlternateView(){
-  return  <DailyCalendar /> //</div>
 }

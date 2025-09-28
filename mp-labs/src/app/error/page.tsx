@@ -1,5 +1,5 @@
 'use client'
 
 export default function ErrorPage() {
-  return <p>Sorry, something went wrong</p>
+  return <p>A random solar flare hit your PC and bricked everything... please try again later</p>
 }

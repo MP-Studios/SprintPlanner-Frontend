@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 import EditAssignments from './editAssignmentView';
+import FetchCurrentSprint from '../fetchLogic/fetchSprint';
+import fetchBacklog from "../fetchLogic/fetchBacklog";
 
 type Assignment = {
   className: string;
@@ -21,21 +23,9 @@ export default function AssignmentsPage() {
   });
   
   useEffect(() => {
-    fetchAssignments();
+    fetchBacklog();
   }, []);
 
-
-  const fetchAssignments = async () => {
-    try {
-      const res = await fetch('http://localhost:8080/api/backlog');
-      if (!res.ok) throw new Error('Failed to fetch');
-      const data = await res.json();
-      setAssignments(data);
-    } catch (err) {
-      console.error(err);
-      setError('Error fetching assignments');
-    }
-  };
   
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,16 +42,13 @@ export default function AssignmentsPage() {
     }
 
     try {
-      const res = await fetch('http://localhost:8080/api/add-assignment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
+      const res = await fetchSaveAssignment(form);
+      
       if (!res.ok) throw new Error('Failed to save'); // Make this a seperate View
       // reset form
       setForm({ className: '', name: '', dueDate: '' , taskDetails: ''});
       // re-fetch the list
-      fetchAssignments();
+      fetchSprint();
     } catch (err) {
       console.error(err);
       alert('Error saving assignment');
