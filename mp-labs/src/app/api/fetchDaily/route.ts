@@ -1,9 +1,10 @@
-import {getDailyAssignments}  from "../auth/confirm/apiConstant"
+import {getDailyAssignments}  from "../apiConstant"
+import { NextResponse } from "next/server";
 type Assignment = {
-  className: string;
+  // className: string;
   name: string;
-  dueDate: string;
-  taskDetails: string;
+  due_date: string;
+  details: string;
 };
 
 
@@ -12,5 +13,5 @@ export default async function fetchDaily()  {
     if (!response.ok) throw Error("Failed to Retreive Daily Assignments.");
     
     const data : Assignment[] = await response.json();
-    return data;
+    return NextResponse.json(data);
 };

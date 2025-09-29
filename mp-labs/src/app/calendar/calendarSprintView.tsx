@@ -1,7 +1,7 @@
 "use-client"
 
 import { useEffect, useState } from "react";
-import { getSprintAssignments } from "../auth/confirm/apiConstant";
+import { getSprintAssignments } from "../api/apiConstant";
 type Assignment = {
   className: string;
   name: string;
@@ -14,7 +14,7 @@ type EditPageProps = {
   onClose: () => void;
 };
 
-export default function Calendar({ data }: {data: any}){
+export default function Calendar(){
     const [assignments, setAssignments] = useState<Assignment[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [editOpen, setEditOpen] = useState(false);
@@ -42,17 +42,21 @@ export default function Calendar({ data }: {data: any}){
   });
 };
      useEffect(() => {
-            fetch(getSprintAssignments)
-              .then((res) => {
-                if (!res.ok) throw new Error('Failed to fetch assignments');
-                return res.json();
-              })
-              .then(setAssignments)
-              .catch((err) => {
-                console.error(err);
-                setError('Could not load assignments');
-              });
-          }, []);
+          const loadAssignments = async () => {
+    try {
+      const res = await fetch("/api/fetchSprint");
+      if (!res.ok) throw new Error("Failed to fetch assignments");
+
+      const data: Assignment[] = await res.json();
+      setAssignments(data);
+    } catch (err) {
+      console.error(err);
+      setError("Could not load assignments");
+    }
+  };
+
+  loadAssignments();
+}, []);
     function EditPage({assignment, onClose}: EditPageProps){
    return (
     <div

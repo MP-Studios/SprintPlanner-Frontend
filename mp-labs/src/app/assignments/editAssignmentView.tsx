@@ -12,7 +12,7 @@ export default function EditAssignments() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetch('http://localhost:8080')
+        fetch('/api/fetchBacklog')
           .then((res) => {
             if (!res.ok) throw new Error('Failed to fetch assignments');
             return res.json();

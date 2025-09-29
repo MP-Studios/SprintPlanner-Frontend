@@ -2,9 +2,8 @@
 import { useState, useEffect  } from "react"
 import Calendar from "./calendarSprintView"
 import DailyAssignments from "./dailyAssignmentView"
-import fetchDaily  from "../fetchLogic/fetchDaily"
-import FetchCurrentSprint from "../fetchLogic/fetchSprint"
-import type Assignment  from "../fetchLogic/fetchDaily"
+import fetchDaily  from "../api/fetchDaily/route"
+import type Assignment  from "../api/fetchDaily/route"
 
 type Assignment = {
   className: string;
@@ -20,21 +19,28 @@ export default function AssignmentContainer() {
   const [sprintData, setSprintData] = useState<any[]>([]); 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      if (showAlternativeView) {
-        const sprint = await FetchCurrentSprint();
-        setSprintData(sprint);
-      } else {
-        const daily = await fetchDaily();
-        setDailyData(daily);
-      }
-      setLoading(false);
-    }
+  // useEffect(() => {
+  //   async function loadData() {
+  //     setLoading(true);
+  //     if (showAlternativeView) {
+  //       const sprint = await fetch("/api/fetchSprint/");
+  //      if (!sprint.ok) throw new Error("Failed to fetch backlog");
 
-    loadData();
-  }, [showAlternativeView]);
+  //       const data: Assignment[] = await sprint.json(); // <-- extract JSON
+  //       setSprintData(data);
+  //     } else {
+  //       const daily = await fetch("/api/fetchDaily/");
+  //       if(!daily.ok) throw new Error("Failed to fetch your daily assignments");
+  //       const data: Assignment[] = await daily.json();
+  //         setDailyData(data); 
+        
+       
+  //     }
+  //     setLoading(false);
+  //   }
+
+  //   loadData();
+  // }, [showAlternativeView]);
 
 
     return (
@@ -45,7 +51,7 @@ export default function AssignmentContainer() {
                 </button>
             </div>
             <div className="flex-grow mb-4">
-                {showAlternativeView ? <Calendar data={sprintData}/> : <DailyAssignments data={dailyData}/>}
+                {showAlternativeView ? <Calendar/> : <DailyAssignments/>}
             </div>
         </div>
     );

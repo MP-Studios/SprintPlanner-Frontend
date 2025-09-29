@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type Assignment = {
   className: string;
@@ -12,11 +12,30 @@ type DailyAssignmentViewProps = {
 };
 
 
-export default function DailyCalendar({ data }: DailyAssignmentViewProps) {
+
+export default function DailyCalendar() {
     const [time, setTime] = useState(new Date());
-    // const [error, setError] = useState<string | null>(null);
-    // const [info, setAssignments] = useState<Assignment[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    const [data, setAssignments] = useState<Assignment[]>([]);
   
+ async function loadData() {
+    try {
+      const res = await fetch("/api/fetchBacklog/");
+      const data = await res.json();
+      setAssignments(data);
+    } catch ( err) {
+      if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError("Unexpected error");
+  }
+    }
+  }
+  
+  useEffect(() => {
+  loadData();
+},[]);
+
 
     return(
          <div>
