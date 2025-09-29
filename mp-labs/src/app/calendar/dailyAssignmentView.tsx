@@ -1,5 +1,6 @@
-'use client';
+"use client";
 import { useState, useEffect } from "react";
+
 type Assignment = {
   className: string;
   name: string;
@@ -12,6 +13,25 @@ export default function DailyCalendar() {
     const [time, setTime] = useState(new Date());
     const [error, setError] = useState<string | null>(null);
     const [data, setAssignments] = useState<Assignment[]>([]);
+  
+ async function loadData() {
+    try {
+      const res = await fetch("/api/fetchBacklog/");
+      const data = await res.json();
+      setAssignments(data);
+    } catch ( err) {
+      if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError("Unexpected error");
+  }
+    }
+  }
+  
+  useEffect(() => {
+  loadData();
+},[]);
+
 
   useEffect(() => {
     fetchDaily();
