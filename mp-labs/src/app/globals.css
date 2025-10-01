@@ -690,3 +690,10 @@ html {
   margin-top: 40px;
   letter-spacing: 4px
 }
+
+.newAssignmentModal {
+  background-color: #a2c9b8;
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+}

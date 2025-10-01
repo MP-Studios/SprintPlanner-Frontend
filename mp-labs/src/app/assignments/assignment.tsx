@@ -76,10 +76,10 @@ export default function AssignmentsPage() {
   };
 
   return (
-    <div className="new-assignment p-8 overflow-hidden mx-auto rounded-2xl h-screen flex flex-col">
-    <form onSubmit={handleSubmit} className="mb-6 space-y-4 flex flex-col">
+    <div className="newAssignment p-40 overflow-hidden mx-auto rounded-2xl h-screen flex flex-col">
+    <form onSubmit={handleSubmit} className="p-6 space-y-4 flex flex-col">
       <div className="w-full">
-        <label className="block mb-1 font-medium text-black">
+        <label className="assignmentInfo p-6 text-lg font-medium text-black">
           Course Name
         </label>
         <input
@@ -88,13 +88,13 @@ export default function AssignmentsPage() {
           type="text"
           value={form.className}
           onChange={handleChange}
-          className="w-full border rounded px-3 py-2 placeholder-black"
+          className="w-full border rounded px-3 py-2"
           placeholder="Math 101"
         />
       </div>
 
       <div className="w-full">
-        <label className="block mb-1 font-medium text-black">
+        <label className="assignmentInfo p-6 text-lg font-medium text-black">
           Assignment
         </label>
         <input
@@ -103,13 +103,13 @@ export default function AssignmentsPage() {
           type="text"
           value={form.name}
           onChange={handleChange}
-          className="w-full border rounded px-3 py-2 placeholder-black"
+          className="w-full border rounded px-3 py-2"
           placeholder="Homework 1"
         />
       </div>
 
       <div className="w-full">
-        <label className="block mb-1 font-medium text-black">
+        <label className="assignmentInfo p-6 text-lg font-medium text-black">
           Due Date
         </label>
         <input
@@ -119,11 +119,12 @@ export default function AssignmentsPage() {
           value={form.dueDate}
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
+          placeholder="mm/dd/yyyy"
         />
       </div>
 
       <div className="w-full">
-        <label className="block mb-1 font-medium text-black">
+        <label className="assignmentInfo p-6 text-lg font-medium text-black ">
           Details
         </label>
         <input
@@ -133,12 +134,13 @@ export default function AssignmentsPage() {
           value={form.taskDetails}
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
+          placeholder= 'Super cool assignment'
         />
       </div>
 
         <button
           type="submit"
-          className="globalButton w-[20%] self-end block mb-1 bg-blue-500 text-white rounded hover:bg-blue-600 flex-center"
+          className="absolute bottom-6 right-6 outline-2 globalButton w-[20%] self-end block text-md text-grey rounded flex-center"
         >
           Submit
         </button>

@@ -29,9 +29,9 @@ export default function AssignmentContainer() {
                 <EditAssignments/>
             </div>
             {showAlternativeView && (
-            <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-                <div className="bg-gray-50 p-6 rounded-2xl w-[500px] max-h-[40vh] relative overflow-hidden">
-                    <h2 className="text-lg font-bold mb-4 text-black">Create new assignment</h2>
+            <div className="fixed inset-0 flex items-center justify-center z-50">
+                <div className="newAssignmentModal bg-gray-50 rounded-2xl w-[500px] max-h-[33vh] relative overflow-hidden">
+                    <h2 className="mb-4 text-xl font-bold text-black">Create new assignment</h2>
                     <Assignments/>
                     <button
                         onClick={() => setShowAlternativeView(false)}
