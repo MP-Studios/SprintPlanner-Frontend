@@ -1,10 +1,9 @@
 'use client'
 import { useState } from "react"
-import AssignmentsPage from "./assignment"
+//import AssignmentsPage from "./assignment"
 import EditAssignments from "./editAssignmentView"
+import Assignments from "./assignment"
 import { FC, ReactNode } from "react";
-// import  Modal  from "react-bootstrap";
-// import Draggable from "react-dragsgable";
 
 export default function AssignmentContainer() {
     const [showAlternativeView, setShowAlternativeView] = useState(false);
@@ -13,7 +12,11 @@ export default function AssignmentContainer() {
         <div className="assignment p-6 bg-white shadow-lg h-screen flex flex-col">
             <div className="flex items-center justify-end mb-4">
             <label className="collection">
-                <input type="checkbox" />
+                <input 
+                    type="checkbox"
+                    checked={showAlternativeView}
+                    onChange={(e) => setShowAlternativeView(e.target.checked)}
+                />
                 <div>
                     <span></span>
                 </div>
@@ -23,8 +26,22 @@ export default function AssignmentContainer() {
             </a>
             </div>
             <div className="flex-grow mb-4">
-                <AssignmentsPage/>
+                <EditAssignments/>
             </div>
+            {showAlternativeView && (
+            <div className="fixed inset-0 flex items-center justify-center z-50">
+                <div className="newAssignmentModal bg-gray-50 rounded-2xl w-[500px] max-h-[33vh] relative overflow-hidden">
+                    <h2 className="mb-4 text-xl font-bold text-black text-center">Create New Assignment</h2>
+                    <Assignments/>
+                    <button
+                        onClick={() => setShowAlternativeView(false)}
+                        className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+                        >
+                        ✕
+                    </button>
+                </div>
+            </div>
+            )}
         </div>
     );
 
