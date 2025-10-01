@@ -103,7 +103,7 @@ export default function AssignmentsPage() {
           type="text"
           value={form.name}
           onChange={handleChange}
-          className="w-full border rounded px-3 py-2"
+          className="w-full border rounded px-3 py-2 placeholder-black"
           placeholder="Homework 1"
         />
       </div>
@@ -138,7 +138,7 @@ export default function AssignmentsPage() {
 
       <button
         type="submit"
-        className="text-black rounded px-4 py-2 hover:bg-blue-600 self-start"
+        className="text-black rounded px-4 py-2 hover:gray shadow-lg self-start"
       >
         Submit
       </button>
