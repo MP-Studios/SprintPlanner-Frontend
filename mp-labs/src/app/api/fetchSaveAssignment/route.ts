@@ -2,15 +2,18 @@ import {saveAssignments}  from "../apiConstant"
 import { NextResponse } from "next/server";
 type Assignment = {
   className: string;
-  name: string;
-  due_date: string;
-  details: string;
+  Name: string;
+  DueDate: string;
+  Details: string;
+ taskCompleted: boolean;
 };
 
 
-export  async function POST(request: Request)  {
-    const form: Assignment = await request.json(); 
+export async function POST(request: Request)  {
+  console.log("OKAY WE ARE TRYING TO SAVE SOMETHING");
 
+    const form: Assignment = await request.json(); 
+    console.log(form);
     const response = await fetch(saveAssignments, {
       method: "POST",
       headers: {
