@@ -136,15 +136,13 @@ export default function AssignmentsPage() {
         />
       </div>
 
-      <button
-        type="submit"
-        className="text-black rounded px-4 py-2 hover:gray shadow-lg self-start"
-      >
-        Submit
-      </button>
-    </form>
-
-
+        <button
+          type="submit"
+          className="globalButton w-[20%] self-end block mb-1 bg-blue-500 text-white rounded hover:bg-blue-600 flex-center"
+        >
+          Submit
+        </button>
+      </form>
 
       {/* ► List of Assignments */}
       <div className="overflow-auto flex-1">
