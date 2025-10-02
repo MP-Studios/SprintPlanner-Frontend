@@ -48,7 +48,7 @@ body {
 .calendar {
   height: 100vh;
   width: 100%;
-  background-color: #c5e7f5;
+  background-color: #e9f8eb;
   overflow: hidden;
   padding: 35px 50px 0px 50px;
   margin-left: auto;
@@ -94,7 +94,7 @@ body {
 .calendar-week-days button {
   display: grid;
   place-items: center;
-  color: #6D67CF;
+  color: #3a554c;
   height: 50px;
   cursor: pointer;
 }
@@ -280,9 +280,10 @@ body {
 .assignment {
   height: 100vh;
   width: auto;
-  background-color: #c6cccb;
+  background-color: #e9f8eb;
   overflow: hidden;
   padding: 20px 10px 10px 20px;
+  color: #3a554c;
 }
 
 @keyframes to-top {
@@ -456,12 +457,12 @@ body .dribbble {
   line-height: 50px;
   font-weight: bold;
   text-decoration: none;
-  background: #000000;
+  background: #a2c9b8;
   text-align: center;
   color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 1px;
-  border: 3px solid hsl(0, 0%, 100%);
+  border: 3px solid #a2c9b8;
   transition: all .35s;
   cursor: pointer;
 }
@@ -478,7 +479,7 @@ body .dribbble {
   position: absolute;
   transform: rotate(45deg);
   right: 0;
-  top: 0;
+  top: -4;
   z-index: 0;
   transition: all .35s;
 }
@@ -489,26 +490,46 @@ body .dribbble {
   top: calc(50% - 15px);
   left: calc(50% - 15px);
   transform: rotate(-45deg);
-  fill: #000000;
   transition: all .35s;
 }
 
 .next-week-details:hover{
   width: 200px;
-  border: 3px solid #000000;
+  border: 3px solid #a2c9b8;
   background: transparent;
   color: #000000;
 }
 
 .next-week-details:hover .next-week-arrow{
-  border: 3px solid #000000;
+  border: 3px solid #a2c9b8;
   right: -25%;
 }
+
+.globalButton {
+  background-color: #a2c9b8;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.globalButton:hover {
+  cursor: pointer;
+  color: #3a554c;
+  transform: scale(1.1);
+  transition: all .2s ease-in-out;
+}
+
+.modalClass {
+  background-color: #a2c9b8;
+  color: #3a554c;
+}
+
 .navbar {
   display: flex;
   gap: 1rem;
   padding: 0.5rem;
-  background: #bdd1cc;
+  background: #a2c9b8
+
+  ;
   position: relative;
   align-items: center;
 }
@@ -596,4 +617,79 @@ body .dribbble {
 
 .dropdown-button:hover {
   background-color: #f5f5f5;
+}
+
+.login-box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  padding: 40px;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,.5);
+  box-sizing: border-box;
+  box-shadow: 0 15px 25px rgba(0,0,0,.6);
+  border-radius: 10px;
+}
+
+.login-box h2 {
+  margin: 0 0 30px;
+  padding: 0;
+  color: #fff;
+  text-align: center;
+}
+
+.login-box .user-box {
+  position: relative;
+}
+
+.login-box .user-box input {
+  width: 100%;
+  padding: 10px 0;
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 30px;
+  border: none;
+  border-bottom: 1px solid #fff;
+  outline: none;
+  background: transparent;
+}
+.login-box .user-box label {
+  position: absolute;
+  top:0;
+  left: 0;
+  padding: 10px 0;
+  font-size: 16px;
+  color: #fff;
+  pointer-events: none;
+  transition: .5s;
+}
+
+.login-box .user-box input:focus ~ label,
+.login-box .user-box input:valid ~ label {
+  top: -20px;
+  left: 0;
+  color: #03e9f4;
+  font-size: 12px;
+}
+
+.login-box form a {
+  position: relative;
+  display: inline-block;
+  padding: 10px 20px;
+  color: #03e9f4;
+  font-size: 16px;
+  text-decoration: none;
+  text-transform: uppercase;
+  overflow: hidden;
+  transition: .5s;
+  margin-top: 40px;
+  letter-spacing: 4px
+}
+
+.newAssignmentModal {
+  background-color: #a2c9b8;
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
 }

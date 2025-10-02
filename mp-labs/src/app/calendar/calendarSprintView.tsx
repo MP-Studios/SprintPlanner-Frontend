@@ -65,7 +65,7 @@ export default function Calendar(){
         {/* Add your input fields or edit form here */}
         <button
           onClick={onClose}
-          className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
+          className="globalButton mt-4 bg-red-500 text-white px-4 py-2 rounded"
         >
           Close
         </button>
@@ -122,7 +122,7 @@ export default function Calendar(){
                     <div className="flex justify-between items-center mb-1">
                       <button
                         onClick={() => markAsDone(i)}
-                        className="bg-gray-300 px-2 py-1 rounded text-sm"
+                        className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
                       >
                         {isDone ? "Undo" : "Mark as Done"}
                       </button>
@@ -131,7 +131,7 @@ export default function Calendar(){
                           setCurrentAssignment(a);
                           setEditOpen(true);
                         }}
-                        className="bg-yellow-300 px-2 py-1 rounded text-sm ml-2"
+                        className="globalButton bg-yellow-300 px-2 py-1 rounded text-sm ml-2"
                       >
                         Edit
                       </button>
@@ -163,7 +163,7 @@ export default function Calendar(){
 
       {weekdayModalOpen && selectedWeekday && (
       <div className="fixed inset-0 flex justify-center items-center z-50">
-        <div className="bg-black rounded shadow-lg w-100 h-40 flex flex-col">
+        <div className="modalClass rounded shadow-lg w-100 h-40 flex flex-col">
           {/* Header */}
           <h2 className="text-lg font-bold p-6 pb-2 text-center w-full">{selectedWeekday} Details</h2>
       
@@ -175,10 +175,10 @@ export default function Calendar(){
           </div>
       
           {/* Footer with Close button pinned bottom-right */}
-          <div className="p-4 flex justify-end border-t border-gray-700">
+          <div className="flex justify-end h-7 w-97">
             <button
               onClick={() => setWeekdayModalOpen(false)}
-              className="bg-white text-blue-300 px-4 py-2 rounded"
+              className="globalButton rounded h-5"
             >
               Close
             </button>
