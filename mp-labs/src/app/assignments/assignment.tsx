@@ -114,72 +114,71 @@ export default function AssignmentsPage() {
   };
 
   return (
-    <div className="assignment p-6 bg-white shadow-lg overflow-hidden h-screen flex flex-col">
-      <h1 className="text-xl font-semibold mb-4">Assignments</h1>
+    <div className="newAssignment p-40 overflow-hidden mx-auto rounded-2xl h-screen flex flex-col">
+    <form onSubmit={handleSubmit} className="p-6 space-y-4 flex flex-col">
+      <div className="w-full">
+        <label className="assignmentInfo p-6 text-lg font-medium text-black">
+          Course Name
+        </label>
+        <input
+          id="className"
+          name="className"
+          type="text"
+          value={form.className}
+          onChange={handleChange}
+          className="w-full border rounded px-3 py-2"
+          placeholder="Math 101"
+        />
+      </div>
 
-      {/*  New Assignment Form */}
-      <form onSubmit={handleSubmit} className="mb-6 space-y-3 flex">
-        <div>
-          <label className="block mb-1 font-medium flex" htmlFor="className">
-            Class Name
-          </label>
-          <input
-            id="className"
-            name="className"
-            type="text"
-            value={form.className}
-            onChange={handleChange}
-            className="w-full border rounded px-2 py-1"
-            placeholder="Math 101"
-          />
-        </div>
+      <div className="w-full">
+        <label className="assignmentInfo p-6 text-lg font-medium text-black">
+          Assignment
+        </label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          value={form.name}
+          onChange={handleChange}
+          className="w-full border rounded px-3 py-2"
+          placeholder="Homework 1"
+        />
+      </div>
 
-        <div>
-          <label className="block mb-1 font-medium flex" htmlFor="name">
-            Assignment
-          </label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            value={form.name}
-            onChange={handleChange}
-            className="w-full border rounded px-2 py-1"
-            placeholder="Homework 1"
-          />
-        </div>
+      <div className="w-full">
+        <label className="assignmentInfo p-6 text-lg font-medium text-black">
+          Due Date
+        </label>
+        <input
+          id="dueDate"
+          name="dueDate"
+          type="date"
+          value={form.dueDate}
+          onChange={handleChange}
+          className="w-full border rounded px-3 py-2"
+          placeholder="mm/dd/yyyy"
+        />
+      </div>
 
-        <div>
-          <label className="block mb-1 font-medium flex" htmlFor="due_date">
-            Due Date
-          </label>
-          <input
-            id="due_date"
-            name="due_date"
-            type="date"
-            value={form.due_date}
-            onChange={handleChange}
-            className="w-full border rounded px-2 py-1"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium flex" htmlFor="details">
-            Details
-          </label>
-          <input
-            id="details"
-            name="details"
-            type="text"
-            value={form.details}
-            onChange={handleChange}
-            className="w-full border rounded px-2 py-1"
-          />
-        </div>
+      <div className="w-full">
+        <label className="assignmentInfo p-6 text-lg font-medium text-black ">
+          Details
+        </label>
+        <input
+          id="taskDetails"
+          name="taskDetails"
+          type="text"
+          value={form.taskDetails}
+          onChange={handleChange}
+          className="w-full border rounded px-3 py-2"
+          placeholder= 'Super cool assignment'
+        />
+      </div>
 
         <button
           type="submit"
-          className="w-[20%] self-end block mb-1 bg-blue-500 text-white rounded hover:bg-blue-600 flex-center"
+          className="absolute bottom-6 right-6 outline-2 globalButton w-[20%] self-end block text-md text-grey rounded flex-center"
         >
           Submit
         </button>
