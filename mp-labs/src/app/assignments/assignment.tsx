@@ -20,12 +20,7 @@ export default function AssignmentsPage() {
     details: '',
   });
 
-//   const payload = {
-//   className: form.className,
-//   name: form.name,
-//   details: form.details
-// };
-  
+
   
   async function loadData() {
     try {
