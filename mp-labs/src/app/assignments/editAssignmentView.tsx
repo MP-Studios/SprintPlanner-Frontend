@@ -14,7 +14,7 @@ export default function EditAssignments() {
 
 
     useEffect(() => {
-        fetch('http://localhost:8080/api/backlog') //api gateway?
+        fetch('/api/fetchBacklog')
           .then((res) => {
             if (!res.ok) throw new Error('Failed to fetch assignments');
             return res.json();

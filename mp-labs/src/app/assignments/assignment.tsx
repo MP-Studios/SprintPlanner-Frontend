@@ -1,13 +1,13 @@
 'use client';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
-import EditAssignments from './editAssignmentView';
 
 type Assignment = {
   className: string;
   name: string;
-  dueDate: string;
-  taskDetails: string;
+  due_date: string;
+  details: string;
 };
+
 
 export default function AssignmentsPage() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -16,12 +16,29 @@ export default function AssignmentsPage() {
   const [form, setForm] = useState<Assignment>({
     className: '',
     name: '',
-    dueDate: '',
-    taskDetails: '',
+    due_date: '',
+    details: '',
   });
+
+
   
+  async function loadData() {
+    try {
+      const res = await fetch("/api/fetchBacklog/");
+      const data = await res.json();
+
+
+      setAssignments(data);
+    } catch ( err) {
+      if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError("Unexpected error");
+  }
+    }
+  }
   useEffect(() => {
-    fetchAssignments();
+  loadData();
   }, []);
 
 
@@ -46,22 +63,38 @@ export default function AssignmentsPage() {
     e.preventDefault();
 
     // simple validation
-    if (!form.className || !form.name || !form.dueDate) {
+    if (!form.className || !form.name || !form.due_date) {
       alert('Please fill out all fields.');
       return;
     }
 
     try {
-      const res = await fetch('http://localhost:8080/api/add-assignment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) throw new Error('Failed to save'); // Make this a seperate View
+      
+      const payload = {
+  name: form.name,
+  className: form.className,
+  details: form.details,
+  taskCompleted: false,
+  due_date: form.due_date ? new Date(form.due_date).toISOString() : null
+};
+    const res = await fetch("/api/fetchSaveAssignment", {
+        method: "POST",              
+        headers: {
+        "Content-Type": "application/json",
+      },
+        body: JSON.stringify(payload),   
+      });  
+      if(!res.ok){
+        const errorText = await res.text();
+        alert("Error Saving your dumb assignment: " + errorText);
+      }
+
+      const data = await res.json();
+      
       // reset form
-      setForm({ className: '', name: '', dueDate: '' , taskDetails: ''});
+      setForm({ className: '', name: '', due_date: '' , details: ''});
       // re-fetch the list
-      fetchAssignments();
+      loadData();
     } catch (err) {
       console.error(err);
       alert('Error saving assignment');
@@ -71,7 +104,7 @@ export default function AssignmentsPage() {
   /* Adding new stuff for actually having multiple forms this is not functional yet until I add something else */
   const handleAddForm = () => {
     if(assignments.length < 6){
-      setAssignments([...assignments, {className: '', name: '', dueDate: '', taskDetails: ''}])
+      setAssignments([...assignments, {className: '', name: '', due_date: '', details: ''}])
     }
   };
 
@@ -113,10 +146,10 @@ export default function AssignmentsPage() {
           Due Date
         </label>
         <input
-          id="dueDate"
-          name="dueDate"
+          id="due_date"
+          name="due_date"
           type="date"
-          value={form.dueDate}
+          value={form.due_date}
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
           placeholder="mm/dd/yyyy"
@@ -128,10 +161,10 @@ export default function AssignmentsPage() {
           Details
         </label>
         <input
-          id="taskDetails"
-          name="taskDetails"
+          id="details"
+          name="details"
           type="text"
-          value={form.taskDetails}
+          value={form.details}
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
           placeholder= 'Super cool assignment'
@@ -154,7 +187,7 @@ export default function AssignmentsPage() {
           assignments.map((a, i) => (
             <p key={i} className="mb-2">
               <strong>{a.className}</strong>: {a.name}{' '}
-              <span className="text-gray-500">(Due: {a.dueDate})</span>
+              <span className="text-gray-500">(Due: {a.due_date})</span>
             </p>
           ))
         )}

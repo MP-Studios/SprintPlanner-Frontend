@@ -1,6 +1,7 @@
 "use-client"
 
 import { useEffect, useState } from "react";
+import { getSprintAssignments } from "../api/apiConstant";
 type Assignment = {
   className: string;
   name: string;
@@ -36,17 +37,21 @@ export default function Calendar(){
   });
 };
      useEffect(() => {
-            fetch('http://localhost:8080/api/assignments')
-              .then((res) => {
-                if (!res.ok) throw new Error('Failed to fetch assignments');
-                return res.json();
-              })
-              .then(setAssignments)
-              .catch((err) => {
-                console.error(err);
-                setError('Could not load assignments');
-              });
-          }, []);
+          const loadAssignments = async () => {
+    try {
+      const res = await fetch("/api/fetchSprint");
+      if (!res.ok) throw new Error("Failed to fetch assignments");
+
+      const data: Assignment[] = await res.json();
+      setAssignments(data);
+    } catch (err) {
+      console.error(err);
+      setError("Could not load assignments");
+    }
+  };
+
+  loadAssignments();
+}, []);
     function EditPage({assignment, onClose}: EditPageProps){
    return (
     <div
