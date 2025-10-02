@@ -1,13 +1,13 @@
 'use client';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
-import EditAssignments from './editAssignmentView';
 
 type Assignment = {
   className: string;
   name: string;
-  dueDate: string;
-  taskDetails: string;
+  due_date: string;
+  details: string;
 };
+
 
 export default function AssignmentsPage() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -16,12 +16,29 @@ export default function AssignmentsPage() {
   const [form, setForm] = useState<Assignment>({
     className: '',
     name: '',
-    dueDate: '',
-    taskDetails: '',
+    due_date: '',
+    details: '',
   });
+
+
   
+  async function loadData() {
+    try {
+      const res = await fetch("/api/fetchBacklog/");
+      const data = await res.json();
+
+
+      setAssignments(data);
+    } catch ( err) {
+      if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError("Unexpected error");
+  }
+    }
+  }
   useEffect(() => {
-    fetchAssignments();
+  loadData();
   }, []);
 
 
@@ -46,22 +63,38 @@ export default function AssignmentsPage() {
     e.preventDefault();
 
     // simple validation
-    if (!form.className || !form.name || !form.dueDate) {
+    if (!form.className || !form.name || !form.due_date) {
       alert('Please fill out all fields.');
       return;
     }
 
     try {
-      const res = await fetch('http://localhost:8080/api/add-assignment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) throw new Error('Failed to save'); // Make this a seperate View
+      
+      const payload = {
+  name: form.name,
+  className: form.className,
+  details: form.details,
+  taskCompleted: false,
+  due_date: form.due_date ? new Date(form.due_date).toISOString() : null
+};
+    const res = await fetch("/api/fetchSaveAssignment", {
+        method: "POST",              
+        headers: {
+        "Content-Type": "application/json",
+      },
+        body: JSON.stringify(payload),   
+      });  
+      if(!res.ok){
+        const errorText = await res.text();
+        alert("Error Saving your dumb assignment: " + errorText);
+      }
+
+      const data = await res.json();
+      
       // reset form
-      setForm({ className: '', name: '', dueDate: '' , taskDetails: ''});
+      setForm({ className: '', name: '', due_date: '' , details: ''});
       // re-fetch the list
-      fetchAssignments();
+      loadData();
     } catch (err) {
       console.error(err);
       alert('Error saving assignment');
@@ -71,77 +104,76 @@ export default function AssignmentsPage() {
   /* Adding new stuff for actually having multiple forms this is not functional yet until I add something else */
   const handleAddForm = () => {
     if(assignments.length < 6){
-      setAssignments([...assignments, {className: '', name: '', dueDate: '', taskDetails: ''}])
+      setAssignments([...assignments, {className: '', name: '', due_date: '', details: ''}])
     }
   };
 
   return (
-    <div className="assignment p-6 bg-white shadow-lg overflow-hidden h-screen flex flex-col">
-      <h1 className="text-xl font-semibold mb-4">Assignments</h1>
+    <div className="newAssignment p-40 overflow-hidden mx-auto rounded-2xl h-screen flex flex-col">
+    <form onSubmit={handleSubmit} className="p-6 space-y-4 flex flex-col">
+      <div className="w-full">
+        <label className="assignmentInfo p-6 text-lg font-medium text-black">
+          Course Name
+        </label>
+        <input
+          id="className"
+          name="className"
+          type="text"
+          value={form.className}
+          onChange={handleChange}
+          className="w-full border rounded px-3 py-2"
+          placeholder="Math 101"
+        />
+      </div>
 
-      {/*  New Assignment Form */}
-      <form onSubmit={handleSubmit} className="mb-6 space-y-3 flex">
-        <div>
-          <label className="block mb-1 font-medium flex" htmlFor="className">
-            Class Name
-          </label>
-          <input
-            id="className"
-            name="className"
-            type="text"
-            value={form.className}
-            onChange={handleChange}
-            className="w-full border rounded px-2 py-1"
-            placeholder="Math 101"
-          />
-        </div>
+      <div className="w-full">
+        <label className="assignmentInfo p-6 text-lg font-medium text-black">
+          Assignment
+        </label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          value={form.name}
+          onChange={handleChange}
+          className="w-full border rounded px-3 py-2"
+          placeholder="Homework 1"
+        />
+      </div>
 
-        <div>
-          <label className="block mb-1 font-medium flex" htmlFor="name">
-            Assignment
-          </label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            value={form.name}
-            onChange={handleChange}
-            className="w-full border rounded px-2 py-1"
-            placeholder="Homework 1"
-          />
-        </div>
+      <div className="w-full">
+        <label className="assignmentInfo p-6 text-lg font-medium text-black">
+          Due Date
+        </label>
+        <input
+          id="due_date"
+          name="due_date"
+          type="date"
+          value={form.due_date}
+          onChange={handleChange}
+          className="w-full border rounded px-3 py-2"
+          placeholder="mm/dd/yyyy"
+        />
+      </div>
 
-        <div>
-          <label className="block mb-1 font-medium flex" htmlFor="dueDate">
-            Due Date
-          </label>
-          <input
-            id="dueDate"
-            name="dueDate"
-            type="date"
-            value={form.dueDate}
-            onChange={handleChange}
-            className="w-full border rounded px-2 py-1"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium flex" htmlFor="taskDetails">
-            Details
-          </label>
-          <input
-            id="taskDetails"
-            name="taskDetails"
-            type="text"
-            value={form.taskDetails}
-            onChange={handleChange}
-            className="w-full border rounded px-2 py-1"
-          />
-        </div>
+      <div className="w-full">
+        <label className="assignmentInfo p-6 text-lg font-medium text-black ">
+          Details
+        </label>
+        <input
+          id="details"
+          name="details"
+          type="text"
+          value={form.details}
+          onChange={handleChange}
+          className="w-full border rounded px-3 py-2"
+          placeholder= 'Super cool assignment'
+        />
+      </div>
 
         <button
           type="submit"
-          className="w-[20%] self-end block mb-1 bg-blue-500 text-white rounded hover:bg-blue-600 flex-center"
+          className="absolute bottom-6 right-6 outline-2 globalButton w-[20%] self-end block text-md text-grey rounded flex-center"
         >
           Submit
         </button>
@@ -155,7 +187,7 @@ export default function AssignmentsPage() {
           assignments.map((a, i) => (
             <p key={i} className="mb-2">
               <strong>{a.className}</strong>: {a.name}{' '}
-              <span className="text-gray-500">(Due: {a.dueDate})</span>
+              <span className="text-gray-500">(Due: {a.due_date})</span>
             </p>
           ))
         )}

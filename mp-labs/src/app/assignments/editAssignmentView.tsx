@@ -12,8 +12,9 @@ export default function EditAssignments() {
     const [assignments, setAssignments] = useState<Assignment[]>([]);
     const [error, setError] = useState<string | null>(null);
 
+
     useEffect(() => {
-        fetch('http://localhost:8080/api/backlog') //api gateway?
+        fetch('/api/fetchBacklog')
           .then((res) => {
             if (!res.ok) throw new Error('Failed to fetch assignments');
             return res.json();
@@ -28,7 +29,6 @@ export default function EditAssignments() {
       return (
         <div className="editAssignment p-6 shadow-lg overflow-hidden h-screen flex flex-col">
             <h1 className="text-xl font-semibold mb-4">Your Assignments</h1>
-            
             {error && <p className="text-red-500">{error}</p>}
 
             <ul className="space-y-4">
