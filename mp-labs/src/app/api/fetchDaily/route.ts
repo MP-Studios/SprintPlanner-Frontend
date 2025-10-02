@@ -8,7 +8,7 @@ type Assignment = {
 };
 
 
-export default async function fetchDaily()  {
+export async function GET()  {
     const response = await fetch(getDailyAssignments);
     if (!response.ok) throw Error("Failed to Retreive Daily Assignments.");
     
