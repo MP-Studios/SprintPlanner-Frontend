@@ -146,10 +146,10 @@ export default function AssignmentsPage() {
           Due Date
         </label>
         <input
-          id="dueDate"
-          name="dueDate"
+          id="due_date"
+          name="due_date"
           type="date"
-          value={form.dueDate}
+          value={form.due_date}
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
           placeholder="mm/dd/yyyy"
@@ -161,10 +161,10 @@ export default function AssignmentsPage() {
           Details
         </label>
         <input
-          id="taskDetails"
-          name="taskDetails"
+          id="details"
+          name="details"
           type="text"
-          value={form.taskDetails}
+          value={form.details}
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
           placeholder= 'Super cool assignment'
