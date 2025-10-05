@@ -2,12 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getSprintAssignments } from "../api/apiConstant";
-type Assignment = {
-  className: string;
-  name: string;
-  dueDate: string;
-  taskDetails: string;
-};
+import { Assignment } from "../assignments/assignment";
 
 type EditPageProps = {
   assignment: Assignment;
@@ -43,6 +38,9 @@ export default function Calendar(){
       if (!res.ok) throw new Error("Failed to fetch assignments");
 
       const data: Assignment[] = await res.json();
+       data.forEach((a, i) => {
+        console.log(`Assignment ${i}: Name=${a.Name}, DueDate=`, a.DueDate);
+      });
       setAssignments(data);
     } catch (err) {
       console.error(err);
@@ -60,8 +58,8 @@ export default function Calendar(){
       <div className="bg-white p-6 rounded shadow-lg w-96">
         <h2 className="text-lg font-bold mb-4">Edit Assignment</h2>
         <p><strong>Class:</strong> {assignment.className}</p>
-        <p><strong>Name:</strong> {assignment.name}</p>
-        <p><strong>Details:</strong> {assignment.taskDetails}</p>
+        <p><strong>Name:</strong> {assignment.Name}</p>
+        <p><strong>Details:</strong> {assignment.Details}</p>
         {/* Add your input fields or edit form here */}
         <button
           onClick={onClose}
@@ -100,7 +98,8 @@ export default function Calendar(){
       <div className="days grid grid-cols-7 border-t border-gray-300 h-150">
         {daysOfWeek.map((day, index) => {
           const dayAssignments = assignments.filter(
-            (a) => new Date(a.dueDate).getDay() === index
+            (a) => new Date(a.DueDate).getUTCDay() === index,
+            // console.log(a)
           );
 
           return (
@@ -140,10 +139,10 @@ export default function Calendar(){
                       <strong>Class:</strong> {a.className}
                     </div>
                     <div>
-                      <strong>Name:</strong> {a.name}
+                      <strong>Name:</strong> {a.Name}
                     </div>
                     <div>
-                      <strong>Details:</strong> {a.taskDetails}
+                      <strong>Details:</strong> {a.Details}
                     </div>
                   </div>
                 );

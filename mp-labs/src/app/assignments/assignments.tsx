@@ -1,13 +1,7 @@
 'use client';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 
-type Assignment = {
-  className: string;
-  name: string;
-  due_date: string;
-  details: string;
-};
-
+import { Assignment } from './assignment';
 
 export default function AssignmentsPage() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -15,9 +9,9 @@ export default function AssignmentsPage() {
 
   const [form, setForm] = useState<Assignment>({
     className: '',
-    name: '',
-    due_date: '',
-    details: '',
+    Name: '',
+    DueDate: '',
+    Details: '',
   });
 
 
@@ -63,7 +57,7 @@ export default function AssignmentsPage() {
     e.preventDefault();
 
     // simple validation
-    if (!form.className || !form.name || !form.due_date) {
+    if (!form.className || !form.Name || !form.DueDate) {
       alert('Please fill out all fields.');
       return;
     }
@@ -71,11 +65,11 @@ export default function AssignmentsPage() {
     try {
       
       const payload = {
-  name: form.name,
+  Name: form.Name,
   className: form.className,
-  details: form.details,
+  Details: form.Details,
   taskCompleted: false,
-  due_date: form.due_date ? new Date(form.due_date).toISOString() : null
+  DueDate: form.DueDate ? new Date(form.DueDate).toISOString() : null
 };
     const res = await fetch("/api/fetchSaveAssignment", {
         method: "POST",              
@@ -92,7 +86,7 @@ export default function AssignmentsPage() {
       const data = await res.json();
       
       // reset form
-      setForm({ className: '', name: '', due_date: '' , details: ''});
+      setForm({ className: '', Name: '', DueDate: '' , Details: ''});
       // re-fetch the list
       loadData();
     } catch (err) {
@@ -104,7 +98,7 @@ export default function AssignmentsPage() {
   /* Adding new stuff for actually having multiple forms this is not functional yet until I add something else */
   const handleAddForm = () => {
     if(assignments.length < 6){
-      setAssignments([...assignments, {className: '', name: '', due_date: '', details: ''}])
+      setAssignments([...assignments, {className: '', Name: '', DueDate: '', Details: ''}])
     }
   };
 
@@ -131,10 +125,10 @@ export default function AssignmentsPage() {
           Assignment
         </label>
         <input
-          id="name"
-          name="name"
+          id="Name"
+          name="Name"
           type="text"
-          value={form.name}
+          value={form.Name}
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
           placeholder="Homework 1"
@@ -146,10 +140,10 @@ export default function AssignmentsPage() {
           Due Date
         </label>
         <input
-          id="due_date"
-          name="due_date"
+          id="DueDate"
+          name="DueDate"
           type="date"
-          value={form.due_date}
+          value={form.DueDate}
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
           placeholder="mm/dd/yyyy"
@@ -161,10 +155,10 @@ export default function AssignmentsPage() {
           Details
         </label>
         <input
-          id="details"
-          name="details"
+          id="Details"
+          name="Details"
           type="text"
-          value={form.details}
+          value={form.Details}
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
           placeholder= 'Super cool assignment'
@@ -186,8 +180,8 @@ export default function AssignmentsPage() {
         ) : (
           assignments.map((a, i) => (
             <p key={i} className="mb-2">
-              <strong>{a.className}</strong>: {a.name}{' '}
-              <span className="text-gray-500">(Due: {a.due_date})</span>
+              <strong>{a.className}</strong>: {a.Name}{' '}
+              <span className="text-gray-500">(Due: {a.DueDate})</span>
             </p>
           ))
         )}
