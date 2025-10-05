@@ -1,11 +1,6 @@
 import {getBackLog}  from "../apiConstant"
 import { NextResponse } from "next/server";
-type Assignment = {
-  className: string;
-  name: string;
-  due_date: string;
-  details: string;
-};
+import { Assignment } from "@/app/assignments/assignment";
 
 
 export async function GET()  {

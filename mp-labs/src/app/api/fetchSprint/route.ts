@@ -1,18 +1,16 @@
 import {getSprintAssignments}  from "../apiConstant"
 import { NextResponse } from "next/server";
-type Assignment = {
-  className: string;
-  name: string;
-  due_date: string;
-  details: string;
-};
-
+import { Assignment } from "@/app/assignments/assignment";
 export async function GET()  {
   console.log("YEAH I mean we started out good")
     const response = await fetch(getSprintAssignments);
     if (!response.ok) throw Error("Unable To Get Current Sprint...");
     
     const data : Assignment[] = await response.json();
-    return NextResponse.json(data);
+    const normalized = data.map(a => ({
+      ...a,
+      DueDate: new Date(a.DueDate).toISOString(),
+    }))
+    return NextResponse.json(normalized);
 }
    
