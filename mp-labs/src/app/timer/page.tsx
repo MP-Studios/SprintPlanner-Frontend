@@ -37,6 +37,7 @@ export default function Page() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[#e9f8eb] text-white">
       <h1 className="text-4xl font-bold text-[#3a554c]">Pomodoro Timer</h1>
+      <br></br>
         <div className="flex gap-6">
             <button
             className="globalButton rounded px-5 py-2"
@@ -57,6 +58,8 @@ export default function Page() {
             Long Break
             </button>
         </div>
+        <br>
+        </br>
 
       {/* Progress Circle */}
       <div>
@@ -73,7 +76,8 @@ export default function Page() {
             </div>
         </div>
       </div>
-
+      <br>
+      </br>
       <div className="flex gap-6">
         <button
           className="globalButton rounded px-6 py-2"
