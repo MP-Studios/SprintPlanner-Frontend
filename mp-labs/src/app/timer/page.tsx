@@ -35,9 +35,8 @@ export default function Page() {
   const progress = (timerValue / totalTime) * 100;
 
   return (
-    <div className="w-[100vw] h-[100vh] flex flex-col items-center justify-center min-h-screen bg-[#e9f8eb] text-white">
-      <h1 className="h-[6%] text-4xl font-bold text-[#3a554c]">Pomodoro Timer</h1>
-      <div className="h-[4%]">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#e9f8eb] text-white">
+      <h1 className="text-4xl font-bold text-[#3a554c]">Pomodoro Timer</h1>
         <div className="flex gap-6">
             <button
             className="globalButton rounded px-5 py-2"
@@ -58,10 +57,9 @@ export default function Page() {
             Long Break
             </button>
         </div>
-      </div>
 
       {/* Progress Circle */}
-      <div className="w-[14%] h-[25%]">
+      <div>
         <div
             className="w-52 h-52 rounded-full flex items-center justify-center"
             style={{
