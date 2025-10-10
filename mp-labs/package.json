@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.57.0",
-    "next": "^15.5.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "@supabase/supabase-js": "^2.75.0",
+    "next": "^15.5.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "react-draggable": "^4.5.0"
   },
   "devDependencies": {
@@ -23,5 +23,10 @@
     "@types/react-dom": "^19",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

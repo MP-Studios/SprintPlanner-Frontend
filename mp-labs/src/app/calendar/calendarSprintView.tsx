@@ -18,7 +18,8 @@ export default function Calendar(){
     const [doneSet, setDoneSet] = useState<Set<number>>(new Set());
     const [weekdayModalOpen, setWeekdayModalOpen] = useState(false);
     const [selectedWeekday, setSelectedWeekday] = useState<string | null>(null);
-
+    const [dailyAssignments, setDailyAssignments] = useState<Assignment[]>([]);
+    const [loadingDaily, setLoadingDaily] = useState(false);
 
   const markAsDone = (index: number) => {
   setDoneSet((prev) => {
@@ -31,6 +32,40 @@ export default function Calendar(){
     return newSet;
   });
 };
+
+const fetchDailyAssignments = async (weekday: string) => {
+  if (!weekday) return;
+
+  setLoadingDaily(true);
+  try {
+    const res = await fetch("/api/assignments/daily", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: "your-user-id-here", // replace with actual user ID
+        date: weekday, // make sure this is a valid ISO date
+      }),
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch daily assignments");
+
+    const data: Assignment[] = await res.json();
+    setDailyAssignments(data);
+  } catch (err) {
+    console.error("Error fetching daily assignments:", err);
+    setDailyAssignments([]);
+  } finally {
+    setLoadingDaily(false);
+  }
+};
+  useEffect(() => {
+    if (weekdayModalOpen && selectedWeekday) {
+      fetchDailyAssignments(selectedWeekday);
+    }
+  }, [weekdayModalOpen, selectedWeekday]);
+
      useEffect(() => {
           const loadAssignments = async () => {
     try {
@@ -169,8 +204,22 @@ export default function Calendar(){
           {/* Scrollable content */}
           <div className="flex-grow overflow-y-auto px-6 text-center">
             <p>
-              Here you can add content specific to {selectedWeekday}.
+              Here you can add content specific to {selectedWeekday}
+              
             </p>
+            <div className="flex-grow overflow-y-auto px-6 text-center">
+              {loadingDaily ? (
+                <p>Loading assignments for {selectedWeekday}...</p>
+              ) : dailyAssignments.length > 0 ? (
+                <ul className="list-disc list-inside">
+                  {dailyAssignments.map((assignment, index) => (
+                    <li key={index}>{assignment.Name}</li> // adjust field name as needed
+                  ))}
+                </ul>
+              ) : (
+                <p>No assignments for {selectedWeekday}.</p>
+              )}
+            </div>
           </div>
       
           {/* Footer with Close button pinned bottom-right */}
