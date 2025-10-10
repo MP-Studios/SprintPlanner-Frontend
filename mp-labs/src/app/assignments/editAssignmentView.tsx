@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 import { Assignment } from './assignment';
-import { getClassColorNumber } from '@/utils/classColors';
+import { getClassColorNumber } from '@/app/colors/classColors';
 
 export default function EditAssignments() {
     const [assignments, setAssignments] = useState<Assignment[]>([]);

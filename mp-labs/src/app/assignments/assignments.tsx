@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
-import { getClassColorNumber } from '@/utils/classColors';
+import { getClassColorNumber } from '@/app/colors/classColors';
 import { Assignment } from './assignment';
 
 export default function AssignmentsPage() {
