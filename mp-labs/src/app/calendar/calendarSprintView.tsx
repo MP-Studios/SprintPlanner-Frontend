@@ -1,12 +1,22 @@
 "use-client"
 
 import { useEffect, useState } from "react";
-import { getSprintAssignments } from "../api/apiConstant";
-import { Assignment } from "../assignments/assignment";
+
+type Assignment = {
+  className: string;
+  Name: string;
+  Details: string;
+  DueDate: string;
+};
 
 type EditPageProps = {
   assignment: Assignment;
   onClose: () => void;
+};
+
+type SprintDates = {
+  startDate: string;
+  endDate: string;
 };
 
 export default function Calendar(){
@@ -18,7 +28,8 @@ export default function Calendar(){
     const [doneSet, setDoneSet] = useState<Set<number>>(new Set());
     const [weekdayModalOpen, setWeekdayModalOpen] = useState(false);
     const [selectedWeekday, setSelectedWeekday] = useState<string | null>(null);
-
+    const [sprintDates, setSprintDates] = useState<SprintDates | null>(null);
+    const [hoveredAssignment, setHoveredAssignment] = useState<number | null>(null);
 
   const markAsDone = (index: number) => {
   setDoneSet((prev) => {
@@ -31,17 +42,19 @@ export default function Calendar(){
     return newSet;
   });
 };
-     useEffect(() => {
-          const loadAssignments = async () => {
+  useEffect(() => {
+    const loadAssignments = async () => {
     try {
       const res = await fetch("/api/fetchSprint");
       if (!res.ok) throw new Error("Failed to fetch assignments");
+      const dataAssignments: Assignment[] = await res.json();
+      
+      const resDates = await fetch("api/fetchSprintDates");
+      if (!resDates.ok) throw new Error("Failed to fetch sprint dates");
+      const dataDates: SprintDates = await resDates.json();
 
-      const data: Assignment[] = await res.json();
-       data.forEach((a, i) => {
-        console.log(`Assignment ${i}: Name=${a.Name}, DueDate=`, a.DueDate);
-      });
-      setAssignments(data);
+      setAssignments(dataAssignments);
+      setSprintDates(dataDates);
     } catch (err) {
       console.error(err);
       setError("Could not load assignments");
@@ -50,27 +63,103 @@ export default function Calendar(){
 
   loadAssignments();
 }, []);
-    function EditPage({assignment, onClose}: EditPageProps){
+  // Get the current week's Sunday
+  const getCurrentWeekSunday = () => {
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const sunday = new Date(now);
+    sunday.setDate(now.getDate() - dayOfWeek);
+    sunday.setHours(0, 0, 0, 0);
+    return sunday;
+  };
+
+  // Calculate which columns an assignment should span
+  const getAssignmentSpan = (assignment: Assignment) => {
+    if (!sprintDates) return null;
+
+    const weekSunday = getCurrentWeekSunday();
+    const sprintStart = new Date(sprintDates.startDate);
+    const dueDate = new Date(assignment.DueDate);
+
+    // Determine the actual start for this week's view
+    const viewStart = sprintStart < weekSunday ? weekSunday : sprintStart;
+    
+    // Calculate start column (0-6)
+    const startCol = Math.max(0, Math.floor((viewStart.getTime() - weekSunday.getTime()) / (1000 * 60 * 60 * 24)));
+    
+    // Calculate end column (0-6)
+    const endCol = Math.min(6, Math.floor((dueDate.getTime() - weekSunday.getTime()) / (1000 * 60 * 60 * 24)));
+
+    // Only show if it overlaps with current week
+    if (endCol < 0 || startCol > 6) return null;
+
+    return { startCol: Math.max(0, startCol), endCol: Math.min(6, endCol) };
+  };
+
+  // Group assignments into rows to avoid overlaps
+  const arrangeAssignments = () => {
+    if (!sprintDates) return [];
+
+    const rows: Assignment[][] = [];
+
+    assignments.forEach((assignment) => {
+      const span = getAssignmentSpan(assignment);
+      if (!span) return;
+
+      // Find a row where this assignment doesn't overlap
+      let placedInRow = false;
+      for (let row of rows) {
+        let canPlace = true;
+        for (let existingAssignment of row) {
+          const existingSpan = getAssignmentSpan(existingAssignment);
+          if (existingSpan) {
+            // Check if they overlap
+            if (!(span.endCol < existingSpan.startCol || span.startCol > existingSpan.endCol)) {
+              canPlace = false;
+              break;
+            }
+          }
+        }
+        if (canPlace) {
+          row.push(assignment);
+          placedInRow = true;
+          break;
+        }
+      }
+
+      // If no row works, create a new row
+      if (!placedInRow) {
+        rows.push([assignment]);
+      }
+    });
+
+    return rows;
+  };
+
+  function EditPage({assignment, onClose}: EditPageProps){
    return (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-    >
-      <div className="bg-white p-6 rounded shadow-lg w-96">
-        <h2 className="text-lg font-bold mb-4">Edit Assignment</h2>
-        <p><strong>Class:</strong> {assignment.className}</p>
-        <p><strong>Name:</strong> {assignment.Name}</p>
-        <p><strong>Details:</strong> {assignment.Details}</p>
-        {/* Add your input fields or edit form here */}
-        <button
-          onClick={onClose}
-          className="globalButton mt-4 bg-red-500 text-white px-4 py-2 rounded"
-        >
-          Close
-        </button>
+      <div
+        className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+      >
+        <div className="bg-white p-6 rounded shadow-lg w-96">
+          <h2 className="text-lg font-bold mb-4">Edit Assignment</h2>
+          <p><strong>Class:</strong> {assignment.className}</p>
+          <p><strong>Name:</strong> {assignment.Name}</p>
+          <p><strong>Details:</strong> {assignment.Details}</p>
+          {/* Add your input fields or edit form here */}
+          <button
+            onClick={onClose}
+            className="globalButton mt-4 bg-red-500 text-white px-4 py-2 rounded"
+          >
+            Close
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
     }
+
+    const assignmentRows = arrangeAssignments();
+
     return(
     <div>
       {error && <p className="text-red-500 mb-2">{error}</p>}
@@ -94,62 +183,84 @@ export default function Calendar(){
           })}
       </div>
 
-      {/* Day columns */}
-      <div className="days grid grid-cols-7 border-t border-gray-300 h-150">
-        {daysOfWeek.map((day, index) => {
-          const dayAssignments = assignments.filter(
-            (a) => new Date(a.DueDate).getUTCDay() === index,
-            // console.log(a)
-          );
-
-          return (
+      {/* Gantt chart view */}
+      <div className="relative border-t border-gray-300">
+        {/* Column dividers */}
+        <div className="absolute inset-0 grid grid-cols-7 pointer-events-none">
+          {daysOfWeek.map((day, index) => (
             <div
               key={day}
-              className={`border-r border-gray-300 flex flex-col items-start p-2 ${
-                index === 6 ? "border-r-0" : ""
-              }`}
-            >
-              {dayAssignments.map((a, i) => {
-                const isDone = doneSet.has(i);
+              className={`border-r border-gray-300 ${index === 6 ? "border-r-0" : ""}`}
+            />
+          ))}
+        </div>
+
+        {/* Assignment bars */}
+        <div className="relative p-2">
+          {assignmentRows.map((row, rowIndex) => (
+            <div key={rowIndex} className="relative mb-1" style={{ height: 'auto', minHeight: '100px' }}>
+              {row.map((assignment, assignmentIndex) => {
+                const span = getAssignmentSpan(assignment);
+                if (!span) return null;
+
+                const globalIndex = assignments.indexOf(assignment);
+                const isDone = doneSet.has(globalIndex);
+                const isHovered = hoveredAssignment === globalIndex;
+
+                const widthPercent = ((span.endCol - span.startCol + 1) / 7) * 100;
+                const leftPercent = (span.startCol / 7) * 100;
+
                 return (
                   <div
-                    key={i}
-                    className={`border p-2 rounded-sm w-full ${
+                    key={assignmentIndex}
+                    className={`absolute border rounded-sm transition-all ${
                       isDone ? "bg-green-200" : "bg-blue-200"
-                    } mb-2`}
+                    }`}
+                    style={{
+                      left: `${leftPercent}%`,
+                      width: `${widthPercent}%`,
+                      top: 0,
+                      padding: '3px',
+                      position: 'relative',
+                      textAlign: 'center',
+                      paddingBottom: isHovered ? '31px' : '4px',
+                    }}
+                    onMouseEnter={() => setHoveredAssignment(globalIndex)}
+                    onMouseLeave={() => setHoveredAssignment(null)}
                   >
-                    <div className="flex justify-between items-center mb-1">
-                      <button
-                        onClick={() => markAsDone(i)}
-                        className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
-                      >
-                        {isDone ? "Undo" : "Mark as Done"}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setCurrentAssignment(a);
-                          setEditOpen(true);
-                        }}
-                        className="globalButton bg-yellow-300 px-2 py-1 rounded text-sm ml-2"
-                      >
-                        Edit
-                      </button>
-                    </div>
-                    <div>
-                      <strong>Class:</strong> {a.className}
-                    </div>
-                    <div>
-                      <strong>Name:</strong> {a.Name}
-                    </div>
-                    <div>
-                      <strong>Details:</strong> {a.Details}
+                    {/* Buttons - only show on hover */}
+                    {isHovered && (
+                      <div className="flex justify-between items-center mt-1" style={{ position: 'absolute', bottom: '3px', left: '8px', right: '8px' }}>
+                        <button
+                          onClick={() => markAsDone(globalIndex)}
+                          className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
+                        >
+                          {isDone ? "Undo" : "Mark as Done"}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setCurrentAssignment(assignment);
+                            setEditOpen(true);
+                          }}
+                          className="globalButton bg-yellow-300 px-2 py-1 rounded text-sm ml-2"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                    )}
+                    
+                    {/* Assignment details */}
+                    <div className="text-sm flex-grow">
+                      <div><strong>Class:</strong> {assignment.className}</div>
+                      <div><strong>Name:</strong> {assignment.Name}</div>
+                      <div><strong>Details:</strong> {assignment.Details}</div>
                     </div>
                   </div>
                 );
               })}
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
       {/* Edit modal */}
