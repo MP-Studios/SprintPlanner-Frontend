@@ -104,73 +104,73 @@ export default function AssignmentsPage() {
 
   return (
     <div className="newAssignment p-40 overflow-hidden mx-auto rounded-2xl h-screen flex flex-col">
-    <form onSubmit={handleSubmit} className="p-6 space-y-4 flex flex-col">
-      <div className="w-full">
-        <label className="assignmentInfo p-6 text-lg font-medium text-black">
-          Course Name
-        </label>
-        <input
-          id="className"
-          name="className"
-          type="text"
-          value={form.className}
-          onChange={handleChange}
-          className="w-full border rounded px-3 py-2"
-          placeholder="Math 101"
-        />
-      </div>
+      <form onSubmit={handleSubmit} className="p-6 space-y-4 flex flex-col">
+        <div className="w-full">
+          <label className="assignmentInfo p-6 text-lg font-medium text-black">
+            Course Name
+          </label>
+          <input
+            id="className"
+            name="className"
+            type="text"
+            value={form.className}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+            placeholder="Math 101"
+          />
+        </div>
 
-      <div className="w-full">
-        <label className="assignmentInfo p-6 text-lg font-medium text-black">
-          Assignment
-        </label>
-        <input
-          id="Name"
-          name="Name"
-          type="text"
-          value={form.Name}
-          onChange={handleChange}
-          className="w-full border rounded px-3 py-2"
-          placeholder="Homework 1"
-        />
-      </div>
+        <div className="w-full">
+          <label className="assignmentInfo p-6 text-lg font-medium text-black">
+            Assignment
+          </label>
+          <input
+            id="Name"
+            name="Name"
+            type="text"
+            value={form.Name}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+            placeholder="Homework 1"
+          />
+        </div>
 
-      <div className="w-full">
-        <label className="assignmentInfo p-6 text-lg font-medium text-black">
-          Due Date
-        </label>
-        <input
-          id="DueDate"
-          name="DueDate"
-          type="date"
-          value={form.DueDate}
-          onChange={handleChange}
-          className="w-full border rounded px-3 py-2"
-          placeholder="mm/dd/yyyy"
-        />
-      </div>
+        <div className="w-full">
+          <label className="assignmentInfo p-6 text-lg font-medium text-black">
+            Due Date
+          </label>
+          <input
+            id="DueDate"
+            name="DueDate"
+            type="date"
+            value={form.DueDate}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+            placeholder="mm/dd/yyyy"
+          />
+        </div>
 
-      <div className="w-full">
-        <label className="assignmentInfo p-6 text-lg font-medium text-black ">
-          Details
-        </label>
-        <input
-          id="Details"
-          name="Details"
-          type="text"
-          value={form.Details}
-          onChange={handleChange}
-          className="w-full border rounded px-3 py-2"
-          placeholder= 'Super cool assignment'
-        />
-      </div>
+        <div className="w-full">
+          <label className="assignmentInfo p-6 text-lg font-medium text-black ">
+            Details
+          </label>
+          <input
+            id="Details"
+            name="Details"
+            type="text"
+            value={form.Details}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+            placeholder= 'Super cool assignment'
+          />
+        </div>
 
-        <button
-          type="submit"
-          className="absolute bottom-6 right-6 outline-2 globalButton w-[20%] self-end block text-md text-grey rounded flex-center"
-        >
-          Submit
-        </button>
+          <button
+            type="submit"
+            className="absolute bottom-6 right-6 outline-2 globalButton w-[20%] self-end block text-md text-grey rounded flex-center"
+          >
+            Submit
+          </button>
       </form>
 
             <div className="overflow-auto flex-1 space-y-2">
