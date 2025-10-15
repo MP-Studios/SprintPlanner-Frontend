@@ -184,82 +184,85 @@ export default function Calendar(){
       </div>
 
       {/* Gantt chart view */}
-      <div className="relative border-t border-gray-300">
-        {/* Column dividers */}
-        <div className="absolute inset-0 grid grid-cols-7 pointer-events-none">
-          {daysOfWeek.map((day, index) => (
-            <div
-              key={day}
-              className={`border-r border-gray-300 ${index === 6 ? "border-r-0" : ""}`}
-            />
-          ))}
-        </div>
-
+      <div className="relative border-t border-gray-300 overflow-auto h-[calc(100vh-10rem)]">
         {/* Assignment bars */}
         <div className="relative p-2">
-          {assignmentRows.map((row, rowIndex) => (
-            <div key={rowIndex} className="relative mb-1" style={{ height: 'auto', minHeight: '100px' }}>
-              {row.map((assignment, assignmentIndex) => {
-                const span = getAssignmentSpan(assignment);
-                if (!span) return null;
+          {/* Column dividers - moved inside scrollable content */}
+          <div className="absolute inset-0 grid grid-cols-7 pointer-events-none" style={{ height: '100%', minHeight: '100%' }}>
+            {daysOfWeek.map((day, index) => (
+              <div
+                key={day}
+                className={`border-b border-r border-gray-300 h-full ${index === 6 ? "border-r-0" : ""}`}
+              />
+            ))}
+          </div>
+        
+          {/* Assignment bars */}
+          <div className="relative p-2">
+            {assignmentRows.map((row, rowIndex) => (
+              <div key={rowIndex} className="relative mb-1" style={{ height: 'auto', minHeight: '100px' }}>
+                {row.map((assignment, assignmentIndex) => {
+                  const span = getAssignmentSpan(assignment);
+                  if (!span) return null;
 
-                const globalIndex = assignments.indexOf(assignment);
-                const isDone = doneSet.has(globalIndex);
-                const isHovered = hoveredAssignment === globalIndex;
+                  const globalIndex = assignments.indexOf(assignment);
+                  const isDone = doneSet.has(globalIndex);
+                  const isHovered = hoveredAssignment === globalIndex;
 
-                const widthPercent = ((span.endCol - span.startCol + 1) / 7) * 100;
-                const leftPercent = (span.startCol / 7) * 100;
+                  const widthPercent = ((span.endCol - span.startCol + 1) / 7) * 100;
+                  const leftPercent = (span.startCol / 7) * 100;
 
-                return (
-                  <div
-                    key={assignmentIndex}
-                    className={`absolute border rounded-sm transition-all ${
-                      isDone ? "bg-green-200" : "bg-blue-200"
-                    }`}
-                    style={{
-                      left: `${leftPercent}%`,
-                      width: `${widthPercent}%`,
-                      top: 0,
-                      padding: '3px',
-                      position: 'relative',
-                      textAlign: 'center',
-                      paddingBottom: isHovered ? '31px' : '4px',
-                    }}
-                    onMouseEnter={() => setHoveredAssignment(globalIndex)}
-                    onMouseLeave={() => setHoveredAssignment(null)}
-                  >
-                    {/* Buttons - only show on hover */}
-                    {isHovered && (
-                      <div className="flex justify-between items-center mt-1" style={{ position: 'absolute', bottom: '3px', left: '8px', right: '8px' }}>
-                        <button
-                          onClick={() => markAsDone(globalIndex)}
-                          className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
-                        >
-                          {isDone ? "Undo" : "Mark as Done"}
-                        </button>
-                        <button
-                          onClick={() => {
-                            setCurrentAssignment(assignment);
-                            setEditOpen(true);
-                          }}
-                          className="globalButton bg-yellow-300 px-2 py-1 rounded text-sm ml-2"
-                        >
-                          Edit
-                        </button>
+                  return (
+                    <div
+                      key={assignmentIndex}
+                      className={`absolute border rounded-sm transition-all ${
+                        isDone ? "bg-green-200" : "bg-blue-200"
+                      }`}
+                      style={{
+                        left: `${leftPercent}%`,
+                        width: `${widthPercent}%`,
+                        top: 0,
+                        padding: '3px',
+                        position: 'relative',
+                        textAlign: 'center',
+                        paddingBottom: isHovered ? '31px' : '4px',
+                      }}
+                      onMouseEnter={() => setHoveredAssignment(globalIndex)}
+                      onMouseLeave={() => setHoveredAssignment(null)}
+                    >
+                      {/* Buttons - only show on hover */}
+                      {isHovered && (
+                        <div className="flex justify-between items-center mt-1" style={{ position: 'absolute', bottom: '3px', left: '8px', right: '8px' }}>
+                          <button
+                            onClick={() => markAsDone(globalIndex)}
+                            className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
+                          >
+                            {isDone ? "Undo" : "Mark as Done"}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setCurrentAssignment(assignment);
+                              setEditOpen(true);
+                            }}
+                            className="globalButton bg-yellow-300 px-2 py-1 rounded text-sm ml-2"
+                          >
+                            Edit
+                          </button>
+                        </div>
+                      )}
+                      
+                      {/* Assignment details */}
+                      <div className="text-sm flex-grow">
+                        <div><strong>Class:</strong> {assignment.className}</div>
+                        <div><strong>Name:</strong> {assignment.Name}</div>
+                        <div><strong>Details:</strong> {assignment.Details}</div>
                       </div>
-                    )}
-                    
-                    {/* Assignment details */}
-                    <div className="text-sm flex-grow">
-                      <div><strong>Class:</strong> {assignment.className}</div>
-                      <div><strong>Name:</strong> {assignment.Name}</div>
-                      <div><strong>Details:</strong> {assignment.Details}</div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
