@@ -1,24 +1,55 @@
 'use client';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 import { Assignment } from './assignment';
+import { createClient } from '@/utils/supabase/client';
+
+const supabase = createClient();
 
 export default function EditAssignments() {
+    console.log('EditAssignments component rendered!');
     const [assignments, setAssignments] = useState<Assignment[]>([]);
     const [error, setError] = useState<string | null>(null);
 
 
     useEffect(() => {
-        fetch('/api/fetchBacklog')
-          .then((res) => {
-            if (!res.ok) throw new Error('Failed to fetch assignments');
-            return res.json();
-          })
-          .then(setAssignments)
-          .catch((err) => {
-            console.error(err);
-            setError('Could not load assignments');
+      console.log('useEffect triggered!');
+      const loadAssignments = async () => {
+        try {
+          // Get the user's session token
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          
+          if (sessionError || !session) {
+            setError('Not authenticated. Please log in.');
+            return;
+          }
+          
+          console.log('Making fetch request to /api/fetchBacklog');
+  
+          // Make the fetch call with Authorization header
+          const res = await fetch('/api/fetchBacklog', {
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`
+            }
           });
-      }, []);
+
+          console.log('Session:', session);
+          console.log('Session error:', sessionError);
+  
+          if (!res.ok) throw new Error('Failed to fetch assignments');
+          
+          const data = await res.json();
+          console.log('Received data:', data);
+          console.log('Data length:', data?.length);
+          console.log('Data type:', typeof data);
+          setAssignments(data);
+        } catch (err) {
+          console.error(err);
+          setError('Could not load assignments');
+        }
+      };
+  
+      loadAssignments();
+    }, []);
       
 
       return (

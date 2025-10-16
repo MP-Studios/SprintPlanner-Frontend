@@ -103,8 +103,8 @@ export default function AssignmentsPage() {
   };
 
   return (
-    <div className="newAssignment p-40 overflow-hidden mx-auto rounded-2xl h-screen flex flex-col">
-    <form onSubmit={handleSubmit} className="p-6 space-y-4 flex flex-col">
+    <div className="newAssignment p-6 mx-auto rounded-2xl flex flex-col min-h-[28vh]">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
       <div className="w-full">
         <label className="assignmentInfo p-6 text-lg font-medium text-black">
           Course Name
@@ -164,28 +164,15 @@ export default function AssignmentsPage() {
           placeholder= 'Super cool assignment'
         />
       </div>
-
+      <div className="w-full flex justify-end mt-2">
         <button
           type="submit"
-          className="absolute bottom-6 right-6 outline-2 globalButton w-[20%] self-end block text-md text-grey rounded flex-center"
+          className="outline-2 globalButton w-[20%] text-grey rounded"
         >
           Submit
         </button>
-      </form>
-
-      {/* ► List of Assignments */}
-      <div className="overflow-auto flex-1">
-        {error ? (
-          <p style={{ color: 'red' }}>{error}</p>
-        ) : (
-          assignments.map((a, i) => (
-            <p key={i} className="mb-2">
-              <strong>{a.className}</strong>: {a.Name}{' '}
-              <span className="text-gray-500">(Due: {a.DueDate})</span>
-            </p>
-          ))
-        )}
       </div>
+    </form>
     </div>
   );
 }

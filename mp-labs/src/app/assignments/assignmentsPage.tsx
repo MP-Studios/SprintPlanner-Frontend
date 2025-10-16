@@ -30,7 +30,7 @@ export default function AssignmentContainer() {
             </div>
             {showAlternativeView && (
             <div className="fixed inset-0 flex items-center justify-center z-50">
-                <div className="newAssignmentModal bg-gray-50 rounded-2xl w-[500px] max-h-[33vh] relative overflow-hidden">
+                <div className="newAssignmentModal bg-gray-50 rounded-2xl w-[500px] max-h-[80vh] relative overflow-y-auto">
                     <h2 className="mb-4 text-xl font-bold text-black text-center">Create New Assignment</h2>
                     <Assignments/>
                     <button

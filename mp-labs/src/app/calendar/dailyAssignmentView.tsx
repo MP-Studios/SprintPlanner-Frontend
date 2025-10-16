@@ -54,7 +54,7 @@ export default function DailyCalendar() {
          <div>
          <div className="day-text-formate text-sm font-semibold text-gray-600">TODAY</div>
         <div className="date-time-value text-lg font-semibold">
-          <div className="time-formate">
+          <div className="time-formate" suppressHydrationWarning>
             {time.toLocaleTimeString()}
           </div>
           <div className="date-formate">
