@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
-
+import { getClassColorNumber } from '@/app/colors/classColors';
 import { Assignment } from './assignment';
 
 export default function AssignmentsPage() {
@@ -172,6 +172,27 @@ export default function AssignmentsPage() {
             Submit
           </button>
       </form>
-    </div> 
+
+            <div className="overflow-auto flex-1 space-y-2">
+        {error ? (
+          <p style={{ color: 'red' }}>{error}</p>
+        ) : (
+          assignments.map((a, i) => {
+            const colorNumber = getClassColorNumber(a.ClassId);
+            const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
+            
+            return (
+              <div
+                key={i}
+                className={`assignment-card ${colorClass}`}
+              >
+                <span className="class-badge">{a.className}</span>: {a.Name}{' '}
+                <span className="text-gray-500 text-sm">(Due: {new Date(a.DueDate).toLocaleDateString()})</span>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
   );
 }
