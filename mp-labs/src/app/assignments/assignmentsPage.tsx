@@ -1,8 +1,8 @@
 'use client'
 import { useState } from "react"
-//import AssignmentsPage from "./assignment"
+import Assignments from "./assignments"
 import EditAssignments from "./editAssignmentView"
-import Assignments from "./assignment"
+// import Assignments from "./assignment"
 import { FC, ReactNode } from "react";
 
 export default function AssignmentContainer() {

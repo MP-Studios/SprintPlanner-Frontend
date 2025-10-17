@@ -12,7 +12,7 @@ export default function Dashboard() {
         </div>
   
         {/* Right: calendar (75% width) */}
-        <div className="w-[65%] mx-auto h-full p-6">
+        <div className="w-[65%] mx-auto p-6">
           <CalendarView />
         </div>
   
