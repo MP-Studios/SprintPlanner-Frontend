@@ -914,3 +914,10 @@ body .dribbble {
   background: #94a3b8;
 }
 
+/* Daily List Modal */
+.daily-list {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
