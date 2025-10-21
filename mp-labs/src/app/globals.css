@@ -686,10 +686,17 @@ body .dribbble {
   letter-spacing: 4px
 }
 
+/* creating new assignment through modal */
 .newAssignmentModal {
   background-color: #a2c9b8;
   padding-top: 10px;
+  padding-bottom: 10px;
   padding-left: 10px;
+  padding-right: 10px;
+}
+
+.createAssignment {
+  padding-top: 20px;
   padding-right: 10px;
 }
 
