@@ -4,3 +4,4 @@ export const getDailyAssignments=`${API_BASE}/api/assignments/daily`;
 export const getSprintAssignments=`${API_BASE}/api/assignments`;
 export const getBackLog=`${API_BASE}/api/assignments/backlog`;
 export const saveAssignments = `${API_BASE}/api/supabase/saveAssignment`;
+export const getStartDates = `${API_BASE}/api/fetchSprintDates`;
