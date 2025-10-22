@@ -325,15 +325,6 @@ export default function Calendar(){
                   const globalIndex = assignments.indexOf(assignment);
                   const isDone = doneSet.has(globalIndex);
                   
-                  const due = new Date(assignment.DueDate);
-                  const formattedDue = due.toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'short', 
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  });
-                  
                   const colorNumber = getClassColorNumber(assignment.ClassId);
                   const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
 
@@ -351,9 +342,6 @@ export default function Calendar(){
                           </div>
                           <div className="assignment-title">
                             {assignment.Name}
-                          </div>
-                          <div className="text-sm text-gray-600 mb-2">
-                            <strong>Due:</strong> {formattedDue}
                           </div>
                         </div>
                         <div className="flex flex-col gap-2">
@@ -396,6 +384,7 @@ export default function Calendar(){
       </div>
     )}
 
+    {/* make her functional */}
     <div className="next-week-link">
       <div className="next-week-details">
         <a href="./src/about.tsx">Next week</a>
