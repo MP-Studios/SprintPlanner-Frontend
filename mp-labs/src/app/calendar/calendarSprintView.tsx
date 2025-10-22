@@ -311,7 +311,13 @@ export default function Calendar(){
           <h2 className="text-lg font-bold p-6 pb-2 text-center w-full">{selectedWeekday} Details</h2>
       
           {/* Scrollable content */}
-          <div className="flex-grow overflow-y-auto px-6">
+          <div 
+            className="flex-grow overflow-y-auto px-6"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#cbd5e1 #f1f5f9'
+            }}
+          >
             {dailyAssignments.length > 0 ? (
               <ul className="space-y-4 py-4 p-4">
               <p className="text-center font-semibold mb-2 pt-2">Assignments due:</p>

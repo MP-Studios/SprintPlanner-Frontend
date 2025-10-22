@@ -3,7 +3,11 @@ import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 import { getClassColorNumber } from '@/app/colors/classColors';
 import { Assignment } from './assignment';
 
-export default function AssignmentsPage() {
+type AssignmentsPageProps = {
+  onClose?: () => void;
+}
+
+export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,19 +38,6 @@ export default function AssignmentsPage() {
   useEffect(() => {
   loadData();
   }, []);
-
-
-  const fetchAssignments = async () => {
-    try {
-      const res = await fetch('http://localhost:8080/api/backlog');
-      if (!res.ok) throw new Error('Failed to fetch');
-      const data = await res.json();
-      setAssignments(data);
-    } catch (err) {
-      console.error(err);
-      setError('Error fetching assignments');
-    }
-  };
   
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -65,12 +56,12 @@ export default function AssignmentsPage() {
     try {
       
       const payload = {
-  Name: form.Name,
-  className: form.className,
-  Details: form.Details,
-  taskCompleted: false,
-  DueDate: form.DueDate ? new Date(form.DueDate).toISOString() : null
-};
+        Name: form.Name,
+        className: form.className,
+        Details: form.Details,
+        taskCompleted: false,
+        DueDate: form.DueDate ? new Date(form.DueDate).toISOString() : null
+      };
     const res = await fetch("/api/fetchSaveAssignment", {
         method: "POST",              
         headers: {
@@ -89,6 +80,7 @@ export default function AssignmentsPage() {
       setForm({ className: '', Name: '', DueDate: '' , Details: ''});
       // re-fetch the list
       loadData();
+      if(onClose) onClose();
     } catch (err) {
       console.error(err);
       alert('Error saving assignment');
@@ -103,10 +95,10 @@ export default function AssignmentsPage() {
   };
 
   return (
-    <div className="newAssignment p-40 overflow-hidden mx-auto rounded-2xl h-screen flex flex-col">
+    <div className="p-40 mx-auto rounded-2xl h-screen flex flex-col">
       <form onSubmit={handleSubmit} className="p-6 space-y-4 flex flex-col">
         <div className="w-full">
-          <label className="assignmentInfo p-6 text-lg font-medium text-black">
+          <label className="p-6 text-lg font-medium text-black">
             Course Name
           </label>
           <input
@@ -121,7 +113,7 @@ export default function AssignmentsPage() {
         </div>
 
         <div className="w-full">
-          <label className="assignmentInfo p-6 text-lg font-medium text-black">
+          <label className="p-6 text-lg font-medium text-black">
             Assignment
           </label>
           <input
@@ -136,7 +128,7 @@ export default function AssignmentsPage() {
         </div>
 
         <div className="w-full">
-          <label className="assignmentInfo p-6 text-lg font-medium text-black">
+          <label className="p-6 text-lg font-medium text-black">
             Due Date
           </label>
           <input
@@ -151,7 +143,7 @@ export default function AssignmentsPage() {
         </div>
 
         <div className="w-full">
-          <label className="assignmentInfo p-6 text-lg font-medium text-black ">
+          <label className="p-6 text-lg font-medium text-black">
             Details
           </label>
           <input
@@ -164,35 +156,15 @@ export default function AssignmentsPage() {
             placeholder= 'Super cool assignment'
           />
         </div>
-
-          <button
+        <div className="createAssignment w-full flex justify-end pr-6 mt-6">
+          <button 
             type="submit"
-            className="absolute bottom-6 right-6 outline-2 globalButton w-[20%] self-end block text-md text-grey rounded flex-center"
+            className="globalButton mt-4 px-4 py-2 rounded outline-2"
           >
-            Submit
+            Add Assignment
           </button>
+        </div>
       </form>
-
-            <div className="overflow-auto flex-1 space-y-2">
-        {error ? (
-          <p style={{ color: 'red' }}>{error}</p>
-        ) : (
-          assignments.map((a, i) => {
-            const colorNumber = getClassColorNumber(a.ClassId);
-            const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
-            
-            return (
-              <div
-                key={i}
-                className={`assignment-card ${colorClass}`}
-              >
-                <span className="class-badge">{a.className}</span>: {a.Name}{' '}
-                <span className="text-gray-500 text-sm">(Due: {new Date(a.DueDate).toLocaleDateString()})</span>
-              </div>
-            );
-          })
-        )}
-      </div>
     </div>
   );
 }
