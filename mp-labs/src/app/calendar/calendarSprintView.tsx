@@ -233,50 +233,58 @@ export default function Calendar(){
                   const widthPercent = ((span.endCol - span.startCol + 1) / 7) * 100;
                   const leftPercent = (span.startCol / 7) * 100;
 
+                  const colorNumber = getClassColorNumber(assignment.ClassId);
+                  const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
+
                   return (
                     <div
                       key={assignmentIndex}
-                      className={`absolute border rounded-sm transition-all ${
-                        isDone ? "bg-green-200" : "bg-blue-200"
-                      }`}
+                      className={`assignment-card absolute transition-all cursor-pointer ${colorClass} ${isHovered ? "shadow-lg" : ""}`}
                       style={{
+                        opacity: isDone ? 0.6 : 1,
                         left: `${leftPercent}%`,
                         width: `${widthPercent}%`,
                         top: 0,
-                        padding: '3px',
                         position: 'relative',
-                        textAlign: 'center',
                         paddingBottom: isHovered ? '31px' : '4px',
                       }}
                       onMouseEnter={() => setHoveredAssignment(globalIndex)}
                       onMouseLeave={() => setHoveredAssignment(null)}
+                      onClick={() => {
+                        setCurrentAssignment(assignment);
+                        setEditOpen(true);
+                      }}
                     >
-                      {/* Buttons - only show on hover */}
+                      {/* Button - only show on hover */}
                       {isHovered && (
-                        <div className="flex justify-between items-center mt-1" style={{ position: 'absolute', bottom: '3px', left: '8px', right: '8px' }}>
+                        <div className="flex justify-center items-center mt-1" style={{ position: 'absolute', bottom: '3px', left: '8px', right: '8px' }}>
                           <button
-                            onClick={() => markAsDone(globalIndex)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markAsDone(globalIndex);
+                            }}
                             className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
                           >
                             {isDone ? "Undo" : "Mark as Done"}
-                          </button>
-                          <button
-                            onClick={() => {
-                              setCurrentAssignment(assignment);
-                              setEditOpen(true);
-                            }}
-                            className="globalButton bg-yellow-300 px-2 py-1 rounded text-sm ml-2"
-                          >
-                            Edit
                           </button>
                         </div>
                       )}
                       
                       {/* Assignment details */}
-                      <div className="text-sm flex-grow">
-                        <div><strong>Class:</strong> {assignment.className}</div>
-                        <div><strong>Name:</strong> {assignment.Name}</div>
-                        <div><strong>Details:</strong> {assignment.Details}</div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="class-badge">
+                            {assignment.className}
+                          </span>
+                        </div>
+                        <div className="assignment-title">
+                          {assignment.Name}
+                        </div>
+                        {assignment.Details && (
+                          <div className="text-sm text-gray-700 mt-2">
+                            {assignment.Details}
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
