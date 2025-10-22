@@ -34,18 +34,20 @@ export default function Calendar(){
     const [sprintDates, setSprintDates] = useState<SprintDates | null>(null);
     const [hoveredAssignment, setHoveredAssignment] = useState<number | null>(null);
     const [dailyAssignments, setDailyAssignments] = useState<Assignment[]>([]);
+    const [weekOffset, setWeekOffset] = useState(0);
 
   const markAsDone = (index: number) => {
-  setDoneSet((prev) => {
-    const newSet = new Set(prev);
-    if (newSet.has(index)) {
-      newSet.delete(index); // unmark if already done
-    } else {
-      newSet.add(index); // mark as done
-    }
-    return newSet;
-  });
-};
+    setDoneSet((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index); // unmark if already done
+      } else {
+        newSet.add(index); // mark as done
+      }
+      return newSet;
+    });
+  };
+
   useEffect(() => {
     const loadAssignments = async () => {
     try {
@@ -67,12 +69,13 @@ export default function Calendar(){
 
   loadAssignments();
 }, []);
+
   // Get the current week's Sunday
   const getCurrentWeekSunday = () => {
     const now = new Date();
     const dayOfWeek = now.getDay();
     const sunday = new Date(now);
-    sunday.setDate(now.getDate() - dayOfWeek);
+    sunday.setDate(now.getDate() - dayOfWeek + (weekOffset * 7));
     sunday.setHours(0, 0, 0, 0);
     return sunday;
   };
@@ -181,7 +184,7 @@ export default function Calendar(){
     const assignmentRows = arrangeAssignments();
 
     return(
-    <div>
+    <div className="flex-1 flex flex-col h-full relative">
       {error && <p className="text-red-500 mb-2">{error}</p>}
 
       {/* Weekday labels */}
@@ -192,9 +195,9 @@ export default function Calendar(){
             <button
               key={d}
               onClick={() => {
-                setSelectedWeekday(fullNames[index]); // store the full day name
-                console.log('Clicking on:', d); // Log the day being clicked
-                setWeekdayModalOpen(true);            // open the modal
+                setSelectedWeekday(fullNames[index]);
+                console.log('Clicking on:', d);
+                setWeekdayModalOpen(true);
               }}
               className="flex justify-center p-2 rounded"
             >
@@ -385,17 +388,33 @@ export default function Calendar(){
     )}
 
     {/* make her functional */}
-    <div className="next-week-link">
-      <div className="next-week-details">
-        <a href="./src/about.tsx">Next week</a>
-        <div className="next-week-arrow">
+    <div className="prev-week-link">
+      <button 
+        onClick={() => setWeekOffset(weekOffset - 1)}
+        className="prev-week-details"
+      >
+        <span className="prev-week-text">Previous week</span>
+        <div className="prev-week-arrow">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 268.832 268.832">
             <path d="M265.17 125.577l-80-80c-4.88-4.88-12.796-4.88-17.677 0-4.882 4.882-4.882 12.796 0 17.678l58.66 58.66H12.5c-6.903 0-12.5 5.598-12.5 12.5 0 6.903 5.597 12.5 12.5 12.5h213.654l-58.66 58.662c-4.88 4.882-4.88 12.796 0 17.678 2.44 2.44 5.64 3.66 8.84 3.66s6.398-1.22 8.84-3.66l79.997-80c4.883-4.882 4.883-12.796 0-17.678z"/>
           </svg>
         </div>
-      </div>
+      </button>
     </div>
 
+    <div className="next-week-link">
+      <button 
+        onClick={() => setWeekOffset(weekOffset + 1)}
+        className="next-week-details"
+      >
+        <span className="next-week-text">Next week</span>
+        <div className="next-week-arrow">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 268.832 268.832">
+            <path d="M265.17 125.577l-80-80c-4.88-4.88-12.796-4.88-17.677 0-4.882 4.882-4.882 12.796 0 17.678l58.66 58.66H12.5c-6.903 0-12.5 5.598-12.5 12.5 0 6.903 5.597 12.5 12.5 12.5h213.654l-58.66 58.662c-4.88 4.882-4.88 12.796 0 17.678 2.44 2.44 5.64 3.66 8.84 3.66s6.398-1.22 8.84-3.66l79.997-80c4.883-4.882 4.883-12.796 0-17.678z"/>
+          </svg>
+        </div>
+      </button>
+    </div>
     </div>
     )
 }
