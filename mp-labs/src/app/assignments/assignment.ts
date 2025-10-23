@@ -3,5 +3,5 @@ export type Assignment = {
   Name: string;
   DueDate: string;
   Details: string;
-  ClassId?: string;
+  ClassId?: string | null;
 };

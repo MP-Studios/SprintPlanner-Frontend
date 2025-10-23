@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Calendar from "./calendarSprintView";
 import ICAL from "ical.js"; // for parsing .ics files
+import {Assignment} from "../assignments/assignment"
+
 
 type CalendarEvent = {
   summary: string;
@@ -14,6 +16,37 @@ type CalendarEvent = {
 
 export default function AssignmentContainer() {
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+
+  const assignments: Assignment[] = calendarEvents.map((ev) => ({
+    className: ev.summary,
+    Name: ev.summary,
+    DueDate: ev.end.toUTCString(),
+    Details: ev.end.toUTCString(),
+    ClassId: null,
+  }));
+
+
+  async function saveAllAssignments(assignments: Assignment[]) {
+  try {
+    await Promise.all(
+      assignments.map((assignment) =>
+        fetch("/api/fetchSaveAssignment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(assignment),
+        })
+      )
+    );
+    console.log("All assignments saved successfully!");
+  } catch (error) {
+    console.error("Error saving assignments:", error);
+  }
+}
+
+
+saveAllAssignments(assignments);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -65,7 +98,6 @@ export default function AssignmentContainer() {
       <div className="flex-grow mb-4">
         <Calendar/>
       </div>
-
       {/* Optional: Show parsed events for debugging */}
       {calendarEvents.length > 0 && (
         <div className="bg-gray-50 border-t border-gray-200 p-4 rounded overflow-y-auto max-h-64">
