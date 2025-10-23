@@ -1,12 +1,15 @@
 "use-client"
 
+import { get } from "http";
 import { useEffect, useState } from "react";
+import { getClassColorNumber } from '@/app/colors/classColors';
 
 type Assignment = {
   className: string;
   Name: string;
   Details: string;
   DueDate: string;
+  ClassId?: string;
 };
 
 type EditPageProps = {
@@ -30,6 +33,7 @@ export default function Calendar(){
     const [selectedWeekday, setSelectedWeekday] = useState<string | null>(null);
     const [sprintDates, setSprintDates] = useState<SprintDates | null>(null);
     const [hoveredAssignment, setHoveredAssignment] = useState<number | null>(null);
+    const [dailyAssignments, setDailyAssignments] = useState<Assignment[]>([]);
 
   const markAsDone = (index: number) => {
   setDoneSet((prev) => {
@@ -136,6 +140,22 @@ export default function Calendar(){
     return rows;
   };
 
+  //compile daily lists
+  useEffect(() => {
+    const weekSunday = getCurrentWeekSunday();
+    const fullNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const dayIndex = fullNames.indexOf(selectedWeekday || " ")
+    const currentDay = new Date(weekSunday);
+    currentDay.setDate(weekSunday.getDate() + dayIndex);
+
+    const dailyList = assignments.filter((assignment) => {
+      const dueDate = new Date(assignment.DueDate);
+      return dueDate.toDateString() === currentDay.toDateString();
+    });
+
+    setDailyAssignments(dailyList);
+  }, [assignments, selectedWeekday]); 
+
   function EditPage({assignment, onClose}: EditPageProps){
    return (
       <div
@@ -173,6 +193,7 @@ export default function Calendar(){
               key={d}
               onClick={() => {
                 setSelectedWeekday(fullNames[index]); // store the full day name
+                console.log('Clicking on:', d); // Log the day being clicked
                 setWeekdayModalOpen(true);            // open the modal
               }}
               className="flex justify-center p-2 rounded"
@@ -212,50 +233,58 @@ export default function Calendar(){
                   const widthPercent = ((span.endCol - span.startCol + 1) / 7) * 100;
                   const leftPercent = (span.startCol / 7) * 100;
 
+                  const colorNumber = getClassColorNumber(assignment.ClassId);
+                  const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
+
                   return (
                     <div
                       key={assignmentIndex}
-                      className={`absolute border rounded-sm transition-all ${
-                        isDone ? "bg-green-200" : "bg-blue-200"
-                      }`}
+                      className={`assignment-card absolute transition-all cursor-pointer ${colorClass} ${isHovered ? "shadow-lg" : ""}`}
                       style={{
+                        opacity: isDone ? 0.6 : 1,
                         left: `${leftPercent}%`,
                         width: `${widthPercent}%`,
                         top: 0,
-                        padding: '3px',
                         position: 'relative',
-                        textAlign: 'center',
                         paddingBottom: isHovered ? '31px' : '4px',
                       }}
                       onMouseEnter={() => setHoveredAssignment(globalIndex)}
                       onMouseLeave={() => setHoveredAssignment(null)}
+                      onClick={() => {
+                        setCurrentAssignment(assignment);
+                        setEditOpen(true);
+                      }}
                     >
-                      {/* Buttons - only show on hover */}
+                      {/* Button - only show on hover */}
                       {isHovered && (
-                        <div className="flex justify-between items-center mt-1" style={{ position: 'absolute', bottom: '3px', left: '8px', right: '8px' }}>
+                        <div className="flex justify-center items-center mt-1" style={{ position: 'absolute', bottom: '3px', left: '8px', right: '8px' }}>
                           <button
-                            onClick={() => markAsDone(globalIndex)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markAsDone(globalIndex);
+                            }}
                             className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
                           >
                             {isDone ? "Undo" : "Mark as Done"}
-                          </button>
-                          <button
-                            onClick={() => {
-                              setCurrentAssignment(assignment);
-                              setEditOpen(true);
-                            }}
-                            className="globalButton bg-yellow-300 px-2 py-1 rounded text-sm ml-2"
-                          >
-                            Edit
                           </button>
                         </div>
                       )}
                       
                       {/* Assignment details */}
-                      <div className="text-sm flex-grow">
-                        <div><strong>Class:</strong> {assignment.className}</div>
-                        <div><strong>Name:</strong> {assignment.Name}</div>
-                        <div><strong>Details:</strong> {assignment.Details}</div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="class-badge">
+                            {assignment.className}
+                          </span>
+                        </div>
+                        <div className="assignment-title">
+                          {assignment.Name}
+                        </div>
+                        {assignment.Details && (
+                          <div className="text-sm text-gray-700 mt-2">
+                            {assignment.Details}
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -274,21 +303,88 @@ export default function Calendar(){
         />
       )}
 
-      {weekdayModalOpen && selectedWeekday && (
+    {/* Daily List */}
+    {weekdayModalOpen && selectedWeekday && (
       <div className="fixed inset-0 flex justify-center items-center z-50">
-        <div className="modalClass rounded shadow-lg w-100 h-40 flex flex-col">
+        <div className="daily-list modalClass rounded shadow-lg w-120 h-100 flex flex-col">
           {/* Header */}
           <h2 className="text-lg font-bold p-6 pb-2 text-center w-full">{selectedWeekday} Details</h2>
       
           {/* Scrollable content */}
-          <div className="flex-grow overflow-y-auto px-6 text-center">
-            <p>
-              Here you can add content specific to {selectedWeekday}.
-            </p>
+          <div 
+            className="flex-grow overflow-y-auto px-6"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#cbd5e1 #f1f5f9'
+            }}
+          >
+            {dailyAssignments.length > 0 ? (
+              <ul className="space-y-4 py-4 p-4">
+              <p className="text-center font-semibold mb-2 pt-2">Assignments due:</p>
+                {dailyAssignments.map((assignment, dailyIndex) => {
+                  const globalIndex = assignments.indexOf(assignment);
+                  const isDone = doneSet.has(globalIndex);
+                  
+                  const due = new Date(assignment.DueDate);
+                  const formattedDue = due.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  });
+                  
+                  const colorNumber = getClassColorNumber(assignment.ClassId);
+                  const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
+
+                  return (
+                    <li
+                      key={`${assignment.ClassId}-${dailyIndex}`}
+                      className={`assignment-card ${colorClass}`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="class-badge">
+                              {assignment.className}
+                            </span>
+                          </div>
+                          <div className="assignment-title">
+                            {assignment.Name}
+                          </div>
+                          <div className="text-sm text-gray-600 mb-2">
+                            <strong>Due:</strong> {formattedDue}
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <button
+                            onClick={() => markAsDone(globalIndex)}
+                            className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
+                          >
+                            {isDone ? "Undo" : "Mark as Done"}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setCurrentAssignment(assignment);
+                              setEditOpen(true);
+                            }}
+                            className="globalButton bg-yellow-300 px-2 py-1 rounded text-sm"
+                          >
+                            Edit
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="text-center py-4">No assignments for {selectedWeekday}.</p>
+            )}
           </div>
       
-          {/* Footer with Close button pinned bottom-right */}
-          <div className="flex justify-end h-7 w-97">
+          {/* Close button */}
+          <div className="flex justify-end h-5 w-115">
             <button
               onClick={() => setWeekdayModalOpen(false)}
               className="globalButton rounded h-5"
@@ -298,7 +394,6 @@ export default function Calendar(){
           </div>
         </div>
       </div>
-    
     )}
 
     <div className="next-week-link">
