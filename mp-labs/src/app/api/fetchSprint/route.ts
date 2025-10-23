@@ -10,7 +10,8 @@ export async function GET(request: Request) {
     }
 
     // Forward the request to your Java backend
-    const response = await fetch('http://localhost:8080/api/assignments', {
+    const backendUrl = process.env.API_BASE;
+    const response = await fetch(`${backendUrl}/api/assignments`, {
       headers: {
         'Authorization': authHeader // Forward the auth header
       }
