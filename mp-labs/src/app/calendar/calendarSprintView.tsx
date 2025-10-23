@@ -1,8 +1,10 @@
 "use-client"
 
-import { get } from "http";
 import { useEffect, useState } from "react";
 import { getClassColorNumber } from '@/app/colors/classColors';
+import { createClient } from '@/utils/supabase/client';
+
+const supabase = createClient();
 
 type Assignment = {
   className: string;
@@ -49,11 +51,35 @@ export default function Calendar(){
   useEffect(() => {
     const loadAssignments = async () => {
     try {
-      const res = await fetch("/api/fetchSprint");
+      //const supabase = createClientComponentClient();
+      //const { data: { session } } = await supabase.auth.getSession();
+      
+      //if (!session) {
+      //   setError("Not authenticated");
+      //   return;
+      // }
+
+      //const authToken = session.access_token;
+
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          
+      if (sessionError || !session) {
+        setError('Not authenticated. Please log in.');
+        return;
+      }
+      const res = await fetch('/api/assignments', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
       if (!res.ok) throw new Error("Failed to fetch assignments");
       const dataAssignments: Assignment[] = await res.json();
       
-      const resDates = await fetch("api/fetchSprintDates");
+      const resDates = await fetch('api/fetchSprintDates', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
       if (!resDates.ok) throw new Error("Failed to fetch sprint dates");
       const dataDates: SprintDates = await resDates.json();
 

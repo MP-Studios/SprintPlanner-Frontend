@@ -1,5 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
+import { createClient } from '@/utils/supabase/client';
+
+const supabase = createClient();
 
 type Assignment = {
   className: string;
@@ -16,7 +19,17 @@ export default function DailyCalendar() {
   
  async function loadData() {
     try {
-      const res = await fetch("/api/fetchBacklog/");
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          
+      if (sessionError || !session) {
+        setError('Not authenticated. Please log in.');
+        return;
+      }
+      const res = await fetch('/api/fetchBacklog', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
       const data = await res.json();
       setAssignments(data);
     } catch ( err) {

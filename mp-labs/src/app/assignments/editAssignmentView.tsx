@@ -41,7 +41,6 @@ function EditPage({assignment, onClose}: EditPageProps){
 }
 
 export default function EditAssignments() {
-    console.log('EditAssignments component rendered!');
     const [assignments, setAssignments] = useState<Assignment[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [editOpen, setEditOpen] = useState(false);
