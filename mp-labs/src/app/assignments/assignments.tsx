@@ -2,6 +2,7 @@
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 import { getClassColorNumber } from '@/app/colors/classColors';
 import { Assignment } from './assignment';
+import { createClient } from '@/utils/supabase/client';
 
 type AssignmentsPageProps = {
   onClose?: () => void;
@@ -22,7 +23,19 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
   
   async function loadData() {
     try {
-      const res = await fetch("/api/fetchBacklog/");
+      const supabase = createClient();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError || !session) {
+        setError('Not authenticated. Please log in.');
+        return;
+      }
+
+      const res = await fetch("/api/fetchBacklog/", {           
+        headers: {
+        "Authorization": `Bearer ${session.access_token}`
+        }, 
+      });
       const data = await res.json();
 
 
@@ -54,6 +67,13 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
     }
 
     try {
+      const supabase = createClient();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError || !session) {
+        setError('Not authenticated. Please log in.');
+        return;
+      }
       
       const payload = {
         Name: form.Name,
@@ -66,6 +86,7 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
         method: "POST",              
         headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.access_token}`
       },
         body: JSON.stringify(payload),   
       });  
