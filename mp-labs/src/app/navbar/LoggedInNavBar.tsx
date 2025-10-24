@@ -35,10 +35,13 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
   // Get user initials
   const getInitials = () => {
     if (user?.user_metadata?.initials) return user.user_metadata.initials;
-    if (user?.user_metadata?.name) {
-      const names = user.user_metadata.name.split(' ');
-      return names.map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  
+    const name = user?.user_metadata?.name;
+    if (typeof name === "string" && name.trim().length > 0) {
+      const names = name.trim().split(/\s+/); // split by any whitespace
+      return names.map(n => n[0]?.toUpperCase() ?? "").join("").slice(0, 2);
     }
+  
     if (user?.email) return user.email.charAt(0).toUpperCase();
     return "U";
   };
