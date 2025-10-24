@@ -1,9 +1,18 @@
 'use client'
 
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
 import CalendarView from "./calendar/page";
 import AssignmentContainer from "./assignments/assignmentsPage";
 
 export default function Dashboard() {
+    const router = useRouter();
+
+    useEffect(() => {
+      router.refresh();
+    }, []);
+    
     return (
       <div className="flex h-screen">
         {/* Left: assignments (25% width) */}
