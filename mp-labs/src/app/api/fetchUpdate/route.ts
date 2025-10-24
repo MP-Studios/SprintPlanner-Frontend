@@ -10,13 +10,10 @@ type UpdateAssignmentRequest = {
   details: string;
 };
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: Request) {
   try {
     const body: UpdateAssignmentRequest = await request.json();
-    const { id: assignmentId } = await params;
+    const assignmentId =request.headers.get('Id');
 
     const response = await fetch(updateAssignment + "/" + assignmentId, {
       method: "PUT",
