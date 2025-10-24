@@ -183,9 +183,34 @@ export default function Calendar(){
 
     const assignmentRows = arrangeAssignments();
 
+    const getWeekDateRange = () => {
+      const weekSunday = getCurrentWeekSunday();
+      const weekSaturday = new Date(weekSunday);
+      weekSaturday.setDate(weekSunday.getDate() + 6);
+      const formatDate = (date: Date) => {
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      };
+      return `${formatDate(weekSunday)} - ${formatDate(weekSaturday)}`;
+    };
+
     return(
     <div className="flex-1 flex flex-col h-full relative">
       {error && <p className="text-red-500 mb-2">{error}</p>}
+
+      {/* Week range header */}
+      <div className="flex items-center justify-between mb-2 px-4">
+        <div className="text-lg font-semibold text-gray-700">
+          {getWeekDateRange()}
+        </div>
+        {weekOffset !== 0 && (
+          <button
+            onClick={() => setWeekOffset(0)}
+            className="globalButton bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+          >
+            Return to Current Week
+          </button>
+        )}
+      </div>
 
       {/* Weekday labels */}
       <div className="calendar-week-days grid grid-cols-7 font-medium mb-2 text-gray-700">
