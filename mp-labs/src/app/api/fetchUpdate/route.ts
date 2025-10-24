@@ -1,7 +1,7 @@
 // src/app/api/fetchUpdate/[id]/route.ts
 
 import { NextResponse } from "next/server";
-import { updateAssignment } from "../apiConstant"; // moved one level up
+import { updateAssignment } from "../apiConstant"; 
 
 type UpdateAssignmentRequest = {
   className: string;
@@ -12,13 +12,13 @@ type UpdateAssignmentRequest = {
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body: UpdateAssignmentRequest = await request.json();
-    const assignmentId = params.id;
+    const { id: assignmentId } = await params;
 
-    const response = await fetch(`${updateAssignment}/${assignmentId}`, {
+    const response = await fetch(updateAssignment + "/" + assignmentId, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
