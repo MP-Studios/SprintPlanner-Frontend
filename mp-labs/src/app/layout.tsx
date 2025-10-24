@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import NavBar from "./navbar/NavBar";
-import { Inter } from 'next/font/google'
+import LoggedInNavBar from "./navbar/LoggedInNavBar";
+import LoggedOutNavBar from "./navbar/LoggedOutNavBar";
+import { Inter } from 'next/font/google';
+import { createClient } from '@/utils/supabase/server';
 
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-sans', display: 'swap' })
+const inter = Inter({ 
+  subsets: ['latin'], 
+  weight: ['400', '500', '600', '700'], 
+  variable: '--font-sans', 
+  display: 'swap' 
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,19 +28,22 @@ export const metadata: Metadata = {
   description: "Organize your Homework",
 };
 
-
-
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Check if user is logged in
+  const supabase = await createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user || null;
+
   return (
     <html lang="en" className={inter.className}>
       <body>
-      <NavBar />
-      <main className="p-4">{children}</main>  
+        {/* Show different NavBar based on login status */}
+        {user ? <LoggedInNavBar user={user} /> : <LoggedOutNavBar />}
+        <main className="p-4">{children}</main>
       </body>
     </html>
   );

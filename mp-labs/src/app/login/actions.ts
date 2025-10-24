@@ -4,8 +4,6 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { createClient } from '@/utils/supabase/server'
-import { routerServerGlobal } from 'next/dist/server/lib/router-utils/router-server-context'
-import { cookies } from 'next/headers'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -24,7 +22,7 @@ export async function login(formData: FormData) {
   }
   const userId = data.user?.id;
   revalidatePath('/', 'layout')
-  redirect('/?refresh=' + Date.now())
+  redirect('/')
 }
 
 export async function signup(formData: FormData) {
