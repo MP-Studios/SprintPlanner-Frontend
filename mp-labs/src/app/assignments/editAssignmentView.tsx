@@ -67,15 +67,9 @@ export default function EditAssignments() {
             }
           });
 
-          console.log('Session:', session);
-          console.log('Session error:', sessionError);
-  
           if (!res.ok) throw new Error('Failed to fetch assignments');
           
           const data = await res.json();
-          console.log('Received data:', data);
-          console.log('Data length:', data?.length);
-          console.log('Data type:', typeof data);
           setAssignments(data);
         } catch (err) {
           console.error(err);
