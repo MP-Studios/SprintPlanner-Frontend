@@ -518,7 +518,7 @@ body .dribbble {
 }
 
 .modalClass {
-  background-color: #a2c9b8;
+  background-color: #edf7f2;
   color: #3a554c;
 }
 
@@ -688,7 +688,7 @@ body .dribbble {
 
 /* creating new assignment through modal */
 .newAssignmentModal {
-  background-color: #a2c9b8;
+  background-color: #edf7f2;
   padding-top: 10px;
   padding-bottom: 10px;
   padding-left: 10px;
