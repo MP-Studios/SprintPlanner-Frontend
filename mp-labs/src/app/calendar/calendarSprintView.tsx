@@ -59,8 +59,9 @@ export default function Calendar(){
         setError('Not authenticated. Please log in.');
         return;
       }
-      const res = await fetch('/api/assignments', {
+      const res = await fetch('/api/fetchBacklog', {
         //if you fetch from api/fetchBacklog = only able to load first 1000 assignments
+        //if you fetch from api/assignments, it'll only show assignments in current spring -- better for testing miguelcow1 
         headers: {
           'Authorization': `Bearer ${session.access_token}`
         }
