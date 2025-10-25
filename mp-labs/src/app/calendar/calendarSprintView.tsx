@@ -500,6 +500,11 @@ export default function Calendar(){
                     <li
                       key={`${assignment.ClassId}-${dailyIndex}`}
                       className={`assignment-card ${colorClass}`}
+                      onClick={() => {
+                        setCurrentAssignment(assignment);
+                        setEditOpen(true);
+                        setWeekdayModalOpen(false);
+                      }}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -514,19 +519,13 @@ export default function Calendar(){
                         </div>
                         <div className="flex flex-col gap-2">
                           <button
-                            onClick={() => markAsDone(globalIndex)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markAsDone(globalIndex)
+                            }}
                             className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
                           >
                             {isDone ? "Undo" : "Mark as Done"}
-                          </button>
-                          <button
-                            onClick={() => {
-                              setCurrentAssignment(assignment);
-                              setEditOpen(true);
-                            }}
-                            className="globalButton bg-yellow-300 px-2 py-1 rounded text-sm"
-                          >
-                            Edit
                           </button>
                         </div>
                       </div>
