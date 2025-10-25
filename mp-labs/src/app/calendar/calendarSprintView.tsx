@@ -53,16 +53,6 @@ export default function Calendar(){
   useEffect(() => {
     const loadAssignments = async () => {
     try {
-      //const supabase = createClientComponentClient();
-      //const { data: { session } } = await supabase.auth.getSession();
-      
-      //if (!session) {
-      //   setError("Not authenticated");
-      //   return;
-      // }
-
-      //const authToken = session.access_token;
-
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
           
       if (sessionError || !session) {
@@ -70,6 +60,7 @@ export default function Calendar(){
         return;
       }
       const res = await fetch('/api/assignments', {
+        //if you fetch from api/fetchBacklog = only able to load first 1000 assignments
         headers: {
           'Authorization': `Bearer ${session.access_token}`
         }
@@ -108,17 +99,14 @@ export default function Calendar(){
 
   // Calculate which columns an assignment should span
   const getAssignmentSpan = (assignment: Assignment) => {
-    if (!sprintDates) return null;
 
     const weekSunday = getCurrentWeekSunday();
-    const sprintStart = new Date(sprintDates.startDate);
     const dueDate = new Date(assignment.DueDate);
-
-    // Determine the actual start for this week's view
-    const viewStart = sprintStart < weekSunday ? weekSunday : sprintStart;
+    const assignmentStart = new Date(assignment.DueDate);
+    assignmentStart.setDate(dueDate.getDate() - 14);
     
     // Calculate start column (0-6)
-    const startCol = Math.max(0, Math.floor((viewStart.getTime() - weekSunday.getTime()) / (1000 * 60 * 60 * 24)));
+    const startCol = Math.max(0, Math.floor((assignmentStart.getTime() - weekSunday.getTime()) / (1000 * 60 * 60 * 24)));
     
     // Calculate end column (0-6)
     const endCol = Math.min(6, Math.floor((dueDate.getTime() - weekSunday.getTime()) / (1000 * 60 * 60 * 24)));
@@ -126,12 +114,12 @@ export default function Calendar(){
     // Only show if it overlaps with current week
     if (endCol < 0 || startCol > 6) return null;
 
-    return { startCol: Math.max(0, startCol), endCol: Math.min(6, endCol) };
+    return { startCol, endCol };
   };
 
   // Group assignments into rows to avoid overlaps
   const arrangeAssignments = () => {
-    if (!sprintDates) return [];
+    //if (!sprintDates) return [];
 
     const rows: Assignment[][] = [];
 
@@ -387,7 +375,7 @@ export default function Calendar(){
       {/* Gantt chart view */}
       <div className="relative border-t border-gray-300 overflow-auto h-[calc(100vh-10rem)]">
         {/* Assignment bars */}
-        <div className="relative p-2">
+        <div className="relative p-2 min-h-full">
           {/* Column dividers - moved inside scrollable content */}
           <div className="absolute inset-0 grid grid-cols-7 pointer-events-none" style={{ height: '100%', minHeight: '100%' }}>
             {daysOfWeek.map((day, index) => (
