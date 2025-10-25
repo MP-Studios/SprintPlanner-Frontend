@@ -53,23 +53,15 @@ export default function Calendar(){
   useEffect(() => {
     const loadAssignments = async () => {
     try {
-      //const supabase = createClientComponentClient();
-      //const { data: { session } } = await supabase.auth.getSession();
-      
-      //if (!session) {
-      //   setError("Not authenticated");
-      //   return;
-      // }
-
-      //const authToken = session.access_token;
-
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
           
       if (sessionError || !session) {
         setError('Not authenticated. Please log in.');
         return;
       }
-      const res = await fetch('/api/assignments', {
+      const res = await fetch('/api/fetchBacklog', {
+        //if you fetch from api/fetchBacklog = only able to load first 1000 assignments
+        //if you fetch from api/assignments, it'll only show assignments in current spring -- better for testing miguelcow1 
         headers: {
           'Authorization': `Bearer ${session.access_token}`
         }
@@ -108,17 +100,14 @@ export default function Calendar(){
 
   // Calculate which columns an assignment should span
   const getAssignmentSpan = (assignment: Assignment) => {
-    if (!sprintDates) return null;
 
     const weekSunday = getCurrentWeekSunday();
-    const sprintStart = new Date(sprintDates.startDate);
     const dueDate = new Date(assignment.DueDate);
-
-    // Determine the actual start for this week's view
-    const viewStart = sprintStart < weekSunday ? weekSunday : sprintStart;
+    const assignmentStart = new Date(assignment.DueDate);
+    assignmentStart.setDate(dueDate.getDate() - 14);
     
     // Calculate start column (0-6)
-    const startCol = Math.max(0, Math.floor((viewStart.getTime() - weekSunday.getTime()) / (1000 * 60 * 60 * 24)));
+    const startCol = Math.max(0, Math.floor((assignmentStart.getTime() - weekSunday.getTime()) / (1000 * 60 * 60 * 24)));
     
     // Calculate end column (0-6)
     const endCol = Math.min(6, Math.floor((dueDate.getTime() - weekSunday.getTime()) / (1000 * 60 * 60 * 24)));
@@ -126,12 +115,12 @@ export default function Calendar(){
     // Only show if it overlaps with current week
     if (endCol < 0 || startCol > 6) return null;
 
-    return { startCol: Math.max(0, startCol), endCol: Math.min(6, endCol) };
+    return { startCol, endCol };
   };
 
   // Group assignments into rows to avoid overlaps
   const arrangeAssignments = () => {
-    if (!sprintDates) return [];
+    //if (!sprintDates) return [];
 
     const rows: Assignment[][] = [];
 
@@ -387,7 +376,7 @@ export default function Calendar(){
       {/* Gantt chart view */}
       <div className="relative border-t border-gray-300 overflow-auto h-[calc(100vh-10rem)]">
         {/* Assignment bars */}
-        <div className="relative p-2">
+        <div className="relative p-2 min-h-full">
           {/* Column dividers - moved inside scrollable content */}
           <div className="absolute inset-0 grid grid-cols-7 pointer-events-none" style={{ height: '100%', minHeight: '100%' }}>
             {daysOfWeek.map((day, index) => (
@@ -512,6 +501,11 @@ export default function Calendar(){
                     <li
                       key={`${assignment.ClassId}-${dailyIndex}`}
                       className={`assignment-card ${colorClass}`}
+                      onClick={() => {
+                        setCurrentAssignment(assignment);
+                        setEditOpen(true);
+                        setWeekdayModalOpen(false);
+                      }}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -526,19 +520,13 @@ export default function Calendar(){
                         </div>
                         <div className="flex flex-col gap-2">
                           <button
-                            onClick={() => markAsDone(globalIndex)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markAsDone(globalIndex)
+                            }}
                             className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
                           >
                             {isDone ? "Undo" : "Mark as Done"}
-                          </button>
-                          <button
-                            onClick={() => {
-                              setCurrentAssignment(assignment);
-                              setEditOpen(true);
-                            }}
-                            className="globalButton bg-yellow-300 px-2 py-1 rounded text-sm"
-                          >
-                            Edit
                           </button>
                         </div>
                       </div>
@@ -570,12 +558,9 @@ export default function Calendar(){
         onClick={() => setWeekOffset(weekOffset - 1)}
         className="prev-week-details"
       >
-        <span className="prev-week-text">Previous week</span>
-        <div className="prev-week-arrow">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 268.832 268.832">
             <path d="M265.17 125.577l-80-80c-4.88-4.88-12.796-4.88-17.677 0-4.882 4.882-4.882 12.796 0 17.678l58.66 58.66H12.5c-6.903 0-12.5 5.598-12.5 12.5 0 6.903 5.597 12.5 12.5 12.5h213.654l-58.66 58.662c-4.88 4.882-4.88 12.796 0 17.678 2.44 2.44 5.64 3.66 8.84 3.66s6.398-1.22 8.84-3.66l79.997-80c4.883-4.882 4.883-12.796 0-17.678z"/>
           </svg>
-        </div>
       </button>
     </div>
 

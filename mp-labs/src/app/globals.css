@@ -443,77 +443,44 @@ body .dribbble {
 .prev-week-link {
   position: absolute;
   top: 100%;
-  left: 20%;
+  left: 3%;
   transform: translate(-50%, -50%);
 }
 
 .prev-week-details {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 250px;
-  height: 50px;
-  line-height: 50px;
-  font-weight: bold;
-  text-decoration: none;
+  width: 40px;
+  height: 40px;
   background: #a2c9b8;
-  text-align: center;
-  color: #ffffff;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border: 3px solid #a2c9b8;
+  border: 2px solid #a2c9b8;
+  border-radius: 4px;
   transition: all .35s;
   cursor: pointer;
 }
 
-.prev-week-text {
-  z-index: 1;
-  pointer-events: none;
-}
-
-.prev-week-arrow {
-  width: 50px;
-  height: 50px;
-  border: 3px solid transparent;
-  position: absolute;
-  transform: rotate(45deg);
-  left: 0;
-  top: -4;
-  z-index: 0;
-  transition: all .35s;
-}
-
-.prev-week-arrow svg {
-  width: 30px;
-  position: absolute;
-  top: calc(50% - 15px);
-  left: calc(50% - 15px);
-  transform: rotate(135deg);
+.prev-week-details svg {
+  width: 24px;
+  height: 24px;
+  transform: rotate(180deg);
   transition: all .35s;
   fill: #ffffff;
 }
 
 .prev-week-details:hover {
-  width: 200px;
-  border: 3px solid #a2c9b8;
   background: transparent;
-  color: #000000;
+  transform: translateX(-10px);
 }
 
-.prev-week-details:hover .prev-week-arrow {
-  border: 3px solid #a2c9b8;
-  left: -25%;
-}
-
-.prev-week-details:hover .prev-week-arrow svg{
+.prev-week-details:hover svg{
   fill: #000000;
 }
 
 .next-week-link{
   position: absolute;
   top: 100%;
-  left: 80%;
+  left: 85%;
   transform: translate(-50%, -50%);
 }
 
@@ -522,9 +489,9 @@ body .dribbble {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 250px;
-  height: 50px;
-  line-height: 50px;
+  width: 200px;
+  height: 40px;
+  line-height:40px;
   font-weight: bold;
   text-decoration: none;
   background: #a2c9b8;
@@ -532,9 +499,10 @@ body .dribbble {
   color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 1px;
-  border: 3px solid #a2c9b8;
+  border: 2px solid #a2c9b8;
   transition: all .35s;
   cursor: pointer;
+  font-size: 0.85rem;
 }
 
 .next-week-details a{
@@ -543,36 +511,36 @@ body .dribbble {
 }
 
 .next-week-arrow{
-  width: 50px;
-  height: 50px;
-  border: 3px solid transparent;
+  width: 40px;
+  height: 40px;
+  border: 2px solid transparent;
   position: absolute;
   transform: rotate(45deg);
   right: 0;
-  top: -4;
+  top: -3px;
   z-index: 0;
   transition: all .35s;
 }
 
 .next-week-arrow svg{
-  width: 30px;
+  width: 24px;
   position: absolute;
-  top: calc(50% - 15px);
-  left: calc(50% - 15px);
+  top: calc(50% - 12px);
+  left: calc(50% - 12px);
   transform: rotate(-45deg);
   transition: all .35s;
   fill: #ffffff;
 }
 
 .next-week-details:hover{
-  width: 200px;
-  border: 3px solid #a2c9b8;
+  width: 160px;
+  border: 2px solid #a2c9b8;
   background: transparent;
   color: #000000;
 }
 
 .next-week-details:hover .next-week-arrow{
-  border: 3px solid #a2c9b8;
+  border: 2px solid #a2c9b8;
   right: -25%;
 }
 
