@@ -7,24 +7,11 @@ import { FC, ReactNode } from "react";
 
 export default function AssignmentContainer() {
     const [showAlternativeView, setShowAlternativeView] = useState(false);
-    const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
-    const checkboxRef = useRef<HTMLLabelElement | null>(null);
-    <Assignments onClose={() => setShowAlternativeView(false)} />
-
-    useEffect(() => {
-        if (showAlternativeView && checkboxRef.current) {
-            const rect = checkboxRef.current.getBoundingClientRect();
-            setModalPosition({
-                top: rect.top + window.scrollY,
-                left: rect.right + 16,
-            });
-        }
-    }, [showAlternativeView]);
 
     return (
         <div className="assignment p-6 bg-white shadow-lg h-screen flex flex-col">
             <div className="flex items-center justify-end mb-4">
-            <label className="collection" ref={checkboxRef}>
+            <label className="collection">
                 <input 
                     type="checkbox"
                     checked={showAlternativeView}
@@ -43,24 +30,24 @@ export default function AssignmentContainer() {
             </div>
             {showAlternativeView && (
             <div 
-                className="absolute newAssignmentModal modalClass z-50 rounded-2xl shadow-lg w-96 h-80 flex flex-col"
-                style={{
-                    top: modalPosition.top,
-                    left: modalPosition.left,
-                }}
+                className="fixed inset-0 flex justify-center items-center z-40"
+                onClick={() => setShowAlternativeView(false)}
+            >
+                <div 
+                    className="relative newAssignmentModal modalClass z-50 rounded-2xl shadow-lg w-96 h-80 flex flex-col"
+                    onClick={(e) => e.stopPropagation()}
                 >
-                    <h2 className="mb-4 text-xl font-bold text-black text-center">Create New Assignment</h2>
+                <h2 className="mb-4 text-xl font-bold text-black text-center">Create New Assignment</h2>
                     <Assignments onClose={() => setShowAlternativeView(false)}/>
                     <button
                         onClick={() => setShowAlternativeView(false)}
                         className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-                        >
+                    >
                         ✕
                     </button>
                 </div>
+            </div>
             )}
         </div>
-    );
-
-    
+    );    
 }
