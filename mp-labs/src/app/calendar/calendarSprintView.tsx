@@ -12,6 +12,8 @@ type Assignment = {
   Details: string;
   DueDate: string;
   ClassId?: string;
+  Id?: string;
+  Status?: number;
 };
 
 type EditPageProps = {
@@ -38,17 +40,71 @@ export default function Calendar(){
     const [dailyAssignments, setDailyAssignments] = useState<Assignment[]>([]);
     const [weekOffset, setWeekOffset] = useState(0);
 
-  const markAsDone = (index: number) => {
-    setDoneSet((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index); // unmark if already done
-      } else {
-        newSet.add(index); // mark as done
+    const markAsDone = async (index: number) => {
+      const assignment = assignments[index];
+      
+      if (!assignment.Id) {
+        console.error("Assignment has no ID");
+        alert("Cannot update assignment: Missing ID");
+        return;
       }
-      return newSet;
-    });
-  };
+    
+      // Toggle status: if currently 1 (done), set to 0; otherwise set to 1
+      const currentStatus = assignment.Status || 0;
+      const newStatus = currentStatus === 1 ? 0 : 1;
+    
+      try {
+        // Get auth token
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !session) {
+          alert("You must be logged in to update assignments");
+          return;
+        }
+    
+        // Call API to update status in database
+        const response = await fetch('/api/updateAssignmentStatus', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            assignmentId: assignment.Id,
+            status: newStatus
+          })
+        });
+    
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to update assignment status');
+        }
+    
+        console.log(`Assignment ${assignment.Id} status updated to ${newStatus}`);
+    
+        // Update local state to reflect the change
+        setAssignments(prevAssignments => 
+          prevAssignments.map((a, i) => 
+            i === index ? { ...a, Status: newStatus } : a
+          )
+        );
+    
+        // Update doneSet for UI purposes
+        setDoneSet((prev) => {
+          const newSet = new Set(prev);
+          if (newStatus === 1) {
+            newSet.add(index);
+          } else {
+            newSet.delete(index);
+          }
+          return newSet;
+        });
+    
+      } catch (error) {
+        console.error("Error updating assignment status:", error);
+        alert("Failed to update assignment status. Please try again.");
+      }
+    };
 
   useEffect(() => {
     const loadAssignments = async () => {
@@ -79,6 +135,15 @@ export default function Calendar(){
 
       setAssignments(dataAssignments);
       setSprintDates(dataDates);
+
+      const initialDoneSet = new Set<number>();
+      dataAssignments.forEach((assignment, index) => {
+        if (assignment.Status === 1) {
+          initialDoneSet.add(index);
+        }
+      });
+      setDoneSet(initialDoneSet);
+  
     } catch (err) {
       console.error(err);
       setError("Could not load assignments");
