@@ -73,12 +73,14 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
         return;
       }
       
-      // Convert the datetime-local value to ISO string properly
-      // This ensures the local time is preserved when converting to ISO
-      const localDate = new Date(form.DueDate);
+      // Create a date at midnight (00:00) in the user's local timezone
+      // form.DueDate comes as "2024-11-04" from the date input
+      const [year, month, day] = form.DueDate.split('-').map(Number);
+      const localDate = new Date(year, month - 1, day, 0, 0, 0); // midnight local time
       const isoDate = localDate.toISOString();
       
       console.log('Original input:', form.DueDate);
+      console.log('Local midnight date:', localDate);
       console.log('Converted to ISO:', isoDate);
       
       const payload = {
@@ -108,7 +110,7 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
       // reset form
       setForm({ className: '', Name: '', DueDate: '' , Details: ''});
       // re-fetch the list
-      loadData();
+      window.location.reload();
       if(onClose) onClose();
     } catch (err) {
       console.error(err);
@@ -158,12 +160,12 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
 
         <div className="w-full">
           <label className="p-6 text-lg font-medium text-black">
-            Due Date & Time
+            Due Date
           </label>
           <input
             id="DueDate"
             name="DueDate"
-            type="datetime-local"
+            type="date"
             value={form.DueDate}
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
