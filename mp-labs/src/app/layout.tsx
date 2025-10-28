@@ -5,6 +5,7 @@ import LoggedInNavBar from "./navbar/LoggedInNavBar";
 import LoggedOutNavBar from "./navbar/LoggedOutNavBar";
 import { Inter } from 'next/font/google';
 import { createClient } from '@/utils/supabase/server';
+import { Providers } from './providers';
 
 const inter = Inter({ 
   subsets: ['latin'], 
@@ -41,9 +42,11 @@ export default async function RootLayout({
   return (
     <html lang="en" className={inter.className}>
       <body>
-        {/* Show different NavBar based on login status */}
-        {user ? <LoggedInNavBar user={user} /> : <LoggedOutNavBar />}
-        <main className="p-4">{children}</main>
+        <Providers>
+          {/* Show different NavBar based on login status */}
+          {user ? <LoggedInNavBar user={user} /> : <LoggedOutNavBar />}
+          <main className="p-4">{children}</main>
+        </Providers>
       </body>
     </html>
   );
