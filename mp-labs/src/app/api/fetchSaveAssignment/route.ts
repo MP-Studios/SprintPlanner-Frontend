@@ -4,12 +4,21 @@ import { NextResponse } from "next/server";
 import { Assignment } from "@/app/assignments/assignment";
 
 export  async function POST(request: Request)  {
-    const form: Assignment = await request.json(); 
 
-    const response = await fetch(saveAssignments, {
+  const authHeader = request.headers.get('Authorization');
+    
+  if (!authHeader) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+    const form: Assignment = await request.json(); 
+    const backendUrl = process.env.API_BASE;
+
+    const response = await fetch(`${backendUrl}/api/supabase/saveAssignment`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": authHeader
       },
       body: JSON.stringify(form),
     });

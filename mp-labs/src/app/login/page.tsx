@@ -4,16 +4,16 @@ import { login, signup } from './actions'
 
 export default function Login(){
   return (
-    <main className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#3b82f6] via-[#6366f1] to-[#38bdf8] overflow-hidden">
+    <main className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{background: '#edf7f2'}}>
       {/* Blurred background shapes */}
-      <div
+      {/* <div
         className="absolute left-[-120px] top-[-120px] w-[400px] h-[400px] rounded-full bg-[#0ea5e9] opacity-20 blur-2xl pointer-events-none"
         aria-hidden
       />
       <div
         className="absolute right-[-150px] bottom-[-150px] w-[400px] h-[400px] rounded-full bg-[#6366f1] opacity-20 blur-2xl pointer-events-none"
         aria-hidden
-      />
+      /> */}
 
       <section className="relative w-full max-w-md bg-white border border-[#e5e7eb] rounded-2xl shadow-xl px-8 py-10 flex flex-col gap-8 z-10">
         <div>
@@ -61,14 +61,13 @@ export default function Login(){
           <button
             type="submit"
             formAction={login}
-            className="
+            className="globalButton
               mt-4 w-full
-              bg-[#2563eb] hover:bg-[#1d4ed8]
               text-white text-base font-semibold
               rounded-lg py-3
               transition disabled:opacity-60
               shadow-sm
-            "
+            " style = {{transform: "none"}}
           >
             Sign In
           </button>
@@ -79,14 +78,13 @@ export default function Login(){
           <button
             type="submit"
             formAction={signup}
-            className="
+            className="globalButton
               mt-4 w-full
-              bg-[#2563eb] hover:bg-[#1d4ed8]
               text-white text-base font-semibold
               rounded-lg py-3
               transition disabled:opacity-60
               shadow-sm
-            "
+            " style = {{transform: "none"}}
           >
             Sign Up
           </button>

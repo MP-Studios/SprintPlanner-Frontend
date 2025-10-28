@@ -1,5 +1,5 @@
 'use client'
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import Assignments from "./assignments"
 import EditAssignments from "./editAssignmentView"
 // import Assignments from "./assignment"
@@ -29,21 +29,25 @@ export default function AssignmentContainer() {
                 <EditAssignments/>
             </div>
             {showAlternativeView && (
-            <div className="fixed inset-0 flex items-center justify-center z-50">
-                <div className="newAssignmentModal bg-gray-50 rounded-2xl w-[500px] max-h-[33vh] relative overflow-hidden">
-                    <h2 className="mb-4 text-xl font-bold text-black text-center">Create New Assignment</h2>
-                    <Assignments/>
+            <div 
+                className="fixed inset-0 flex justify-center items-center z-40"
+                onClick={() => setShowAlternativeView(false)}
+            >
+                <div 
+                    className="relative newAssignmentModal modalClass z-50 rounded-2xl shadow-lg w-96 h-80 flex flex-col"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                <h2 className="mb-4 text-xl font-bold text-black text-center">Create New Assignment</h2>
+                    <Assignments onClose={() => setShowAlternativeView(false)}/>
                     <button
                         onClick={() => setShowAlternativeView(false)}
                         className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-                        >
+                    >
                         ✕
                     </button>
                 </div>
             </div>
             )}
         </div>
-    );
-
-    
+    );    
 }
