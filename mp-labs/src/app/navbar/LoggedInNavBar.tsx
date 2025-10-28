@@ -48,8 +48,13 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
 
   return (
     <nav className="navbar">
-      <Link href="/">Home</Link>
-      <Link href="/timer">Timer</Link>
+      <Link className="globalButton" href="/">Home</Link>
+      <Link className="globalButton" href="/timer">Timer</Link>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSfAqPRd7dXe7OBVJVjyqtjnAUxPhzFbenmyk_2k-OBP9qlznQ/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer">
+        <button className = "globalButton">
+          Give Feedback
+        </button>
+      </a>
       
       <div className="navbar-right">
         <span className="greeting">Hi {getDisplayName()}!</span>
