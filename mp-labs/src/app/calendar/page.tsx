@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Calendar from "./calendarSprintView";
-import ICAL from "ical.js"; // for parsing .ics files
-import {Assignment} from "../assignments/assignment"
-
+import ICAL from "ical.js";
+import { Assignment } from "../assignments/assignment";
 
 type CalendarEvent = {
   summary: string;
@@ -17,43 +16,55 @@ type CalendarEvent = {
 export default function AssignmentContainer() {
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
 
-  const assignments: Assignment[] = calendarEvents.map((ev) => ({
-    className: ev.summary,
-    Name: ev.summary,
-    DueDate: ev.end.toUTCString(),
-    Details: ev.end.toUTCString(),
-    ClassId: null,
-  }));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
+  const assignments: Assignment[] = calendarEvents
+    .filter(ev => new Date(ev.end) > new Date())
+    .map(ev => {
+      const match = ev.summary.match(/^(.*?)(\s*\[.*\])$/);
+      const name = match ? match[1].trim() : ev.summary;
+      const className = match ? match[2].trim() : ev.summary;
 
-  async function saveAllAssignments(assignments: Assignment[]) {
-  try {
-    await Promise.all(
-      assignments.map((assignment) =>
-        fetch("/api/fetchSaveAssignment", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(assignment),
-        })
-      )
-    );
-    console.log("All assignments saved successfully!");
-  } catch (error) {
-    console.error("Error saving assignments:", error);
-  }
-}
+      return {
+        className,
+        Name: name,
+        DueDate: ev.end.toUTCString(),
+        Details: ev.end.toUTCString(),
+        ClassId: null,
+      };
+    });
+    
+  useEffect(() => {
+    if (assignments.length === 0) return;
 
+    async function saveAllAssignments() {
+      try {
+        await Promise.all(
+          assignments.map((assignment) =>
+            fetch("/api/fetchSaveAssignment", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(assignment),
+            })
+          )
+        );
+        console.log("All assignments saved successfully!");
+      } catch (error) {
+        console.error("Error saving assignments:", error);
+      }
+    }
 
-saveAllAssignments(assignments);
+    saveAllAssignments();
+  }, [assignments]); 
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-
     reader.onload = (e) => {
       const text = e.target?.result as string;
       try {
@@ -69,20 +80,19 @@ saveAllAssignments(assignments);
             description: e.description,
           };
         });
+        // setMessage("Finished saving all assignments!");
         setCalendarEvents(events);
         console.log("Parsed events:", events);
       } catch (err) {
         console.error("Error parsing ICS:", err);
       }
     };
-
     reader.readAsText(file);
   };
 
   return (
     <div className="assignment p-6 bg-white shadow-lg h-screen flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        {/* Upload calendar button */}
         <label className="globalButton bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">
           Upload calendar
           <input
@@ -94,11 +104,10 @@ saveAllAssignments(assignments);
         </label>
       </div>
 
-      {/* Always show Sprint View */}
       <div className="flex-grow mb-4">
-        <Calendar/>
+        <Calendar />
       </div>
-      {/* Optional: Show parsed events for debugging */}
+
       {calendarEvents.length > 0 && (
         <div className="bg-gray-50 border-t border-gray-200 p-4 rounded overflow-y-auto max-h-64">
           <h3 className="font-semibold mb-2">Parsed Calendar Events:</h3>
