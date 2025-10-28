@@ -2,8 +2,13 @@
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 import { getClassColorNumber } from '@/app/colors/classColors';
 import { Assignment } from './assignment';
+import { createClient } from '@/utils/supabase/client';
 
-export default function AssignmentsPage() {
+type AssignmentsPageProps = {
+  onClose?: () => void;
+}
+
+export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -14,39 +19,36 @@ export default function AssignmentsPage() {
     Details: '',
   });
 
-
-  
   async function loadData() {
     try {
-      const res = await fetch("/api/fetchBacklog/");
-      const data = await res.json();
+      const supabase = createClient();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
+      if (sessionError || !session) {
+        setError('Not authenticated. Please log in.');
+        return;
+      }
+
+      const res = await fetch("/api/fetchBacklog/", {           
+        headers: {
+        "Authorization": `Bearer ${session.access_token}`
+        }, 
+      });
+      const data = await res.json();
 
       setAssignments(data);
     } catch ( err) {
       if (err instanceof Error) {
-    setError(err.message);
-  } else {
-    setError("Unexpected error");
-  }
+        setError(err.message);
+      } else {
+        setError("Unexpected error");
+      }
     }
   }
+  
   useEffect(() => {
-  loadData();
+    loadData();
   }, []);
-
-
-  const fetchAssignments = async () => {
-    try {
-      const res = await fetch('http://localhost:8080/api/backlog');
-      if (!res.ok) throw new Error('Failed to fetch');
-      const data = await res.json();
-      setAssignments(data);
-    } catch (err) {
-      console.error(err);
-      setError('Error fetching assignments');
-    }
-  };
   
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -63,24 +65,44 @@ export default function AssignmentsPage() {
     }
 
     try {
+      const supabase = createClient();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError || !session) {
+        setError('Not authenticated. Please log in.');
+        return;
+      }
+      
+      // Create a date at midnight (00:00) in the user's local timezone
+      // form.DueDate comes as "2024-11-04" from the date input
+      const [year, month, day] = form.DueDate.split('-').map(Number);
+      const localDate = new Date(year, month - 1, day, 0, 0, 0); // midnight local time
+      const isoDate = localDate.toISOString();
+      
+      console.log('Original input:', form.DueDate);
+      console.log('Local midnight date:', localDate);
+      console.log('Converted to ISO:', isoDate);
       
       const payload = {
-  Name: form.Name,
-  className: form.className,
-  Details: form.Details,
-  taskCompleted: false,
-  DueDate: form.DueDate ? new Date(form.DueDate).toISOString() : null
-};
-    const res = await fetch("/api/fetchSaveAssignment", {
+        Name: form.Name,
+        className: form.className,
+        Details: form.Details,
+        taskCompleted: false,
+        DueDate: isoDate
+      };
+      
+      const res = await fetch("/api/fetchSaveAssignment", {
         method: "POST",              
         headers: {
-        "Content-Type": "application/json",
-      },
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`
+        },
         body: JSON.stringify(payload),   
       });  
+      
       if(!res.ok){
         const errorText = await res.text();
-        alert("Error Saving your dumb assignment: " + errorText);
+        alert("Error Saving assignment: " + errorText);
       }
 
       const data = await res.json();
@@ -88,7 +110,8 @@ export default function AssignmentsPage() {
       // reset form
       setForm({ className: '', Name: '', DueDate: '' , Details: ''});
       // re-fetch the list
-      loadData();
+      window.location.reload();
+      if(onClose) onClose();
     } catch (err) {
       console.error(err);
       alert('Error saving assignment');
@@ -103,10 +126,10 @@ export default function AssignmentsPage() {
   };
 
   return (
-    <div className="newAssignment p-40 overflow-hidden mx-auto rounded-2xl h-screen flex flex-col">
+    <div className="p-40 mx-auto rounded-2xl h-screen flex flex-col">
       <form onSubmit={handleSubmit} className="p-6 space-y-4 flex flex-col">
         <div className="w-full">
-          <label className="assignmentInfo p-6 text-lg font-medium text-black">
+          <label className="p-6 text-lg font-medium text-black">
             Course Name
           </label>
           <input
@@ -121,7 +144,7 @@ export default function AssignmentsPage() {
         </div>
 
         <div className="w-full">
-          <label className="assignmentInfo p-6 text-lg font-medium text-black">
+          <label className="p-6 text-lg font-medium text-black">
             Assignment
           </label>
           <input
@@ -136,7 +159,7 @@ export default function AssignmentsPage() {
         </div>
 
         <div className="w-full">
-          <label className="assignmentInfo p-6 text-lg font-medium text-black">
+          <label className="p-6 text-lg font-medium text-black">
             Due Date
           </label>
           <input
@@ -146,12 +169,11 @@ export default function AssignmentsPage() {
             value={form.DueDate}
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
-            placeholder="mm/dd/yyyy"
           />
         </div>
 
         <div className="w-full">
-          <label className="assignmentInfo p-6 text-lg font-medium text-black ">
+          <label className="p-6 text-lg font-medium text-black">
             Details
           </label>
           <input
@@ -161,38 +183,18 @@ export default function AssignmentsPage() {
             value={form.Details}
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
-            placeholder= 'Super cool assignment'
+            placeholder='Super cool assignment'
           />
         </div>
-
-          <button
+        <div className="createAssignment w-full flex justify-end pr-6 mt-6">
+          <button 
             type="submit"
-            className="absolute bottom-6 right-6 outline-2 globalButton w-[20%] self-end block text-md text-grey rounded flex-center"
+            className="globalButton mt-4 px-4 py-2 rounded outline-2"
           >
-            Submit
+            Add Assignment
           </button>
+        </div>
       </form>
-
-            <div className="overflow-auto flex-1 space-y-2">
-        {error ? (
-          <p style={{ color: 'red' }}>{error}</p>
-        ) : (
-          assignments.map((a, i) => {
-            const colorNumber = getClassColorNumber(a.ClassId);
-            const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
-            
-            return (
-              <div
-                key={i}
-                className={`assignment-card ${colorClass}`}
-              >
-                <span className="class-badge">{a.className}</span>: {a.Name}{' '}
-                <span className="text-gray-500 text-sm">(Due: {new Date(a.DueDate).toLocaleDateString()})</span>
-              </div>
-            );
-          })
-        )}
-      </div>
     </div>
   );
 }
