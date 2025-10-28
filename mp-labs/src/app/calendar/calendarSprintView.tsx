@@ -27,6 +27,17 @@ type SprintDates = {
   endDate: string;
 };
 
+// Helper function to format date for datetime-local input
+const formatDateTimeLocal = (dateString: string) => {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
 export default function Calendar(){
     const { assignments, doneSet, error, markAsDone } = useAssignments();
     const [editOpen, setEditOpen] = useState(false);
@@ -264,9 +275,9 @@ export default function Calendar(){
             <div>
               <label className="block text-sm font-medium mb-1 text-black">Due Date</label>
               <input
-                type="datetime-local"
+                type="date"
                 name="dueDate"
-                value={formData.dueDate.slice(0, 16)} // Format for datetime-local input
+                value={formatDateTimeLocal(formData.dueDate)}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded px-3 py-2"
                 disabled={saving}
@@ -475,10 +486,19 @@ export default function Calendar(){
                   const colorNumber = getClassColorNumber(assignment.ClassId);
                   const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
 
+                  // Format due time in local timezone
+                  const dueDate = new Date(assignment.DueDate);
+                  const formattedTime = dueDate.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZoneName: 'short'
+                  });
+
                   return (
                     <li
                       key={`${assignment.ClassId}-${dailyIndex}`}
                       className={`assignment-card ${colorClass}`}
+                      style={{ opacity: isDone ? 0.6 : 1 }}
                       onClick={() => {
                         setCurrentAssignment(assignment);
                         setEditOpen(true);
@@ -494,6 +514,9 @@ export default function Calendar(){
                           </div>
                           <div className="assignment-title">
                             {assignment.Name}
+                          </div>
+                          <div className="text-sm text-gray-600 mt-1">
+                            <strong>Due:</strong> {formattedTime}
                           </div>
                         </div>
                         <div className="flex flex-col gap-2">

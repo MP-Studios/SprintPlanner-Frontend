@@ -18,6 +18,17 @@ type EditPageProps = {
   onClose: () => void;
 };
 
+// Helper function to format date for datetime-local input
+const formatDateTimeLocal = (dateString: string) => {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
 function EditPage({assignment, onClose}: EditPageProps){
   const [formData, setFormData] = useState({
     className: assignment.className,
@@ -130,9 +141,9 @@ function EditPage({assignment, onClose}: EditPageProps){
           <div>
             <label className="block text-sm font-medium mb-1 text-black">Due Date</label>
             <input
-              type="datetime-local"
+              type="date"
               name="dueDate"
-              value={formData.dueDate.slice(0, 16)} // Format for datetime-local input
+              value={formatDateTimeLocal(formData.dueDate)}
               onChange={handleChange}
               className="w-full border border-gray-300 rounded px-3 py-2"
               disabled={saving}
@@ -180,12 +191,13 @@ export default function EditAssignments() {
             <ul className="space-y-4 overflow-auto">
               {assignments.map((a, index) => {
                 const due = new Date(a.DueDate);
-                const formattedDue = due.toLocaleDateString('en-US', { 
+                const formattedDue = due.toLocaleString('en-US', { 
                   year: 'numeric', 
                   month: 'short', 
                   day: 'numeric',
                   hour: '2-digit',
-                  minute: '2-digit'
+                  minute: '2-digit',
+                  timeZoneName: 'short'
                 });
                 
                 const colorNumber = getClassColorNumber(a.ClassId);
@@ -221,7 +233,7 @@ export default function EditAssignments() {
                           <strong>Due:</strong> {formattedDue}
                         </div>
                         {a.Details && (
-                          <div className="text-sm text-gray-700 mt-2 p-2 bg-white rounded">
+                          <div className="text-sm text-gray-700 mt-2 p-2 rounded">
                             {a.Details}
                           </div>
                         )}
