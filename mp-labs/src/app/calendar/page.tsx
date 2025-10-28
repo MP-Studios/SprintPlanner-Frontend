@@ -34,7 +34,7 @@ export default function AssignmentContainer() {
         ClassId: null,
       };
     });
-    
+
   useEffect(() => {
     if (assignments.length === 0) return;
 
@@ -105,23 +105,11 @@ export default function AssignmentContainer() {
       </div>
 
       <div className="flex-grow mb-4">
-        <Calendar />
+        <Calendar/>
       </div>
 
-      {calendarEvents.length > 0 && (
-        <div className="bg-gray-50 border-t border-gray-200 p-4 rounded overflow-y-auto max-h-64">
-          <h3 className="font-semibold mb-2">Parsed Calendar Events:</h3>
-          <ul className="list-disc ml-6 text-sm">
-            {calendarEvents.map((ev, i) => (
-              <li key={i} className="mb-1">
-                <strong>{ev.summary}</strong> —{" "}
-                {ev.start.toLocaleString()} → {ev.end.toLocaleString()}
-                {ev.location && <div>📍 {ev.location}</div>}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+
+      
     </div>
   );
 }
