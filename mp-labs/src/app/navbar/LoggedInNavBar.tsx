@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import SettingsModal from "./SettingsModal";
 
 type LoggedInNavBarProps = {
   user: User;
@@ -14,6 +15,7 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
   const router = useRouter();
   const supabase = createClient();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -24,6 +26,11 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const closeDropdown = () => setIsDropdownOpen(false);
+
+  const handleSettingsClick = () => {
+    setIsDropdownOpen(false);
+    setIsSettingsOpen(true);
+  };
 
   // Get user display name
   const getDisplayName = () => {
@@ -47,38 +54,49 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
   };
 
   return (
-    <nav className="navbar">
-      <Link href="/">Home</Link>
-      <Link href="/timer">Timer</Link>
-      
-      <div className="navbar-right">
-        <span className="greeting">Hi {getDisplayName()}!</span>
-        <div className="dropdown-container">
-          <button
-            onClick={toggleDropdown}
-            className="avatar-button"
-            style={{ backgroundColor: "#FFB6C1" }}
-          >
-            {getInitials()}
-          </button>
-          {isDropdownOpen && (
-            <>
-              <div className="dropdown-overlay" onClick={closeDropdown} />
-              <div className="dropdown-menu">
-                <Link href="/settings" onClick={closeDropdown} className="dropdown-item">
-                  Settings
-                </Link>
-                <Link href="/stats" onClick={closeDropdown} className="dropdown-item">
-                  Stats
-                </Link>
-                <button onClick={handleSignOut} className="dropdown-item dropdown-button">
-                  Sign Out
-                </button>
-              </div>
-            </>
-          )}
+    <>
+      <nav className="navbar">
+        <Link href="/">Home</Link>
+        <Link href="/timer">Timer</Link>
+        
+        <div className="navbar-right">
+          <span className="greeting">Hi {getDisplayName()}!</span>
+          <div className="dropdown-container">
+            <button
+              onClick={toggleDropdown}
+              className="avatar-button"
+              style={{ backgroundColor: "#FFB6C1" }}
+            >
+              {getInitials()}
+            </button>
+            {isDropdownOpen && (
+              <>
+                <div className="dropdown-overlay" onClick={closeDropdown} />
+                <div className="dropdown-menu">
+                  <button 
+                    onClick={handleSettingsClick} 
+                    className="dropdown-item dropdown-button"
+                  >
+                    Settings
+                  </button>
+                  <Link href="/stats" onClick={closeDropdown} className="dropdown-item">
+                    Stats
+                  </Link>
+                  <button onClick={handleSignOut} className="dropdown-item dropdown-button">
+                    Sign Out
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
+    </>
   );
 }
