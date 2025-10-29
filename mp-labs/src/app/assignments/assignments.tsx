@@ -19,8 +19,6 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
     Details: '',
   });
 
-
-  
   async function loadData() {
     try {
       const supabase = createClient();
@@ -38,18 +36,18 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
       });
       const data = await res.json();
 
-
       setAssignments(data);
     } catch ( err) {
       if (err instanceof Error) {
-    setError(err.message);
-  } else {
-    setError("Unexpected error");
-  }
+        setError(err.message);
+      } else {
+        setError("Unexpected error");
+      }
     }
   }
+  
   useEffect(() => {
-  loadData();
+    loadData();
   }, []);
   
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -75,24 +73,36 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
         return;
       }
       
+      // Create a date at midnight (00:00) in the user's local timezone
+      // form.DueDate comes as "2024-11-04" from the date input
+      const [year, month, day] = form.DueDate.split('-').map(Number);
+      const localDate = new Date(year, month - 1, day, 0, 0, 0); // midnight local time
+      const isoDate = localDate.toISOString();
+      
+      console.log('Original input:', form.DueDate);
+      console.log('Local midnight date:', localDate);
+      console.log('Converted to ISO:', isoDate);
+      
       const payload = {
         Name: form.Name,
         className: form.className,
         Details: form.Details,
         taskCompleted: false,
-        DueDate: form.DueDate ? new Date(form.DueDate).toISOString() : null
+        DueDate: isoDate
       };
-    const res = await fetch("/api/fetchSaveAssignment", {
+      
+      const res = await fetch("/api/fetchSaveAssignment", {
         method: "POST",              
         headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${session.access_token}`
-      },
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`
+        },
         body: JSON.stringify(payload),   
       });  
+      
       if(!res.ok){
         const errorText = await res.text();
-        alert("Error Saving your dumb assignment: " + errorText);
+        alert("Error Saving assignment: " + errorText);
       }
 
       const data = await res.json();
@@ -100,7 +110,7 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
       // reset form
       setForm({ className: '', Name: '', DueDate: '' , Details: ''});
       // re-fetch the list
-      loadData();
+      window.location.reload();
       if(onClose) onClose();
     } catch (err) {
       console.error(err);
@@ -159,7 +169,6 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
             value={form.DueDate}
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
-            placeholder="mm/dd/yyyy"
           />
         </div>
 
@@ -174,7 +183,7 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
             value={form.Details}
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
-            placeholder= 'Super cool assignment'
+            placeholder='Super cool assignment'
           />
         </div>
         <div className="createAssignment w-full flex justify-end pr-6 mt-6">

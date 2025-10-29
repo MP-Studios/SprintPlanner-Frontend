@@ -1,8 +1,9 @@
-"use-client"
+"use client"
 
 import { useEffect, useState } from "react";
 import { getClassColorNumber } from '@/app/colors/classColors';
 import { createClient } from '@/utils/supabase/client';
+import { useAssignments } from '@/app/context/AssignmentContext';
 
 const supabase = createClient();
 
@@ -26,13 +27,22 @@ type SprintDates = {
   endDate: string;
 };
 
+// Helper function to format date for datetime-local input
+const formatDateTimeLocal = (dateString: string) => {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
 export default function Calendar(){
-    const [assignments, setAssignments] = useState<Assignment[]>([]);
-    const [error, setError] = useState<string | null>(null);
+    const { assignments, doneSet, error, markAsDone } = useAssignments();
     const [editOpen, setEditOpen] = useState(false);
     const [currentAssignment, setCurrentAssignment] = useState<Assignment | null>(null);
     const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const [doneSet, setDoneSet] = useState<Set<number>>(new Set());
     const [weekdayModalOpen, setWeekdayModalOpen] = useState(false);
     const [selectedWeekday, setSelectedWeekday] = useState<string | null>(null);
     const [sprintDates, setSprintDates] = useState<SprintDates | null>(null);
@@ -40,90 +50,14 @@ export default function Calendar(){
     const [dailyAssignments, setDailyAssignments] = useState<Assignment[]>([]);
     const [weekOffset, setWeekOffset] = useState(0);
 
-    const markAsDone = async (index: number) => {
-      const assignment = assignments[index];
-      
-      if (!assignment.Id) {
-        console.error("Assignment has no ID");
-        alert("Cannot update assignment: Missing ID");
-        return;
-      }
-    
-      // Toggle status: if currently 1 (done), set to 0; otherwise set to 1
-      const currentStatus = assignment.Status || 0;
-      const newStatus = currentStatus === 1 ? 0 : 1;
-    
-      try {
-        // Get auth token
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError || !session) {
-          alert("You must be logged in to update assignments");
-          return;
-        }
-    
-        // Call API to update status in database
-        const response = await fetch('/api/updateAssignmentStatus', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            assignmentId: assignment.Id,
-            status: newStatus
-          })
-        });
-    
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to update assignment status');
-        }
-    
-        console.log(`Assignment ${assignment.Id} status updated to ${newStatus}`);
-    
-        // Update local state to reflect the change
-        setAssignments(prevAssignments => 
-          prevAssignments.map((a, i) => 
-            i === index ? { ...a, Status: newStatus } : a
-          )
-        );
-    
-        // Update doneSet for UI purposes
-        setDoneSet((prev) => {
-          const newSet = new Set(prev);
-          if (newStatus === 1) {
-            newSet.add(index);
-          } else {
-            newSet.delete(index);
-          }
-          return newSet;
-        });
-    
-      } catch (error) {
-        console.error("Error updating assignment status:", error);
-        alert("Failed to update assignment status. Please try again.");
-      }
-    };
-
   useEffect(() => {
-    const loadAssignments = async () => {
+    const loadSprintDates = async () => {
     try {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
           
       if (sessionError || !session) {
-        setError('Not authenticated. Please log in.');
         return;
       }
-      const res = await fetch('/api/fetchBacklog', {
-        //if you fetch from api/fetchBacklog = only able to load first 1000 assignments
-        //if you fetch from api/assignments, it'll only show assignments in current spring -- better for testing miguelcow1 
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
-      });
-      if (!res.ok) throw new Error("Failed to fetch assignments");
-      const dataAssignments: Assignment[] = await res.json();
       
       const resDates = await fetch('api/fetchSprintDates', {
         headers: {
@@ -133,24 +67,14 @@ export default function Calendar(){
       if (!resDates.ok) throw new Error("Failed to fetch sprint dates");
       const dataDates: SprintDates = await resDates.json();
 
-      setAssignments(dataAssignments);
       setSprintDates(dataDates);
-
-      const initialDoneSet = new Set<number>();
-      dataAssignments.forEach((assignment, index) => {
-        if (assignment.Status === 1) {
-          initialDoneSet.add(index);
-        }
-      });
-      setDoneSet(initialDoneSet);
   
     } catch (err) {
       console.error(err);
-      setError("Could not load assignments");
     }
   };
 
-  loadAssignments();
+  loadSprintDates();
 }, []);
 
   // Get the current week's Sunday
@@ -237,7 +161,7 @@ export default function Calendar(){
     });
 
     setDailyAssignments(dailyList);
-  }, [assignments, selectedWeekday]); 
+  }, [assignments, selectedWeekday, weekOffset]); 
 
   function EditPage({assignment, onClose}: EditPageProps){
     const [formData, setFormData] = useState({
@@ -351,9 +275,9 @@ export default function Calendar(){
             <div>
               <label className="block text-sm font-medium mb-1 text-black">Due Date</label>
               <input
-                type="datetime-local"
+                type="date"
                 name="dueDate"
-                value={formData.dueDate.slice(0, 16)} // Format for datetime-local input
+                value={formatDateTimeLocal(formData.dueDate)}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded px-3 py-2"
                 disabled={saving}
@@ -562,10 +486,19 @@ export default function Calendar(){
                   const colorNumber = getClassColorNumber(assignment.ClassId);
                   const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
 
+                  // Format due time in local timezone
+                  const dueDate = new Date(assignment.DueDate);
+                  const formattedTime = dueDate.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZoneName: 'short'
+                  });
+
                   return (
                     <li
                       key={`${assignment.ClassId}-${dailyIndex}`}
                       className={`assignment-card ${colorClass}`}
+                      style={{ opacity: isDone ? 0.6 : 1 }}
                       onClick={() => {
                         setCurrentAssignment(assignment);
                         setEditOpen(true);
@@ -581,6 +514,9 @@ export default function Calendar(){
                           </div>
                           <div className="assignment-title">
                             {assignment.Name}
+                          </div>
+                          <div className="text-sm text-gray-600 mt-1">
+                            <strong>Due:</strong> {formattedTime}
                           </div>
                         </div>
                         <div className="flex flex-col gap-2">
