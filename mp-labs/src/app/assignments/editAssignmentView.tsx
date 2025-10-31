@@ -54,17 +54,16 @@ function EditPage({assignment, onClose}: EditPageProps){
     try {
       const assignmentId = (assignment as any).Id || (assignment as any).id;
       
-      console.log('Assignment object:', assignment);
-      console.log('Assignment ID:', assignmentId);
-      
       if (!assignmentId) {
         throw new Error("Assignment ID not found");
       }
 
-      const response = await fetch(`/api/update-assignment/${assignmentId}`, {
+      const response = await fetch(`/api/updateAssignmentStatus/`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${assignmentId}`,
+          
         },
         body: JSON.stringify({
           className: formData.className,

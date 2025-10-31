@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Calendar from "./calendarSprintView";
 import ICAL from "ical.js";
 import { Assignment } from "../assignments/assignment";
+import { createClient } from '@/utils/supabase/client';
+import loadata from "../auth/loadData";
 
 type CalendarEvent = {
   summary: string;
@@ -13,8 +15,10 @@ type CalendarEvent = {
   description?: string;
 };
 
+
 export default function AssignmentContainer() {
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+ 
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -35,17 +39,21 @@ export default function AssignmentContainer() {
       };
     });
 
+   
   useEffect(() => {
     if (assignments.length === 0) return;
 
     async function saveAllAssignments() {
       try {
+        const userId = await loadata();
+        // console.log(userId);
         await Promise.all(
           assignments.map((assignment) =>
             fetch("/api/fetchSaveAssignment", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${userId}`
               },
               body: JSON.stringify(assignment),
             })

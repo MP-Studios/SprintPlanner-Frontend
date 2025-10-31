@@ -24,7 +24,7 @@ export  async function POST(request: Request)  {
     });
 
     if (!response.ok) throw Error("Failed to save your assignment.");
-    
+    console.debug(response.body);
     const success = await response.json();
     return NextResponse.json({success});
     

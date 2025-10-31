@@ -102,10 +102,13 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
       
       if(!res.ok){
         const errorText = await res.text();
-        alert("Error Saving assignment: " + errorText);
+        alert("Error Saving assignment");
       }
 
       const data = await res.json();
+      if(!data){
+        alert("Error Saveing assignment.");
+      }
       
       // reset form
       setForm({ className: '', Name: '', DueDate: '' , Details: ''});
