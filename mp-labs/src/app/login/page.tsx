@@ -1,8 +1,33 @@
 'use client'
 
 import { login, signup } from './actions'
+import { useState } from 'react'
 
 export default function Login(){
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+  async function handleLogin(formData: FormData) {
+    const result = await login(formData)
+    if (result?.error) {
+      setErrorMsg('Invalid email or password. Please try again.')
+    } else {
+      setErrorMsg(null)
+    }
+  }
+
+  async function handleSignup(formData: FormData) {
+    const password = formData.get('password') as string
+
+    // regex for your requirements
+    const valid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{15,}$/.test(password)
+    if (!valid) {
+      setErrorMsg('Your password does not meet the requirements. Please try again')
+      return
+    }
+
+    // if passes, call the server action
+    await signup(formData)
+  }
   return (
     <main className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{background: '#edf7f2'}}>
       {/* Blurred background shapes */}
@@ -15,7 +40,7 @@ export default function Login(){
         aria-hidden
       /> */}
 
-      <section className="relative w-full max-w-md bg-white border border-[#e5e7eb] rounded-2xl shadow-xl px-8 py-10 flex flex-col gap-8 z-10">
+      <section className="relative w-full max-w-md bg-white border border-[#e5e7eb] rounded-2xl shadow-xl px-8 py-10 flex flex-col gap-4 z-10">
         <div>
           <h1 className="text-3xl font-bold text-[#1e293b] mb-2 tracking-tight">
             Sign in
@@ -56,11 +81,16 @@ export default function Login(){
               "
             />
           </label>
+          <span className="text-center text-sm text-[#64748b]">Password must include at least 15 characters, one upper-case, one lower-case, one number, and one special character</span>
+
+          {errorMsg && (
+            <div className="text-sm text-center" style={{ color: '#dc2626' }}>{errorMsg}</div>
+          )}
 
           {/* Sign In button */}
           <button
             type="submit"
-            formAction={login}
+            formAction={handleLogin}
             className="globalButton
               mt-4 w-full
               text-white text-base font-semibold
@@ -76,8 +106,12 @@ export default function Login(){
           {/* Sign Up button */}
         </div>
           <button
-            type="submit"
-            formAction={signup}
+            type="button"
+            onClick={async (e) => {
+              e.preventDefault()
+              const form = e.currentTarget.form
+              if (form) await handleSignup(new FormData(form))
+            }}
             className="globalButton
               mt-4 w-full
               text-white text-base font-semibold
