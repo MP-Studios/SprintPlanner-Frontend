@@ -803,17 +803,17 @@ body .dribbble {
 
 /* Color 2: Green */
 .assignment-card.color-2 {
-  background-color: #DCFCE7;
-  border-left-color: #86EFAC;
+  background-color: #C1F376;
+  border-left-color: #79D021;
 }
 
 .assignment-card.color-2:hover {
-  background-color: #86EFAC;
+  background-color: #79D021;
 }
 
 .assignment-card.color-2 .class-badge {
   color: #14532D;
-  border-color: #86EFAC;
+  border-color: #79D021;
 }
 
 .assignment-card.color-2 .assignment-title {
