@@ -35,15 +35,18 @@ function hashString(str: string): number {
 
 export function getClassColorNumber(classId: string | null | undefined): number {
   if (!classId) return -1; 
+  safeLoadStorage();
 
- safeLoadStorage();
-   
- if (!classColorMap || !usedColors) {
-    return -1
-}
+  if (!classColorMap || !usedColors) return -1;
+
+  // If already assigned, return it
   if (classColorMap[classId] !== undefined) {
     return classColorMap[classId];
   }
+
+  // Rebuild usedColors each time to ensure it's current
+  usedColors = new Set(Object.values(classColorMap));
+
   let colorNumber = hashString(classId) % TOTAL_COLORS;
 
   while (usedColors.has(colorNumber) && usedColors.size < TOTAL_COLORS) {
@@ -52,10 +55,12 @@ export function getClassColorNumber(classId: string | null | undefined): number 
 
   usedColors.add(colorNumber);
   classColorMap[classId] = colorNumber;
-  try{
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(classColorMap));
-  } catch(err){
-    console.warn("UHHH WE FAILED TO STORE THE CLASS COLOR MAP:", err);
+
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(classColorMap));
+  } catch (err) {
+    console.warn("Failed to store class color map:", err);
   }
+
   return colorNumber;
 }
