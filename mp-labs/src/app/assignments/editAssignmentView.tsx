@@ -211,15 +211,13 @@ export default function EditAssignments() {
                     style={{ opacity: isDone ? 0.6 : 1 }}
                     onMouseEnter={() => setHoveredAssignment(index)}
                     onMouseLeave={() => setHoveredAssignment(null)}
+                    onClick={() => {
+                      setCurrentAssignment(a);
+                      setEditOpen(true);
+                    }}
                   >
                     <div className="flex items-start justify-between">
-                      <div 
-                        className="flex-1"
-                        onClick={() => {
-                          setCurrentAssignment(a);
-                          setEditOpen(true);
-                        }}
-                      >
+                      <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="class-badge">
                             {a.className}
@@ -264,5 +262,5 @@ export default function EditAssignments() {
               />
             )}
         </div>
-      );
+      )
 }
