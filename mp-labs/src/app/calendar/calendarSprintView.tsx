@@ -560,7 +560,6 @@ export default function Calendar(){
                             {isDone ? "Undo" : "Completed!"}
                           </button>
                         </div>
-                      </div>
                     </li>
                   );
                 })}
@@ -580,6 +579,7 @@ export default function Calendar(){
             </button>
           </div>
         </div>
+      </div>
       )}
 
       {/* make her functional */}

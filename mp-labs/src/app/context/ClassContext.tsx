@@ -32,31 +32,29 @@ export function ClassProvider({ children }: { children: ReactNode }) {
           const { data: { session } } = await supabase.auth.getSession();
           
           if (session) {
-            const res = await fetch("/api/fetchBacklog/", {
+            const res = await fetch("/api/fetchBacklog/", { //database only hit on reload! (the rest the page also hits database on reload)
               headers: {
                 "Authorization": `Bearer ${session.access_token}`
               },
             });
             
             if (res.ok) {
-              const assignments = await res.json();
-              console.log('ClassProvider: Fetched assignments:', assignments);
+                const assignments = await res.json();
+                if (Array.isArray(assignments)) {
+                  const uniqueClasses = [
+                    ...new Set(
+                      assignments
+                        .map((a: any) => a.className)
+                        .filter((name: string) => name && name.trim())
+                    )
+                  ] as string[]; // assert type here
+                
+                  if (uniqueClasses.length > 0) {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(uniqueClasses));
+                    setClasses(uniqueClasses);
+                  }
+                }
               
-              // Extract unique class names
-              const uniqueClasses = [...new Set(
-                assignments
-                  .map((a: any) => a.className)
-                  .filter((name: string) => name && name.trim())
-              )];
-              
-              console.log('ClassProvider: Extracted unique classes:', uniqueClasses);
-              
-              if (uniqueClasses.length > 0) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(uniqueClasses));
-                setClasses(uniqueClasses);
-              }
-              
-              // Mark migration as complete
               localStorage.setItem(MIGRATION_KEY, 'true');
             }
           }
@@ -68,14 +66,14 @@ export function ClassProvider({ children }: { children: ReactNode }) {
         console.log('ClassProvider: Loading from localStorage...');
         try {
           const stored = localStorage.getItem(STORAGE_KEY);
-          console.log('ClassProvider: Raw localStorage value:', stored);
           if (stored) {
-            const classNames = JSON.parse(stored);
-            console.log('ClassProvider: Parsed classes:', classNames);
-            setClasses(classNames);
-          } else {
-            console.log('ClassProvider: No classes found in localStorage');
-            setClasses([]);
+            try {
+              const classNames = JSON.parse(stored) as string[]; // assert string[]
+              setClasses(classNames);
+            } catch (err) {
+              console.error('Failed to parse classes', err);
+              setClasses([]);
+            }
           }
         } catch (err) {
           console.error('ClassProvider: Failed to load classes from localStorage', err);
