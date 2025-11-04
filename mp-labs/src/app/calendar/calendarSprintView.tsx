@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getClassColorNumber } from '@/app/colors/classColors';
 import { createClient } from '@/utils/supabase/client';
 import { useAssignments } from '@/app/context/AssignmentContext';
@@ -170,6 +170,7 @@ export default function Calendar(){
       details: assignment.Details || '',
       dueDate: assignment.DueDate
     });
+
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
   
@@ -227,10 +228,27 @@ export default function Calendar(){
         setSaving(false);
       }
     };
+
+    const modalRef = useRef<HTMLDivElement>(null);
+      useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+          if (
+            modalRef.current &&
+            !modalRef.current.contains(event.target as Node) &&
+            !saving
+          ) {
+            onClose();
+          }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+      }, [onClose, saving]);
   
     return (
       <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-        <div className="newAssignmentModal rounded-2xl w-[500px] max-h-[80vh] relative overflow-y-auto pointer-events-auto">
+        <div 
+          ref={modalRef}
+          className="newAssignmentModal rounded-2xl w-[500px] max-h-[80vh] relative overflow-y-auto pointer-events-auto">
           <button
             onClick={onClose}
             disabled={saving}
