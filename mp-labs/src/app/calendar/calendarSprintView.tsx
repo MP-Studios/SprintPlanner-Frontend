@@ -4,6 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import { getClassColorNumber } from '@/app/colors/classColors';
 import { createClient } from '@/utils/supabase/client';
 import { useAssignments } from '@/app/context/AssignmentContext';
+import Image from "next/image";
+
 
 const supabase = createClient();
 
@@ -479,110 +481,110 @@ export default function Calendar(){
         />
       )}
 
-      {/* Daily List */}
-      {weekdayModalOpen && selectedWeekday && (
-        <div className="fixed inset-0 flex justify-center items-center z-50">
-          <div className="daily-list modalClass rounded shadow-lg w-120 h-100 flex flex-col">
-            {/* Header */}
-            <h2 className="text-lg font-bold p-6 pb-2 text-center w-full">{selectedWeekday} Details</h2>
-        
-            {/* Scrollable content */}
-            <div 
-              className="flex-grow overflow-y-auto px-6"
-              style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: '#cbd5e1 #f1f5f9'
-              }}
-            >
-              {dailyAssignments.length > 0 ? (
-                <ul className="space-y-4 py-4 p-4">
-                <p className="text-center font-semibold mb-2 pt-2">Assignments due:</p>
-                  {dailyAssignments.map((assignment, dailyIndex) => {
-                    const globalIndex = assignments.indexOf(assignment);
-                    const isDone = doneSet.has(globalIndex);
-                    
-                    const colorNumber = getClassColorNumber(assignment.ClassId);
-                    const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
+    {/* Daily List */}
+{weekdayModalOpen && selectedWeekday && (
+  <div className="fixed inset-0 flex justify-center items-center z-50">
+    <div className="daily-list modalClass rounded shadow-lg w-120 h-100 flex flex-col">
+      {/* Header */}
+      <h2 className="text-lg font-bold p-6 pb-2 text-center w-full">{selectedWeekday} Details</h2>
+  
+      {/* Scrollable content */}
+      <div 
+        className="flex-grow overflow-y-auto px-6"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#cbd5e1 #f1f5f9'
+        }}
+      >
+        {dailyAssignments.length > 0 ? (
+          <ul className="space-y-4 py-4 p-4">
+          <p className="text-center font-semibold mb-2 pt-2">Assignments due:</p>
+            {dailyAssignments.map((assignment, dailyIndex) => {
+              const globalIndex = assignments.indexOf(assignment);
+              const isDone = doneSet.has(globalIndex);
+              
+              const colorNumber = getClassColorNumber(assignment.ClassId);
+              const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
 
-                    // Format due time in local timezone
-                    const dueDate = new Date(assignment.DueDate);
-                    const formattedTime = dueDate.toLocaleTimeString('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      timeZoneName: 'short'
-                    });
+              // Format due time in local timezone
+              const dueDate = new Date(assignment.DueDate);
+              const formattedTime = dueDate.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZoneName: 'short'
+              });
 
-                    return (
-                      <li
-                        key={`${assignment.ClassId}-${dailyIndex}`}
-                        className={`assignment-card ${colorClass}`}
-                        style={{ opacity: isDone ? 0.6 : 1 }}
-                        onClick={() => {
-                          setCurrentAssignment(assignment);
-                          setEditOpen(true);
-                          setWeekdayModalOpen(false);
+              return (
+                <li
+                  key={`${assignment.ClassId}-${dailyIndex}`}
+                  className={`assignment-card ${colorClass}`}
+                  style={{ opacity: isDone ? 0.6 : 1 }}
+                  onClick={() => {
+                    setCurrentAssignment(assignment);
+                    setEditOpen(true);
+                    setWeekdayModalOpen(false);
+                  }}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="class-badge">
+                          {assignment.className}
+                        </span>
+                      </div>
+                      <div className="assignment-title">
+                        {assignment.Name}
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1">
+                        <strong>Due:</strong> {formattedTime}
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAsDone(globalIndex)
                         }}
+                        className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
                       >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="class-badge">
-                                {assignment.className}
-                              </span>
-                            </div>
-                            <div className="assignment-title">
-                              {assignment.Name}
-                            </div>
-                            <div className="text-sm text-gray-600 mt-1">
-                              <strong>Due:</strong> {formattedTime}
-                            </div>
-                          </div>
-                          <div className="flex flex-col gap-2">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                markAsDone(globalIndex)
-                              }}
-                              className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
-                            >
-                              {isDone ? "Undo" : "Mark as Done"}
-                            </button>
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              markAsDone(globalIndex)
-                            }}
-                            className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
-                          >
-                            {isDone ? "Undo" : "Completed!"}
-                          </button>
-                        </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : (
-              <p className="text-center py-4">No assignments for {selectedWeekday}.</p>
-            )}
+                        {isDone ? "Undo" : "Mark as Done"}
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-16">
+            <Image 
+              src="/sleepy.png" 
+              alt="No assignments today" 
+              width={300} 
+              height={300}
+              className="mb-4"
+            />
+            <p className="text-gray-600 text-center">
+              No assignments for {selectedWeekday}!
+            </p>
           </div>
-      
-          {/* Close button */}
-          <div className="flex justify-end h-5 w-115">
-            <button
-              onClick={() => setWeekdayModalOpen(false)}
-              className="globalButton rounded h-5"
-            >
-              Close
-            </button>
-          </div>
-        </div>
+        )}
       </div>
-      )}
+  
+      {/* Close button */}
+      <div className="flex justify-end h-5 w-115">
+        <button
+          onClick={() => setWeekdayModalOpen(false)}
+          className="globalButton rounded h-5"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
-      {/* make her functional */}
+      {/* next & previous week buttons */}
       <div className="prev-week-link">
         <button 
           onClick={() => setWeekOffset(weekOffset - 1)}
