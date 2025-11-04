@@ -423,7 +423,7 @@ export default function Calendar(){
                             }}
                             className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
                           >
-                            {isDone ? "Undo" : "Mark as Done"}
+                            {isDone ? "Undo" : "Completed!"}
                           </button>
                         </div>
                       )}
@@ -527,7 +527,7 @@ export default function Calendar(){
                             }}
                             className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
                           >
-                            {isDone ? "Undo" : "Mark as Done"}
+                            {isDone ? "Undo" : "Completed!"}
                           </button>
                         </div>
                       </div>
