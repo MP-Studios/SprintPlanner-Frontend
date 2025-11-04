@@ -441,7 +441,7 @@ export default function Calendar(){
                             }}
                             className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
                           >
-                            {isDone ? "Undo" : "Mark as Done"}
+                            {isDone ? "Undo" : "Completed!"}
                           </button>
                         </div>
                       )}
@@ -549,26 +549,37 @@ export default function Calendar(){
                             </button>
                           </div>
                         </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : (
-                <p className="text-center py-4">No assignments for {selectedWeekday}.</p>
-              )}
-            </div>
-        
-            {/* Close button */}
-            <div className="flex justify-end h-5 w-115">
-              <button
-                onClick={() => setWeekdayModalOpen(false)}
-                className="globalButton rounded h-5"
-              >
-                Close
-              </button>
-            </div>
+                        <div className="flex flex-col gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markAsDone(globalIndex)
+                            }}
+                            className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
+                          >
+                            {isDone ? "Undo" : "Completed!"}
+                          </button>
+                        </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="text-center py-4">No assignments for {selectedWeekday}.</p>
+            )}
+          </div>
+      
+          {/* Close button */}
+          <div className="flex justify-end h-5 w-115">
+            <button
+              onClick={() => setWeekdayModalOpen(false)}
+              className="globalButton rounded h-5"
+            >
+              Close
+            </button>
           </div>
         </div>
+      </div>
       )}
 
       {/* make her functional */}

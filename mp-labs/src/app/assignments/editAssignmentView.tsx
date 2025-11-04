@@ -265,7 +265,7 @@ export default function EditAssignments() {
                             }}
                             className="globalButton bg-gray-300 px-2 py-1 rounded text-sm whitespace-nowrap"
                           >
-                            {isDone ? "Undo" : "Mark as Done"}
+                            {isDone ? "Undo" : "Completed!"}
                           </button>
                         </div>
                       )}
