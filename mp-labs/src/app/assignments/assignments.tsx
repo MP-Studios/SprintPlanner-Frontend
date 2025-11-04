@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
-import { getClassColorNumber } from '@/app/colors/classColors';
 import { Assignment } from './assignment';
 import { createClient } from '@/utils/supabase/client';
+import { useClasses } from '@/app/context/ClassContext';
 
 type AssignmentsPageProps = {
   onClose?: () => void;
@@ -11,6 +11,10 @@ type AssignmentsPageProps = {
 export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showNewClassInput, setShowNewClassInput] = useState(false);
+  const [newClassName, setNewClassName] = useState('');
+  
+  const { classes, addClass } = useClasses();
 
   const [form, setForm] = useState<Assignment>({
     className: '',
@@ -31,13 +35,13 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
 
       const res = await fetch("/api/fetchBacklog/", {           
         headers: {
-        "Authorization": `Bearer ${session.access_token}`
+          "Authorization": `Bearer ${session.access_token}`
         }, 
       });
       const data = await res.json();
 
       setAssignments(data);
-    } catch ( err) {
+    } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
@@ -47,12 +51,39 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
   }
   
   useEffect(() => {
-    loadData();
   }, []);
   
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    
+    // If user selects "Add New Class..." option
+    if (name === 'className' && value === '__ADD_NEW__') {
+      setShowNewClassInput(true);
+      setForm(prev => ({ ...prev, className: '' }));
+      return;
+    }
+    
     setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddNewClass = () => {
+    if (!newClassName.trim()) {
+      alert('Please enter a class name');
+      return;
+    }
+
+    // Add to localStorage via context
+    addClass(newClassName);
+    
+    // Set the newly added class as selected
+    setForm(prev => ({ ...prev, className: newClassName }));
+    setNewClassName('');
+    setShowNewClassInput(false);
+  };
+
+  const handleCancelNewClass = () => {
+    setShowNewClassInput(false);
+    setNewClassName('');
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -74,14 +105,9 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
       }
       
       // Create a date at midnight (00:00) in the user's local timezone
-      // form.DueDate comes as "2024-11-04" from the date input
       const [year, month, day] = form.DueDate.split('-').map(Number);
-      const localDate = new Date(year, month - 1, day, 0, 0, 0); // midnight local time
+      const localDate = new Date(year, month - 1, day, 0, 0, 0);
       const isoDate = localDate.toISOString();
-      
-      console.log('Original input:', form.DueDate);
-      console.log('Local midnight date:', localDate);
-      console.log('Converted to ISO:', isoDate);
       
       const payload = {
         Name: form.Name,
@@ -100,50 +126,84 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
         body: JSON.stringify(payload),   
       });  
       
-      if(!res.ok){
+      if (!res.ok) {
         const errorText = await res.text();
-        alert("Error Saving assignment");
+        alert("Error saving assignment");
+        return;
       }
 
       const data = await res.json();
-      if(!data){
-        alert("Error Saveing assignment.");
+      if (!data) {
+        alert("Error saving assignment.");
+        return;
       }
+
+      // Add the class to localStorage if it's not already there
+      addClass(form.className);
       
       // reset form
-      setForm({ className: '', Name: '', DueDate: '' , Details: ''});
+      setForm({ className: '', Name: '', DueDate: '', Details: '' });
       // re-fetch the list
       window.location.reload();
-      if(onClose) onClose();
+      if (onClose) onClose();
     } catch (err) {
       console.error(err);
       alert('Error saving assignment');
     }
   };
 
-  /* Adding new stuff for actually having multiple forms this is not functional yet until I add something else */
-  const handleAddForm = () => {
-    if(assignments.length < 6){
-      setAssignments([...assignments, {className: '', Name: '', DueDate: '', Details: ''}])
-    }
-  };
-
   return (
-    <div className="p-40 mx-auto rounded-2xl h-screen flex flex-col">
+    <div className="p-40 mx-auto rounded-2xl h-90 flex flex-col">
       <form onSubmit={handleSubmit} className="p-6 space-y-4 flex flex-col">
         <div className="w-full">
           <label className="p-6 text-lg font-medium text-black">
             Course Name
           </label>
-          <input
-            id="className"
-            name="className"
-            type="text"
-            value={form.className}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-            placeholder="Math 101"
-          />
+          
+          {showNewClassInput ? (
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={newClassName}
+                onChange={(e) => setNewClassName(e.target.value)}
+                className="w-full border rounded px-3 py-2"
+                placeholder="Enter new class name"
+                autoFocus
+              />
+              <div className="flex gap-6" style={{marginTop: "12px"}}>
+                <button
+                  type="button"
+                  onClick={handleAddNewClass}
+                  className="globalButton rounded"
+                >
+                  Add Class
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelNewClass}
+                  className="globalButton rounded"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <select
+              id="className"
+              name="className"
+              value={form.className}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+            >
+              <option value="">Select a class...</option>
+              {classes.map((className) => (
+                <option key={className} value={className}>
+                  {className}
+                </option>
+              ))}
+              <option value="__ADD_NEW__">+ Add New Class...</option>
+            </select>
+          )}
         </div>
 
         <div className="w-full">
@@ -189,10 +249,11 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
             placeholder='Super cool assignment'
           />
         </div>
+        
         <div className="createAssignment w-full flex justify-end pr-6 mt-6">
           <button 
             type="submit"
-            className="globalButton mt-4 px-4 py-2 rounded outline-2"
+            className="globalButton mt-4 px-4 py-2 rounded"
           >
             Add Assignment
           </button>
