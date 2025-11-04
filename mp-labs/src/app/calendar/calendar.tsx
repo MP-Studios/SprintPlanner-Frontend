@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from "react";
 import DailyCalendar from "./dailyAssignmentView";
-import Daily from "../favicon.ico";
+//import Daily from "../favicon.ico";
 // import { createClient } from '@supabase/supabase-js'
 
 // // Create a single supabase client for interacting with your database

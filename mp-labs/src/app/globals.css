@@ -5,6 +5,10 @@
   --foreground: #171717;
 }
 
+:root {
+  font-size: 13px; /* Default is 16px, so this is 87.5% scale */
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -973,3 +977,4 @@ body .dribbble {
   padding-left: 10px;
   padding-right: 10px;
 }
+
