@@ -553,12 +553,27 @@ body .dribbble {
 }
 
 .globalButton {
-  background-color: #a2c9b8;
+  background-color: #3a554c;   /* dark green background */
+  color: #a2c9b8;
   padding-left: 3px;
   padding-right: 3px;
 }
 
 .globalButton:hover {
+  cursor: pointer;
+  background-color: #a2c9b8;   /* light background on hover */
+  color: #3a554c;
+  transform: scale(1.1);
+  transition: all .2s ease-in-out;
+}
+
+.globalButton2 {
+  background-color: #3a554c;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.globalButton2:hover {
   cursor: pointer;
   color: #3a554c;
   transform: scale(1.1);

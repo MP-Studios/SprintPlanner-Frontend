@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getClassColorNumber } from '@/app/colors/classColors';
 import { createClient } from '@/utils/supabase/client';
 import { useAssignments } from '@/app/context/AssignmentContext';
@@ -172,6 +172,7 @@ export default function Calendar(){
       details: assignment.Details || '',
       dueDate: assignment.DueDate
     });
+
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
   
@@ -229,10 +230,27 @@ export default function Calendar(){
         setSaving(false);
       }
     };
+
+    const modalRef = useRef<HTMLDivElement>(null);
+      useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+          if (
+            modalRef.current &&
+            !modalRef.current.contains(event.target as Node) &&
+            !saving
+          ) {
+            onClose();
+          }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+      }, [onClose, saving]);
   
     return (
       <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-        <div className="newAssignmentModal rounded-2xl w-[500px] max-h-[80vh] relative overflow-y-auto pointer-events-auto">
+        <div 
+          ref={modalRef}
+          className="newAssignmentModal rounded-2xl w-[500px] max-h-[80vh] relative overflow-y-auto pointer-events-auto">
           <button
             onClick={onClose}
             disabled={saving}
@@ -425,7 +443,7 @@ export default function Calendar(){
                             }}
                             className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
                           >
-                            {isDone ? "Undo" : "Mark as Done"}
+                            {isDone ? "Undo" : "Completed!"}
                           </button>
                         </div>
                       )}
@@ -566,31 +584,31 @@ export default function Calendar(){
   </div>
 )}
 
-    {/* make her functional */}
-    <div className="prev-week-link">
-      <button 
-        onClick={() => setWeekOffset(weekOffset - 1)}
-        className="prev-week-details"
-      >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 268.832 268.832">
-            <path d="M265.17 125.577l-80-80c-4.88-4.88-12.796-4.88-17.677 0-4.882 4.882-4.882 12.796 0 17.678l58.66 58.66H12.5c-6.903 0-12.5 5.598-12.5 12.5 0 6.903 5.597 12.5 12.5 12.5h213.654l-58.66 58.662c-4.88 4.882-4.88 12.796 0 17.678 2.44 2.44 5.64 3.66 8.84 3.66s6.398-1.22 8.84-3.66l79.997-80c4.883-4.882 4.883-12.796 0-17.678z"/>
-          </svg>
-      </button>
-    </div>
+      {/* next & previous week buttons */}
+      <div className="prev-week-link">
+        <button 
+          onClick={() => setWeekOffset(weekOffset - 1)}
+          className="prev-week-details"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 268.832 268.832">
+              <path d="M265.17 125.577l-80-80c-4.88-4.88-12.796-4.88-17.677 0-4.882 4.882-4.882 12.796 0 17.678l58.66 58.66H12.5c-6.903 0-12.5 5.598-12.5 12.5 0 6.903 5.597 12.5 12.5 12.5h213.654l-58.66 58.662c-4.88 4.882-4.88 12.796 0 17.678 2.44 2.44 5.64 3.66 8.84 3.66s6.398-1.22 8.84-3.66l79.997-80c4.883-4.882 4.883-12.796 0-17.678z"/>
+            </svg>
+        </button>
+      </div>
 
-    <div className="next-week-link">
-      <button 
-        onClick={() => setWeekOffset(weekOffset + 1)}
-        className="next-week-details"
-      >
-        <span className="next-week-text">Next week</span>
-        <div className="next-week-arrow">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 268.832 268.832">
-            <path d="M265.17 125.577l-80-80c-4.88-4.88-12.796-4.88-17.677 0-4.882 4.882-4.882 12.796 0 17.678l58.66 58.66H12.5c-6.903 0-12.5 5.598-12.5 12.5 0 6.903 5.597 12.5 12.5 12.5h213.654l-58.66 58.662c-4.88 4.882-4.88 12.796 0 17.678 2.44 2.44 5.64 3.66 8.84 3.66s6.398-1.22 8.84-3.66l79.997-80c4.883-4.882 4.883-12.796 0-17.678z"/>
-          </svg>
-        </div>
-      </button>
-    </div>
+      <div className="next-week-link">
+        <button 
+          onClick={() => setWeekOffset(weekOffset + 1)}
+          className="next-week-details"
+        >
+          <span className="next-week-text">Next week</span>
+          <div className="next-week-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 268.832 268.832">
+              <path d="M265.17 125.577l-80-80c-4.88-4.88-12.796-4.88-17.677 0-4.882 4.882-4.882 12.796 0 17.678l58.66 58.66H12.5c-6.903 0-12.5 5.598-12.5 12.5 0 6.903 5.597 12.5 12.5 12.5h213.654l-58.66 58.662c-4.88 4.882-4.88 12.796 0 17.678 2.44 2.44 5.64 3.66 8.84 3.66s6.398-1.22 8.84-3.66l79.997-80c4.883-4.882 4.883-12.796 0-17.678z"/>
+            </svg>
+          </div>
+        </button>
+      </div>
     </div>
     )
 }

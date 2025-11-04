@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAssignments } from '@/app/context/AssignmentContext';
 import { getClassColorNumber } from '@/app/colors/classColors';
+import { on } from 'events';
 
 type Assignment = {
   className: string;
@@ -36,6 +37,7 @@ function EditPage({assignment, onClose}: EditPageProps){
     details: assignment.Details || '',
     dueDate: assignment.DueDate
   });
+
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -63,7 +65,6 @@ function EditPage({assignment, onClose}: EditPageProps){
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${assignmentId}`,
-          
         },
         body: JSON.stringify({
           className: formData.className,
@@ -93,9 +94,29 @@ function EditPage({assignment, onClose}: EditPageProps){
     }
   };
 
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node) &&
+        !saving
+      ) {
+        onClose();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onClose, saving]);
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-      <div className="newAssignmentModal rounded-2xl w-[500px] max-h-[80vh] relative overflow-y-auto pointer-events-auto">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+    >
+      <div 
+        ref={modalRef}
+        className="newAssignmentModal rounded-2xl w-[500px] max-h-[80vh] relative overflow-y-auto pointer-events-auto"
+      >
         <button
           onClick={onClose}
           disabled={saving}
@@ -207,19 +228,17 @@ export default function EditAssignments() {
                 return (
                   <li
                     key={`${a.ClassId}-${index}`}
-                    className={`assignment-card ${colorClass} cursor-pointer transition-all hover:shadow-lg`}
+                    className={`assignment-card ${colorClass} cursor-pointer transition-all hover:shadow-lg relative z-10`}
                     style={{ opacity: isDone ? 0.6 : 1 }}
                     onMouseEnter={() => setHoveredAssignment(index)}
                     onMouseLeave={() => setHoveredAssignment(null)}
+                    onClick={() => {
+                      setCurrentAssignment(a);
+                      setEditOpen(true);
+                    }}
                   >
                     <div className="flex items-start justify-between">
-                      <div 
-                        className="flex-1"
-                        onClick={() => {
-                          setCurrentAssignment(a);
-                          setEditOpen(true);
-                        }}
-                      >
+                      <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="class-badge">
                             {a.className}
@@ -246,7 +265,7 @@ export default function EditAssignments() {
                             }}
                             className="globalButton bg-gray-300 px-2 py-1 rounded text-sm whitespace-nowrap"
                           >
-                            {isDone ? "Undo" : "Mark as Done"}
+                            {isDone ? "Undo" : "Completed!"}
                           </button>
                         </div>
                       )}
@@ -259,6 +278,7 @@ export default function EditAssignments() {
             {/* Edit modal */}
             {editOpen && currentAssignment && (
               <EditPage
+                key={currentAssignment.Id ?? currentAssignment.ClassId ?? currentAssignment.Name}
                 assignment={currentAssignment}
                 onClose={() => setEditOpen(false)}
               />
