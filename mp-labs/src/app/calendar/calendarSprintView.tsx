@@ -52,32 +52,42 @@ export default function Calendar(){
     const [dailyAssignments, setDailyAssignments] = useState<Assignment[]>([]);
     const [weekOffset, setWeekOffset] = useState(0);
 
-  useEffect(() => {
-    const loadSprintDates = async () => {
-    try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-          
-      if (sessionError || !session) {
-        return;
-      }
-      
-      const resDates = await fetch('api/fetchSprintDates', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
+    useEffect(() => {
+      const init = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          await fetchSprintDates(session);
         }
-      });
-      if (!resDates.ok) throw new Error("Failed to fetch sprint dates");
-      const dataDates: SprintDates = await resDates.json();
-
-      setSprintDates(dataDates);
-  
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  loadSprintDates();
-}, []);
+    
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+          if (session) {
+            fetchSprintDates(session);
+          } else {
+            setSprintDates(null);
+          }
+        });
+    
+        return () => subscription.unsubscribe();
+      };
+    
+      const fetchSprintDates = async (session: any) => {
+        try {
+          const resDates = await fetch('api/fetchSprintDates', {
+            headers: { 'Authorization': `Bearer ${session.access_token}` },
+          });
+          if (!resDates.ok) throw new Error('Failed to fetch sprint dates');
+          const dataDates: SprintDates = await resDates.json();
+          setSprintDates(dataDates);
+        } catch (err) {
+          console.error('Error loading sprint dates:', err);
+        }
+      };
+    
+      init();
+    }, []);
+    
 
   // Get the current week's Sunday
   const getCurrentWeekSunday = () => {
@@ -321,7 +331,7 @@ export default function Calendar(){
             <button
               onClick={handleSave}
               disabled={saving}
-              className="globalButton flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
+              className="globalButton flex-1 text-white px-4 py-2 rounded disabled:bg-gray-400"
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
@@ -355,7 +365,7 @@ export default function Calendar(){
         {weekOffset !== 0 && (
           <button
             onClick={() => setWeekOffset(0)}
-            className="globalButton bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+            className="globalButton text-white px-4 py-2 rounded"
           >
             Return to Current Week
           </button>
@@ -575,7 +585,7 @@ export default function Calendar(){
       <div className="flex justify-end h-5 w-115">
         <button
           onClick={() => setWeekdayModalOpen(false)}
-          className="globalButton rounded h-5"
+          className="globalButton rounded h-6"
         >
           Close
         </button>
