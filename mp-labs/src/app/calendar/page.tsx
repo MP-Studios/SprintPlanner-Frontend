@@ -34,7 +34,7 @@ export default function AssignmentContainer() {
         className,
         Name: name,
         DueDate: ev.end.toUTCString(),
-        Details: ev.end.toUTCString(),
+        Details: "",
         ClassId: null,
       };
     });
@@ -101,7 +101,7 @@ export default function AssignmentContainer() {
   return (
     <div className="assignment p-6 bg-white shadow-lg h-screen flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        <label className="globalButton bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">
+        <label className="globalButton px-4 py-2 rounded cursor-pointer">
           Upload calendar
           <input
             type="file"

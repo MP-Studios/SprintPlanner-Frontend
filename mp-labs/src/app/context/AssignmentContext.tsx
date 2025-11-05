@@ -31,38 +31,25 @@ export function AssignmentProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadAssignments = async () => {
+  const loadAssignments = async (accessToken: string) => {
     try {
       setLoading(true);
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
-        setError('Not authenticated. Please log in.');
-        return;
-      }
-
       const res = await fetch('/api/fetchBacklog', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
-
       if (!res.ok) throw new Error('Failed to fetch assignments');
-      
       const dataAssignments: Assignment[] = await res.json();
+
       setAssignments(dataAssignments);
 
-      // Initialize doneSet based on Status
       const initialDoneSet = new Set<number>();
-      dataAssignments.forEach((assignment, index) => {
-        if (assignment.Status === 1) {
-          initialDoneSet.add(index);
-        }
+      dataAssignments.forEach((a, i) => {
+        if (a.Status === 1) initialDoneSet.add(i);
       });
       setDoneSet(initialDoneSet);
       setError(null);
     } catch (err) {
-      console.error(err);
+      console.error('Error loading assignments:', err);
       setError('Could not load assignments');
     } finally {
       setLoading(false);
@@ -71,83 +58,106 @@ export function AssignmentProvider({ children }: { children: ReactNode }) {
 
   const markAsDone = async (index: number) => {
     const assignment = assignments[index];
-    
-    if (!assignment.Id) {
-      console.error("Assignment has no ID");
-      alert("Cannot update assignment: Missing ID");
+    if (!assignment?.Id) {
+      alert('Cannot update assignment: Missing ID');
       return;
     }
-  
-    // Toggle status: if currently 1 (done), set to 0; otherwise set to 1
-    const currentStatus = assignment.Status || 0;
-    const newStatus = currentStatus === 1 ? 0 : 1;
-  
+
+    const newStatus = assignment.Status === 1 ? 0 : 1;
+
     try {
-      // Get auth token
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
-        alert("You must be logged in to update assignments");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('You must be logged in to update assignments');
         return;
       }
-  
-      // Call API to update status in database
-      const response = await fetch('/api/updateAssignmentStatus', {
+
+      const res = await fetch('/api/updateAssignmentStatus', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          assignmentId: assignment.Id,
-          status: newStatus
-        })
+        body: JSON.stringify({ assignmentId: assignment.Id, status: newStatus }),
       });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update assignment status');
-      }
-  
-      console.log(`Assignment ${assignment.Id} status updated to ${newStatus}`);
-  
-      // Update local state to reflect the change
-      setAssignments(prevAssignments => 
-        prevAssignments.map((a, i) => 
-          i === index ? { ...a, Status: newStatus } : a
-        )
+      if (!res.ok) throw new Error('Failed to update assignment status');
+
+      // local update
+      setAssignments(prev =>
+        prev.map((a, i) => (i === index ? { ...a, Status: newStatus } : a))
       );
-  
-      // Update doneSet for UI purposes
-      setDoneSet((prev) => {
-        const newSet = new Set(prev);
-        if (newStatus === 1) {
-          newSet.add(index);
-        } else {
-          newSet.delete(index);
-        }
-        return newSet;
+      setDoneSet(prev => {
+        const s = new Set(prev);
+        newStatus === 1 ? s.add(index) : s.delete(index);
+        return s;
       });
-  
-    } catch (error) {
-      console.error("Error updating assignment status:", error);
-      alert("Failed to update assignment status. Please try again.");
+    } catch (e) {
+      console.error('Error updating assignment status:', e);
+      alert('Failed to update assignment status.');
     }
   };
 
-  useEffect(() => {
-    loadAssignments();
+ // ✅ reliable session restoration
+useEffect(() => {
+    let mounted = true;
+  
+    const init = async () => {
+      setLoading(true);
+  
+      // First, try to get the session
+      let { data: { session } } = await supabase.auth.getSession();
+      
+      // If no session, try refreshing it (important after server redirects)
+      if (!session) {
+        const { data: { session: refreshedSession }, error } = await supabase.auth.refreshSession();
+        if (!error && refreshedSession) {
+          session = refreshedSession;
+        }
+      }
+  
+      if (mounted && session?.access_token) {
+        await loadAssignments(session.access_token);
+      } else if (mounted) {
+        setAssignments([]);
+        setDoneSet(new Set());
+        setLoading(false);
+      }
+  
+      // Listen for future auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (!mounted) return;
+        
+        if (session?.access_token) {
+          await loadAssignments(session.access_token);
+        } else {
+          setAssignments([]);
+          setDoneSet(new Set());
+          setLoading(false);
+        }
+      });
+  
+      return () => {
+        mounted = false;
+        subscription.unsubscribe();
+      };
+    };
+  
+    init();
   }, []);
+  
 
   return (
-    <AssignmentContext.Provider 
-      value={{ 
-        assignments, 
-        doneSet, 
-        loading, 
-        error, 
+    <AssignmentContext.Provider
+      value={{
+        assignments,
+        doneSet,
+        loading,
+        error,
         markAsDone,
-        refreshAssignments: loadAssignments
+        refreshAssignments: async () => {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.access_token) await loadAssignments(session.access_token);
+        },
       }}
     >
       {children}
@@ -156,9 +166,7 @@ export function AssignmentProvider({ children }: { children: ReactNode }) {
 }
 
 export function useAssignments() {
-  const context = useContext(AssignmentContext);
-  if (context === undefined) {
-    throw new Error('useAssignments must be used within an AssignmentProvider');
-  }
-  return context;
+  const ctx = useContext(AssignmentContext);
+  if (!ctx) throw new Error('useAssignments must be used within AssignmentProvider');
+  return ctx;
 }

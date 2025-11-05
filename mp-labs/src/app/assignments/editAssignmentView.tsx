@@ -187,7 +187,7 @@ function EditPage({assignment, onClose}: EditPageProps){
           <button
             onClick={handleSave}
             disabled={saving}
-            className="globalButton flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
+            className="globalButton flex-1 text-white px-4 py-2 rounded disabled:bg-gray-400"
           >
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
