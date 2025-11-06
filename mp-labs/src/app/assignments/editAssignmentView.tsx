@@ -19,12 +19,6 @@ type EditPageProps = {
   onClose: () => void;
 };
 
-type DeleteProps = {
-  assignmentId: string;
-  assignmentName: string;
-  onClose: () => void;
-};
-
 // Helper function to format date for datetime-local input
 const formatDateTimeLocal = (dateString: string) => {
   const date = new Date(dateString);
@@ -203,7 +197,7 @@ function EditPage({assignment, onClose}: EditPageProps){
   );
 }
 
-export default function EditAssignments({ assignmentId, assignmentName, onClose}: DeleteProps) {
+export default function EditAssignments() {
     const { assignments, doneSet, error, markAsDone } = useAssignments();
     const [editOpen, setEditOpen] = useState(false);
     const [currentAssignment, setCurrentAssignment] = useState<Assignment | null>(null);
@@ -212,9 +206,8 @@ export default function EditAssignments({ assignmentId, assignmentName, onClose}
     const [confirmingAssignment, setConfirmingAssignment] = useState<string | null>(null);
 
     //delete assignment
-    const handleDelete = async (aId: string) => {
+    const handleDelete = async (aId: string, assignmentName: string) => {
       setIsDeleting(true);
-      
       try {
         const response = await fetch("api/deleteAssignment", {
           method: "DELETE",
@@ -231,14 +224,12 @@ export default function EditAssignments({ assignmentId, assignmentName, onClose}
         }
 
         alert(`${assignmentName} successfully deleted!`);
-        //window.location.reload();
-        //onClose();
+        window.location.reload();
         setConfirmingAssignment(null);
       } catch (err) {
           console.error(err);
       } finally {
           setIsDeleting(false);
-          //setConfirmingAssignment(null);
       }
     };
 
@@ -314,10 +305,7 @@ export default function EditAssignments({ assignmentId, assignmentName, onClose}
                             className="delete-container"
                             onClick={(e) => e.stopPropagation()}
                           >
-                              <label 
-                                htmlFor="delete" 
-                                onClick={() => setConfirmingAssignment(a.Id || `${a.ClassId}-${index}`)}
-                              >
+                              <label onClick={() => setConfirmingAssignment(a.Id || `${a.ClassId}-${index}`)}>
                                 <div className="delete-wrapper">
                                   <div className="delete-lid"></div>
                                   <div className="delete-can"></div>
@@ -345,18 +333,18 @@ export default function EditAssignments({ assignmentId, assignmentName, onClose}
                                     {a.Name}
                                   </span>
                                 </p>
-                                <div className="flex justify-center gap-4 flex-wrap">
+                                <div className="flex justify-center gap-8 flex-wrap">
                                 <button
-                                  onClick={() => handleDelete(a.Id!)}
+                                  onClick={() => handleDelete(a.Id!, a.Name!)}
                                   disabled={isDeleting}
-                                  className="globalButton"
+                                  className="globalButton px-4 py-2 rounded-md"
                                 >
                                   Yes, Delete
                                 </button>
 
                                 <button
                                   onClick={handleCancel}
-                                  className="globalButton bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded-md"
+                                  className="globalButton px-4 py-2 rounded-md"
                                 >
                                   Cancel
                                 </button>
