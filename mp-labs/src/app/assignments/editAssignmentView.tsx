@@ -19,6 +19,12 @@ type EditPageProps = {
   onClose: () => void;
 };
 
+type DeleteProps = {
+  assignmentId: string;
+  assignmentName: string;
+  onClose: () => void;
+};
+
 // Helper function to format date for datetime-local input
 const formatDateTimeLocal = (dateString: string) => {
   const date = new Date(dateString);
@@ -197,11 +203,48 @@ function EditPage({assignment, onClose}: EditPageProps){
   );
 }
 
-export default function EditAssignments() {
+export default function EditAssignments({ assignmentId, assignmentName, onClose}: DeleteProps) {
     const { assignments, doneSet, error, markAsDone } = useAssignments();
     const [editOpen, setEditOpen] = useState(false);
     const [currentAssignment, setCurrentAssignment] = useState<Assignment | null>(null);
     const [hoveredAssignment, setHoveredAssignment] = useState<number | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [confirmingAssignment, setConfirmingAssignment] = useState<string | null>(null);
+
+    //delete assignment
+    const handleDelete = async (aId: string) => {
+      setIsDeleting(true);
+      
+      try {
+        const response = await fetch("api/deleteAssignment", {
+          method: "DELETE",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({assignmentId: aId})
+        });
+
+        console.log('Response status:', response.status);
+        const responseText = await response.text();
+        console.log('Response body:', responseText);
+
+        if (!response.ok) {
+          throw new Error('Failed to delete assignment: ' + responseText);
+        }
+
+        alert(`${assignmentName} successfully deleted!`);
+        //window.location.reload();
+        //onClose();
+        setConfirmingAssignment(null);
+      } catch (err) {
+          console.error(err);
+      } finally {
+          setIsDeleting(false);
+          //setConfirmingAssignment(null);
+      }
+    };
+
+    const handleCancel = () => {
+      setConfirmingAssignment(null);
+    };
 
     return (
         <div className="editAssignment p-6 shadow-lg overflow-hidden h-screen flex flex-col">
@@ -224,15 +267,15 @@ export default function EditAssignments() {
                 const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
                 const isDone = doneSet.has(index);
                 const isHovered = hoveredAssignment === index;
-
                 return (
                   <li
                     key={`${a.ClassId}-${index}`}
                     className={`assignment-card ${colorClass} cursor-pointer transition-all hover:shadow-lg relative z-10`}
                     style={{ opacity: isDone ? 0.6 : 1 }}
-                    onMouseEnter={() => setHoveredAssignment(index)}
-                    onMouseLeave={() => setHoveredAssignment(null)}
+                    onMouseEnter={() => {if (!confirmingAssignment) setHoveredAssignment(index)}}
+                    onMouseLeave={() => {if (!confirmingAssignment) setHoveredAssignment(null)}}
                     onClick={() => {
+                      if (confirmingAssignment) return;
                       setCurrentAssignment(a);
                       setEditOpen(true);
                     }}
@@ -267,6 +310,60 @@ export default function EditAssignments() {
                           >
                             {isDone ? "Undo" : "Completed!"}
                           </button>
+                          <div 
+                            className="delete-container"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                              <label 
+                                htmlFor="delete" 
+                                onClick={() => setConfirmingAssignment(a.Id || `${a.ClassId}-${index}`)}
+                              >
+                                <div className="delete-wrapper">
+                                  <div className="delete-lid"></div>
+                                  <div className="delete-can"></div>
+                                </div>
+                              </label>
+                            </div>
+                            {confirmingAssignment === (a.Id || `${a.ClassId}-${index}`) && (
+                              <div 
+                                className="delete-dialog-overlay" 
+                                onClick={(e) => {
+                                  if (e.target === e.currentTarget) {
+                                    e.stopPropagation();
+                                    handleCancel();
+                                  }
+                                }}
+                              >
+                                <div
+                                  className="modalClass delete-dialog show z-50 rounded-2xl shadow-lg flex flex-col items-center justify-center max-w-[90%] sm:max-w-[400px] mx-auto p-4"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                <p className="text-lg font-semibold mb-4 text-center break-words whitespace-normal w-full max-w-full min-w-0">
+                                  Are you sure you want to delete <br />
+                                  this assignment:{" "}
+                                  <span className="font-bold break-words whitespace-normal block text-wrap">
+                                    {a.Name}
+                                  </span>
+                                </p>
+                                <div className="flex justify-center gap-4 flex-wrap">
+                                <button
+                                  onClick={() => handleDelete(a.Id!)}
+                                  disabled={isDeleting}
+                                  className="globalButton"
+                                >
+                                  Yes, Delete
+                                </button>
+
+                                <button
+                                  onClick={handleCancel}
+                                  className="globalButton bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded-md"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                         </div>
                       )}
                     </div>
