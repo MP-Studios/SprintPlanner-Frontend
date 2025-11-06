@@ -51,6 +51,40 @@ export default function Calendar(){
     const [hoveredAssignment, setHoveredAssignment] = useState<number | null>(null);
     const [dailyAssignments, setDailyAssignments] = useState<Assignment[]>([]);
     const [weekOffset, setWeekOffset] = useState(0);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [confirmingAssignment, setConfirmingAssignment] = useState<string | null>(null);
+
+    //delete assignment
+    const handleDelete = async (aId: string, assignmentName: string) => {
+      setIsDeleting(true);
+      try {
+        const response = await fetch("api/deleteAssignment", {
+          method: "DELETE",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({assignmentId: aId})
+        });
+
+        console.log('Response status:', response.status);
+        const responseText = await response.text();
+        console.log('Response body:', responseText);
+
+        if (!response.ok) {
+          throw new Error('Failed to delete assignment: ' + responseText);
+        }
+
+        alert(`${assignmentName} successfully deleted!`);
+        window.location.reload();
+        setConfirmingAssignment(null);
+      } catch (err) {
+          console.error(err);
+      } finally {
+          setIsDeleting(false);
+      }
+    };
+
+    const handleCancel = () => {
+      setConfirmingAssignment(null);
+    };
 
     useEffect(() => {
       const init = async () => {
@@ -455,6 +489,57 @@ export default function Calendar(){
                           >
                             {isDone ? "Undo" : "Completed!"}
                           </button>
+                          <div 
+                            className="delete-container"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                              <label onClick={() => setConfirmingAssignment(assignment.Id || `${assignment.ClassId}-${assignmentIndex}`)}>
+                                <div className="delete-wrapper">
+                                  <div className="delete-lid"></div>
+                                  <div className="delete-can"></div>
+                                </div>
+                              </label>
+                            </div>
+                            {confirmingAssignment === (assignment.Id || `${assignment.ClassId}-${assignmentIndex}`) && (
+                              <div 
+                                className="delete-dialog-overlay" 
+                                onClick={(e) => {
+                                  if (e.target === e.currentTarget) {
+                                    e.stopPropagation();
+                                    handleCancel();
+                                  }
+                                }}
+                              >
+                                <div
+                                  className="modalClass delete-dialog show z-50 rounded-2xl shadow-lg flex flex-col items-center justify-center max-w-[90%] sm:max-w-[400px] mx-auto p-4"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                <p className="text-lg font-semibold mb-4 text-center break-words whitespace-normal w-full max-w-full min-w-0">
+                                  Are you sure you want to delete <br />
+                                  this assignment:{" "}
+                                  <span className="font-bold break-words whitespace-normal block text-wrap">
+                                    {assignment.Name}
+                                  </span>
+                                </p>
+                                <div className="flex justify-center gap-8 flex-wrap">
+                                <button
+                                  onClick={() => handleDelete(assignment.Id!, assignment.Name!)}
+                                  disabled={isDeleting}
+                                  className="globalButton px-4 py-2 rounded-md"
+                                >
+                                  Yes, Delete
+                                </button>
+
+                                <button
+                                  onClick={handleCancel}
+                                  className="globalButton px-4 py-2 rounded-md"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                         </div>
                       )}
                       
