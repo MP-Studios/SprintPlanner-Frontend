@@ -12,6 +12,7 @@ export default function Login(){
       setErrorMsg('Invalid email or password. Please try again.')
     } else {
       setErrorMsg(null)
+      window.location.href = '/'
     }
   }
 
