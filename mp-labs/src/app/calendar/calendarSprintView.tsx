@@ -602,14 +602,7 @@ export default function Calendar(){
               const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
 
               // Format due time in local timezone
-              let dueDate = new Date(assignment.DueDate);
-              const hours = dueDate.getHours();
-              const minutes = dueDate.getMinutes();
-
-              // If it's exactly midnight local time, subtract one minute
-              if (hours === 12 && minutes === 0) {
-                dueDate = new Date(dueDate.getTime() - 60 * 1000); // subtract 1 minute
-              }
+              const dueDate = new Date(assignment.DueDate);
               const formattedTime = dueDate.toLocaleTimeString('en-US', {
                 hour: '2-digit',
                 minute: '2-digit',
