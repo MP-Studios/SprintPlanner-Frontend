@@ -339,7 +339,7 @@ export default function Calendar(){
             <div>
               <label className="block text-sm font-medium mb-1 text-black">Due Date</label>
               <input
-                type="date"
+                type="datetime-local"
                 name="dueDate"
                 value={formatDateTimeLocal(formData.dueDate)}
                 onChange={handleChange}
