@@ -475,6 +475,7 @@ body .dribbble {
 .prev-week-details:hover {
   background: transparent;
   transform: translateX(-10px);
+  cursor: pointer;
 }
 
 .prev-week-details:hover svg{
@@ -541,6 +542,7 @@ body .dribbble {
   border: 2px solid #a2c9b8;
   background: transparent;
   color: #000000;
+  cursor: pointer;
 }
 
 .next-week-details:hover .next-week-arrow{

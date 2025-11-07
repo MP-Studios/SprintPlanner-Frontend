@@ -40,7 +40,7 @@ const formatDateTimeLocal = (dateString: string) => {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
-export default function Calendar(){
+export default function Calendar({ weekOffset, setWeekOffset }: { weekOffset: number, setWeekOffset: React.Dispatch<React.SetStateAction<number>> }){
     const { assignments, doneSet, error, markAsDone } = useAssignments();
     const [editOpen, setEditOpen] = useState(false);
     const [currentAssignment, setCurrentAssignment] = useState<Assignment | null>(null);
@@ -50,7 +50,7 @@ export default function Calendar(){
     const [sprintDates, setSprintDates] = useState<SprintDates | null>(null);
     const [hoveredAssignment, setHoveredAssignment] = useState<number | null>(null);
     const [dailyAssignments, setDailyAssignments] = useState<Assignment[]>([]);
-    const [weekOffset, setWeekOffset] = useState(0);
+    //const [weekOffset, setWeekOffset] = useState(0);
     const [isDeleting, setIsDeleting] = useState(false);
     const [confirmingAssignment, setConfirmingAssignment] = useState<string | null>(null);
 
@@ -680,7 +680,7 @@ export default function Calendar(){
 )}
 
       {/* next & previous week buttons */}
-      <div className="prev-week-link">
+      {/* <div className="prev-week-link">
         <button 
           onClick={() => setWeekOffset(weekOffset - 1)}
           className="prev-week-details"
@@ -689,9 +689,9 @@ export default function Calendar(){
               <path d="M265.17 125.577l-80-80c-4.88-4.88-12.796-4.88-17.677 0-4.882 4.882-4.882 12.796 0 17.678l58.66 58.66H12.5c-6.903 0-12.5 5.598-12.5 12.5 0 6.903 5.597 12.5 12.5 12.5h213.654l-58.66 58.662c-4.88 4.882-4.88 12.796 0 17.678 2.44 2.44 5.64 3.66 8.84 3.66s6.398-1.22 8.84-3.66l79.997-80c4.883-4.882 4.883-12.796 0-17.678z"/>
             </svg>
         </button>
-      </div>
+      </div> */}
 
-      <div className="next-week-link">
+      {/* <div className="next-week-link">
         <button 
           onClick={() => setWeekOffset(weekOffset + 1)}
           className="next-week-details"
@@ -703,7 +703,7 @@ export default function Calendar(){
             </svg>
           </div>
         </button>
-      </div>
+      </div> */}
     </div>
     )
 }
