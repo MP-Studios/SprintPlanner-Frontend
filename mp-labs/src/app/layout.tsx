@@ -7,6 +7,7 @@ import { Inter } from 'next/font/google';
 import { createClient } from '@/utils/supabase/server';
 import { Providers } from './providers';
 import { ClassProvider } from './context/ClassContext';
+import AppWrapper from './AppWrapper';
 
 const inter = Inter({ 
   subsets: ['latin'], 
@@ -43,13 +44,15 @@ export default async function RootLayout({
   return (
     <html lang="en" className={inter.className}>
       <body>
-        <Providers>
-          <ClassProvider>
-            {/* Show different NavBar based on login status */}
-            {user ? <LoggedInNavBar user={user} /> : <LoggedOutNavBar />}
-            <main className="p-4">{children}</main>
-          </ClassProvider>
-        </Providers>
+      <Providers>
+        <ClassProvider>
+          <AppWrapper>
+          {/* Show different NavBar based on login status */}
+          {user ? <LoggedInNavBar user={user} /> : <LoggedOutNavBar />}
+          <main className="p-4">{children}</main>
+        </AppWrapper>
+      </ClassProvider>
+    </Providers>
       </body>
     </html>
   );
