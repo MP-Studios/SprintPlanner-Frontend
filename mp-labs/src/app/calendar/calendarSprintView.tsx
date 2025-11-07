@@ -339,7 +339,7 @@ export default function Calendar(){
             <div>
               <label className="block text-sm font-medium mb-1 text-black">Due Date</label>
               <input
-                type="date"
+                type="datetime-local"
                 name="dueDate"
                 value={formatDateTimeLocal(formData.dueDate)}
                 onChange={handleChange}
@@ -602,7 +602,14 @@ export default function Calendar(){
               const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
 
               // Format due time in local timezone
-              const dueDate = new Date(assignment.DueDate);
+              let dueDate = new Date(assignment.DueDate);
+              const hours = dueDate.getHours();
+              const minutes = dueDate.getMinutes();
+
+              // If it's exactly midnight local time, subtract one minute
+              if (hours === 12 && minutes === 0) {
+                dueDate = new Date(dueDate.getTime() - 60 * 1000); // subtract 1 minute
+              }
               const formattedTime = dueDate.toLocaleTimeString('en-US', {
                 hour: '2-digit',
                 minute: '2-digit',
