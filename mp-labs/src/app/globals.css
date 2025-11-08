@@ -281,7 +281,7 @@ body {
 }
 
 .assignment {
-  height: 91.2vh;
+  height: 95vh;
   width: auto;
   background-color: #e9f8eb;
   overflow: hidden;
@@ -462,7 +462,7 @@ body .dribbble {
   border-radius: 4px;
   transition: all .35s;
   cursor: pointer;
-  margin-bottom: 170px;
+  margin-bottom: 140px;
 }
 
 .prev-week-details svg {
@@ -509,7 +509,7 @@ body .dribbble {
   transition: all .35s;
   cursor: pointer;
   font-size: clamp(0.7rem, 1.5vw, 0.85rem);
-  margin-bottom: 170px;
+  margin-bottom: 140px;
   margin-right: 25px;
 }
 

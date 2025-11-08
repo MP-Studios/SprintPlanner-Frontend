@@ -47,7 +47,7 @@ export default async function RootLayout({
           <ClassProvider>
             {/* Show different NavBar based on login status */}
             {user ? <LoggedInNavBar user={user} /> : <LoggedOutNavBar />}
-            <main className="h-[calc(100vh-64px)]">{children}</main>
+            <main className="p-4">{children}</main>
           </ClassProvider>
         </Providers>
       </body>

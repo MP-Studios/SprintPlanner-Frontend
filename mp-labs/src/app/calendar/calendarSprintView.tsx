@@ -40,7 +40,7 @@ const formatDateTimeLocal = (dateString: string) => {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
-export default function Calendar({ weekOffset, setWeekOffset }: { weekOffset: number, setWeekOffset: React.Dispatch<React.SetStateAction<number>> }){
+export default function Calendar(){
     const { assignments, doneSet, error, markAsDone } = useAssignments();
     const [editOpen, setEditOpen] = useState(false);
     const [currentAssignment, setCurrentAssignment] = useState<Assignment | null>(null);
@@ -50,7 +50,7 @@ export default function Calendar({ weekOffset, setWeekOffset }: { weekOffset: nu
     const [sprintDates, setSprintDates] = useState<SprintDates | null>(null);
     const [hoveredAssignment, setHoveredAssignment] = useState<number | null>(null);
     const [dailyAssignments, setDailyAssignments] = useState<Assignment[]>([]);
-    //const [weekOffset, setWeekOffset] = useState(0);
+    const [weekOffset, setWeekOffset] = useState(0);
     const [isDeleting, setIsDeleting] = useState(false);
     const [confirmingAssignment, setConfirmingAssignment] = useState<string | null>(null);
 
