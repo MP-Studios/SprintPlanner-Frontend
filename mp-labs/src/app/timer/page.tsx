@@ -1,8 +1,14 @@
 "use client";
 import { useTimer } from "./TimerContext";
+import { useState } from "react";
 
 export default function Page() {
   const { timerValue, isActive, mode, totalTime, setIsActive, resetTimer } = useTimer();
+  
+  // Default times in minutes
+  const [pomodoroTime, setPomodoroTime] = useState(25);
+  const [shortBreakTime, setShortBreakTime] = useState(5);
+  const [longBreakTime, setLongBreakTime] = useState(15);
 
   const formatTime = (seconds: number) => {
     const min = Math.floor(seconds / 60);
@@ -22,24 +28,62 @@ export default function Page() {
       <h1 className="text-6xl font-bold text-[#3a554c] mb-24">Pomodoro Timer</h1>
       
       <div className="flex gap-16 mb-24">
-        <button
-          className="globalButton rounded px-8 py-4 text-xl"
-          onClick={() => handleModeChange("Pomodoro", 25)}
-        >
-          Pomodoro
-        </button>
-        <button
-          className="globalButton rounded px-8 py-4 text-xl"
-          onClick={() => handleModeChange("Short Break", 5)}
-        >
-          Short Break
-        </button>
-        <button
-          className="globalButton rounded px-8 py-4 text-xl"
-          onClick={() => handleModeChange("Long Break", 15)}
-        >
-          Long Break
-        </button>
+        <div className="flex flex-col items-center gap-3">
+          <button
+            className="globalButton rounded px-8 py-4 text-xl"
+            onClick={() => handleModeChange("Pomodoro", pomodoroTime)}
+          >
+            Pomodoro
+          </button>
+          <input
+            type="number"
+            min="1"
+            max="120"
+            value={pomodoroTime}
+            onChange={(e) => setPomodoroTime(Number(e.target.value))}
+            className="w-20 text-center border-2 border-[#3a554c] rounded px-2 py-1 text-[#3a554c] bg-white"
+            placeholder="25"
+          />
+          <span className="text-sm text-[#3a554c]">minutes</span>
+        </div>
+        
+        <div className="flex flex-col items-center gap-3">
+          <button
+            className="globalButton rounded px-8 py-4 text-xl"
+            onClick={() => handleModeChange("Short Break", shortBreakTime)}
+          >
+            Short Break
+          </button>
+          <input
+            type="number"
+            min="1"
+            max="60"
+            value={shortBreakTime}
+            onChange={(e) => setShortBreakTime(Number(e.target.value))}
+            className="w-20 text-center border-2 border-[#3a554c] rounded px-2 py-1 text-[#3a554c] bg-white"
+            placeholder="5"
+          />
+          <span className="text-sm text-[#3a554c]">minutes</span>
+        </div>
+        
+        <div className="flex flex-col items-center gap-3">
+          <button
+            className="globalButton rounded px-8 py-4 text-xl"
+            onClick={() => handleModeChange("Long Break", longBreakTime)}
+          >
+            Long Break
+          </button>
+          <input
+            type="number"
+            min="1"
+            max="60"
+            value={longBreakTime}
+            onChange={(e) => setLongBreakTime(Number(e.target.value))}
+            className="w-20 text-center border-2 border-[#3a554c] rounded px-2 py-1 text-[#3a554c] bg-white"
+            placeholder="15"
+          />
+          <span className="text-sm text-[#3a554c]">minutes</span>
+        </div>
       </div>
 
       {/* Progress Circle */}
@@ -75,12 +119,13 @@ export default function Page() {
         </button>
         <button
           className="globalButton rounded px-10 py-4 text-xl"
-          onClick={() =>
-            handleModeChange(
-              mode,
-              mode === "Pomodoro" ? 25 : mode === "Short Break" ? 5 : 15
-            )
-          }
+          onClick={() => {
+            const currentModeTime = 
+              mode === "Pomodoro" ? pomodoroTime : 
+              mode === "Short Break" ? shortBreakTime : 
+              longBreakTime;
+            handleModeChange(mode, currentModeTime);
+          }}
         >
           Reset
         </button>
@@ -88,4 +133,3 @@ export default function Page() {
     </div>
   );
 }
-
