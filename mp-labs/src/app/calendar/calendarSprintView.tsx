@@ -441,7 +441,7 @@ export default function Calendar(){
           </div>
         
           {/* Assignment bars */}
-          <div className="relative p-2">
+          <div className="relative p-2" style={{padding: '0px 0px 100px 0px'}}>
             {assignmentRows.map((row, rowIndex) => (
               <div key={rowIndex} className="relative mb-1" style={{ height: 'auto', minHeight: '100px' }}>
                 {row.map((assignment, assignmentIndex) => {
