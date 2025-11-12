@@ -9,7 +9,7 @@ export default function AssignmentContainer() {
     const [showAlternativeView, setShowAlternativeView] = useState(false);
 
     return (
-        <div className="assignment p-6 bg-white shadow-lg h-90 flex flex-col">
+        <div className="assignment p-6 bg-white shadow-lg flex flex-col">
             <div className="flex items-center justify-end mb-4">
             <label className="collection">
                 <input 

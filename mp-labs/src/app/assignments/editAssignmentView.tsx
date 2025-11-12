@@ -161,7 +161,7 @@ function EditPage({assignment, onClose}: EditPageProps){
           <div>
             <label className="block text-sm font-medium mb-1 text-black">Due Date</label>
             <input
-              type="date"
+              type="datetime-local"
               name="dueDate"
               value={formatDateTimeLocal(formData.dueDate)}
               onChange={handleChange}
@@ -242,7 +242,7 @@ export default function EditAssignments() {
             <h1 className="text-xl font-semibold mb-4">Your Assignments</h1>
             {error && <p className="text-red-500">{error}</p>}
 
-            <ul className="space-y-4 overflow-auto">
+            <ul className="space-y-4 overflow-auto" style={{padding: '0px 0px 150px 0px'}} >
               {assignments.map((a, index) => {
                 const due = new Date(a.DueDate);
                 const formattedDue = due.toLocaleString('en-US', { 
