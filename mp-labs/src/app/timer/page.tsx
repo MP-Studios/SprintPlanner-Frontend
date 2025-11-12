@@ -3,7 +3,7 @@ import { useTimer } from "./TimerContext";
 import { useState } from "react";
 
 export default function Page() {
-  const { timerValue, isActive, mode, totalTime, setIsActive, resetTimer } = useTimer();
+  const { timerValue, isActive, mode, totalTime, repeatSound, setIsActive, setRepeatSound, resetTimer, stopSound } = useTimer();
   
   // Default times in minutes
   const [pomodoroTime, setPomodoroTime] = useState(25);
@@ -25,7 +25,7 @@ export default function Page() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[#e9f8eb] text-white py-20">
-      <h1 className="text-6xl font-bold text-[#3a554c] mb-24">Pomodoro Timer</h1>
+      <h1 className="text-6xl font-bold text-[#3a554c]">Pomodoro Timer</h1>
       
       <div className="flex gap-16 mb-24">
         <div className="flex flex-col items-center gap-3">
@@ -110,7 +110,7 @@ export default function Page() {
         </p>
       </div>
 
-      <div className="flex gap-16">
+      <div className="flex gap-16 mb-8">
         <button
           className="globalButton rounded px-10 py-4 text-xl"
           onClick={() => setIsActive(!isActive)}
@@ -130,6 +130,29 @@ export default function Page() {
           Reset
         </button>
       </div>
+      
+      {/* Repeat Sound Toggle - moved here for better visibility */}
+      <div className="flex items-center gap-3 mb-4">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={repeatSound}
+            onChange={(e) => setRepeatSound(e.target.checked)}
+            className="w-5 h-5 accent-[#3a554c] cursor-pointer"
+          />
+          <span className="text-xl font-medium text-[#3a554c]">Repeat sound until stopped</span>
+        </label>
+      </div>
+      
+      {/* Stop Sound Button - only show if timer is at 0 AND repeat is enabled */}
+      {timerValue === 0 && repeatSound && (
+        <button
+          className="globalButton rounded px-10 py-4 text-xl bg-red-400 hover:bg-red-500"
+          onClick={stopSound}
+        >
+          Stop Sound
+        </button>
+      )}
     </div>
   );
 }

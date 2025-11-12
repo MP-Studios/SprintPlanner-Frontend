@@ -9,11 +9,14 @@ type TimerContextType = {
   isActive: boolean;
   mode: TimerMode;
   totalTime: number;
+  repeatSound: boolean;
   setTimerValue: (value: number) => void;
   setIsActive: (value: boolean) => void;
   setMode: (mode: TimerMode) => void;
   setTotalTime: (value: number) => void;
+  setRepeatSound: (value: boolean) => void;
   resetTimer: (mode: TimerMode, minutes: number) => void;
+  stopSound: () => void;
 };
 
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
@@ -23,7 +26,9 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const [isActive, setIsActive] = useState(false);
   const [mode, setMode] = useState<TimerMode>('Pomodoro');
   const [totalTime, setTotalTime] = useState(25 * 60);
+  const [repeatSound, setRepeatSound] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Load state from localStorage on mount
   useEffect(() => {
@@ -35,6 +40,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         setIsActive(parsed.isActive || false);
         setMode(parsed.mode || 'Pomodoro');
         setTotalTime(parsed.totalTime || 25 * 60);
+        setRepeatSound(parsed.repeatSound || false);
       } catch (e) {
         console.error('Failed to load timer state:', e);
       }
@@ -48,9 +54,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       isActive,
       mode,
       totalTime,
+      repeatSound,
     };
     localStorage.setItem('pomodoroTimer', JSON.stringify(state));
-  }, [timerValue, isActive, mode, totalTime]);
+  }, [timerValue, isActive, mode, totalTime, repeatSound]);
 
   // Handle the timer countdown
   useEffect(() => {
@@ -77,33 +84,36 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     if (timerValue === 0 && isActive) {
       setIsActive(false);
       
-      // Play a beep sound using Web Audio API
+      // Play a WAV sound
       try {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
+        const audio = new Audio('/timer-complete.wav');
+        audio.volume = 0.5; // Adjust volume (0.0 to 1.0)
         
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
+        if (repeatSound) {
+          audio.loop = true; // Loop the sound
+        }
         
-        // Create a pleasant beep sound
-        oscillator.frequency.value = 800; // Frequency in Hz
-        oscillator.type = 'sine'; // Sine wave for a pure tone
-        
-        // Fade out the sound
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
-        
-        // Play for 1 second
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 1);
+        audioRef.current = audio;
+        audio.play().catch(error => {
+          console.log('Could not play completion sound:', error);
+        });
       } catch (error) {
         console.log('Could not play completion sound:', error);
       }
     }
-  }, [timerValue, isActive]);
+  }, [timerValue, isActive, repeatSound]);
+
+  // Function to stop the sound
+  const stopSound = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+  };
 
   const resetTimer = (newMode: TimerMode, minutes: number) => {
+    stopSound(); // Stop any playing sound
     setMode(newMode);
     setTimerValue(minutes * 60);
     setTotalTime(minutes * 60);
@@ -117,11 +127,14 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         isActive,
         mode,
         totalTime,
+        repeatSound,
         setTimerValue,
         setIsActive,
         setMode,
         setTotalTime,
+        setRepeatSound,
         resetTimer,
+        stopSound,
       }}
     >
       {children}
