@@ -148,23 +148,31 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
         alert('Not authenticated. Please log in.');
         return;
       }
-
+  
       const res = await fetch('/api/deleteAccount', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        });
+    
+      const data = await res.json();
+  
       if (!res.ok) {
-        alert('Failed to delete account.');
+        alert(`Failed to delete account: ${data.message || 'Unknown error'}`);
         return;
       }
-
-      alert('Account deleted successfully!');
+  
+      // Sign out the user after successful deletion
+      await supabase.auth.signOut();
+      
+      alert('Account deleted successfully. You will be redirected to the home page.');
       setShowDeleteConfirm(false);
       onClose();
+      
+      // Redirect to home page or login page
+      window.location.href = '/';
     } catch (err) {
       console.error(err);
       alert('Error deleting account.');
@@ -291,7 +299,7 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
               </Collapse>
 
               {/* Delete Account */}
-              {/* <Button
+              <Button
                 fullWidth
                 variant="outlined"
                 color="error"
@@ -299,17 +307,48 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
                 onClick={() => setShowDeleteConfirm(true)}
               >
                 Delete My Account
-              </Button> */}
+              </Button>
 
               {showDeleteConfirm && (
-                <Box sx={{ mt: 3, p: 2, border: '1px solid #ccc', borderRadius: 2, backgroundColor }}>
-                  <p className="mb-4">This action cannot be undone. Are you sure?</p>
+                <Box sx={{ 
+                  mt: 3, 
+                  p: 2, 
+                  border: '2px solid #dc2626', 
+                  borderRadius: 2, 
+                  backgroundColor: '#fee',
+                  color: '#991b1b'
+                }}>
+                  <h3 className="font-bold text-lg mb-2">⚠️ Warning: Permanent Deletion</h3>
+                  <p className="mb-2">This action will permanently delete:</p>
+                  <ul className="list-disc list-inside mb-4 text-sm">
+                    <li>Your user account</li>
+                    <li>All your assignments</li>
+                    <li>All your classes</li>
+                    <li>Your entire backlog</li>
+                    <li>All associated data</li>
+                  </ul>
+                  <p className="font-bold mb-4">This action CANNOT be undone!</p>
                   <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-                    <Button variant="contained" onClick={() => setShowDeleteConfirm(false)}>
+                    <Button 
+                      variant="contained" 
+                      onClick={() => setShowDeleteConfirm(false)}
+                      sx={{ 
+                        backgroundColor: '#10b981',
+                        '&:hover': { backgroundColor: '#059669' }
+                      }}
+                    >
                       Cancel
                     </Button>
-                    <Button variant="contained" color="error" sx={{ '&:hover': { backgroundColor: '#dc2626' } }} onClick={handleDeleteAccount}>
-                      Yes, Delete
+                    <Button 
+                      variant="contained" 
+                      color="error" 
+                      sx={{ 
+                        backgroundColor: '#dc2626',
+                        '&:hover': { backgroundColor: '#991b1b' }
+                      }} 
+                      onClick={handleDeleteAccount}
+                    >
+                      Yes, Delete Everything
                     </Button>
                   </Box>
                 </Box>
