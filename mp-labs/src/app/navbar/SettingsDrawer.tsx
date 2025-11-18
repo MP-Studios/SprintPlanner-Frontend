@@ -149,32 +149,40 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
         return;
       }
   
+      console.log('Calling delete account API...');
+  
       const res = await fetch('/api/deleteAccount', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        });
-    
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+  
+      console.log('API response status:', res.status);
+  
       const data = await res.json();
+      console.log('API response data:', data);
   
-      if (!res.ok) {
+      // Check if response is OK (status 200-299) OR if data.success is true
+      if (res.ok || data.success) {
+        console.log('Account deletion successful, signing out...');
+        
+        // Sign out the user after successful deletion
+        await supabase.auth.signOut();
+        
+        alert('Account deleted successfully. You will be redirected to the login page.');
+        setShowDeleteConfirm(false);
+        onClose();
+        
+        // Redirect to login page
+        window.location.href = '/login';
+      } else {
+        console.error('Account deletion failed:', data);
         alert(`Failed to delete account: ${data.message || 'Unknown error'}`);
-        return;
       }
-  
-      // Sign out the user after successful deletion
-      await supabase.auth.signOut();
-      
-      alert('Account deleted successfully. You will be redirected to the home page.');
-      setShowDeleteConfirm(false);
-      onClose();
-      
-      // Redirect to home page or login page
-      window.location.href = '/';
     } catch (err) {
-      console.error(err);
+      console.error('Error in handleDeleteAccount:', err);
       alert('Error deleting account.');
     }
   };
