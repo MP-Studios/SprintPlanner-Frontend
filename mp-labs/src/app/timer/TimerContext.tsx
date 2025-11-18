@@ -29,6 +29,32 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const [repeatSound, setRepeatSound] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioInitialized = useRef(false);
+
+  // Initialize audio on first user interaction (Safari requirement)
+  useEffect(() => {
+    const initAudio = () => {
+      if (!audioInitialized.current) {
+        const audio = new Audio('/timer-complete.wav');
+        audio.volume = 0; // Set to silent BEFORE playing
+        audio.play().then(() => {
+          audio.pause();
+          audioInitialized.current = true;
+        }).catch(() => {
+          // If it fails, that's okay - we'll try again when timer completes
+        });
+      }
+    };
+
+    // Listen for any user interaction to initialize audio
+    document.addEventListener('click', initAudio, { once: true });
+    document.addEventListener('keydown', initAudio, { once: true });
+
+    return () => {
+      document.removeEventListener('click', initAudio);
+      document.removeEventListener('keydown', initAudio);
+    };
+  }, []);
 
   // Load state from localStorage on mount
   useEffect(() => {
