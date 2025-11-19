@@ -306,15 +306,24 @@ export default function EditAssignments() {
                       </div>
                       {isHovered && (
                         <div className="flex flex-col gap-2 ml-4">
-                          <button
+                          <div
+                            className="checkbox-wrapper-19"
                             onClick={(e) => {
                               e.stopPropagation();
-                              markAsDone(index);
+                              markAsDone(index); // toggle done
                             }}
-                            className="globalButton bg-gray-300 px-2 py-1 rounded text-sm whitespace-nowrap"
                           >
-                            {isDone ? "Undo" : "Completed!"}
-                          </button>
+                            <input
+                              type="checkbox"
+                              id={`cbtest-${index}`}
+                              checked={isDone}
+                              readOnly
+                            />
+                            <label
+                              htmlFor={`cbtest-${index}`}
+                              className={`check-box ${isDone ? 'checked' : ''}`}
+                            />
+                          </div>
                           <div 
                             className="delete-container"
                             onClick={(e) => e.stopPropagation()}

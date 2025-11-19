@@ -484,15 +484,23 @@ export default function Calendar(){
                       {/* Button - only show on hover */}
                       {isHovered && (
                         <div className="flex justify-center items-center mt-1" style={{ position: 'absolute', bottom: '3px', left: '8px', right: '8px' }}>
-                          <button
+                          <div
+                            className="checkbox-wrapper-31"
                             onClick={(e) => {
                               e.stopPropagation();
-                              markAsDone(globalIndex);
+                              markAsDone(globalIndex); // your handler
                             }}
-                            className="globalButton bg-gray-300 px-2 py-1 rounded text-sm"
                           >
-                            {isDone ? "Undo" : "Completed!"}
-                          </button>
+                            <input type="checkbox" checked={isDone} readOnly />
+                            <svg viewBox="0 0 35.6 35.6">
+                              <circle className="background" cx="17.8" cy="17.8" r="17.8"></circle>
+                              <circle className="stroke" cx="17.8" cy="17.8" r="14.37"></circle>
+                              <polyline
+                                className="check"
+                                points="11.78 18.12 15.55 22.23 25.17 12.87"
+                              ></polyline>
+                            </svg>
+                          </div>
                           <div 
                             className="delete-container"
                             onClick={(e) => e.stopPropagation()}
