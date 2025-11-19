@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+import {updateAssignmentStatus} from "../apiConstant";
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('Authorization');
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
 
     const backendUrl = process.env.API_BASE;
     
-    const res = await fetch(`${backendUrl}/api/assignments/update-status`, {
+    const res = await fetch(updateAssignmentStatus, {
       method: 'POST',
       headers: {
         'Authorization': authHeader,
