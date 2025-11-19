@@ -73,7 +73,7 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
     }
 
     // Add to localStorage via context
-    addClass(newClassName);
+    addClass({id: crypto.randomUUID(), name: newClassName});
     
     // Set the newly added class as selected
     setForm(prev => ({ ...prev, className: newClassName }));
@@ -139,7 +139,7 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
       }
 
       // Add the class to localStorage if it's not already there
-      addClass(form.className);
+      addClass({id: crypto.randomUUID(), name: form.className});
       
       // reset form
       setForm({ className: '', Name: '', DueDate: '', Details: '' });
@@ -196,9 +196,9 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
               className="w-full border rounded px-3 py-2"
             >
               <option value="">Select a class...</option>
-              {classes.map((className) => (
-                <option key={className} value={className}>
-                  {className}
+              {classes.map((cls) => (
+                <option key={cls.id} value={cls.name}>
+                  {cls.name}
                 </option>
               ))}
               <option value="__ADD_NEW__">+ Add New Class...</option>
