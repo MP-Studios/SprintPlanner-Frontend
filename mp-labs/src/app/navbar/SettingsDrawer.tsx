@@ -9,6 +9,9 @@ import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
 import TextField from '@mui/material/TextField';
 import { createClient } from '@/utils/supabase/client';
+import Divider from '@mui/material/Divider';
+import MenuItem from '@mui/material/MenuItem';
+import {useClasses} from '@/app/context/ClassContext';
 
 type SettingsDrawerProps = {
   isOpen: boolean;
