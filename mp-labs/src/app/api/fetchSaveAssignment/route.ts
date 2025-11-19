@@ -12,9 +12,9 @@ export  async function POST(request: Request)  {
   }
 
     const form: Assignment = await request.json(); 
-    const backendUrl = process.env.API_BASE;
+    
 
-    const response = await fetch(`${backendUrl}/api/supabase/saveAssignment`, {
+    const response = await fetch(saveAssignments, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

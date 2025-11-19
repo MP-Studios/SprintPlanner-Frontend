@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Calendar from "./calendarSprintView";
 import ICAL from "ical.js";
 import { Assignment } from "../assignments/assignment";
-import { createClient } from '@/utils/supabase/client';
 import loadata from "../auth/loadData";
 
 type CalendarEvent = {
@@ -15,10 +14,8 @@ type CalendarEvent = {
   description?: string;
 };
 
-
 export default function AssignmentContainer() {
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
- 
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -39,14 +36,12 @@ export default function AssignmentContainer() {
       };
     });
 
-   
   useEffect(() => {
     if (assignments.length === 0) return;
 
     async function saveAllAssignments() {
       try {
         const userId = await loadata();
-        // console.log(userId);
         await Promise.all(
           assignments.map((assignment) =>
             fetch("/api/fetchSaveAssignment", {
@@ -66,7 +61,7 @@ export default function AssignmentContainer() {
     }
 
     saveAllAssignments();
-  }, [assignments]); 
+  }, [assignments]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -88,7 +83,6 @@ export default function AssignmentContainer() {
             description: e.description,
           };
         });
-        // setMessage("Finished saving all assignments!");
         setCalendarEvents(events);
         console.log("Parsed events:", events);
       } catch (err) {
@@ -99,7 +93,8 @@ export default function AssignmentContainer() {
   };
 
   return (
-    <div className="assignment p-6 bg-white shadow-lg h-screen flex flex-col">
+    <div className="assignment p-6 bg-white shadow-lg flex flex-col relative">
+      {/* Upload calendar */}
       <div className="flex items-center justify-between mb-4">
         <label className="globalButton px-4 py-2 rounded cursor-pointer">
           Upload calendar
@@ -112,12 +107,10 @@ export default function AssignmentContainer() {
         </label>
       </div>
 
+      {/* Calendar */}
       <div className="flex-grow mb-4">
         <Calendar/>
       </div>
-
-
-      
     </div>
   );
 }

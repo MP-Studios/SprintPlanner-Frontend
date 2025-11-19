@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useAssignments } from '@/app/context/AssignmentContext';
 import { getClassColorNumber } from '@/app/colors/classColors';
 import { on } from 'events';
+import { editAssignment } from '../api/apiConstant';
+import editAssignments from './editAssignments';
 
 type Assignment = {
   className: string;
@@ -17,6 +19,7 @@ type Assignment = {
 type EditPageProps = {
   assignment: Assignment;
   onClose: () => void;
+  onSave: (updatedAssignment: Assignment) => void;
 };
 
 // Helper function to format date for datetime-local input
@@ -30,7 +33,8 @@ const formatDateTimeLocal = (dateString: string) => {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
-function EditPage({assignment, onClose}: EditPageProps){
+function EditPage({assignment, onClose, onSave}: EditPageProps){
+  
   const [formData, setFormData] = useState({
     className: assignment.className,
     name: assignment.Name,
@@ -60,19 +64,20 @@ function EditPage({assignment, onClose}: EditPageProps){
         throw new Error("Assignment ID not found");
       }
 
-      const response = await fetch(`/api/updateAssignmentStatus/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${assignmentId}`,
-        },
-        body: JSON.stringify({
-          className: formData.className,
-          name: formData.name,
-          details: formData.details,
-          dueDate: formData.dueDate
-        })
-      });
+      const response = await editAssignments(assignmentId,formData);
+      // const response2 = await fetch(`/api/updateAssignmentStatus/`, {
+      //   method: 'PUT',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${assignmentId}`,
+      //   },
+      //   body: JSON.stringify({
+      //     className: formData.className,
+      //     name: formData.name,
+      //     details: formData.details,
+      //     dueDate: formData.dueDate
+      //   })
+      // });
 
       console.log('Response status:', response.status);
       const responseText = await response.text();
@@ -81,10 +86,17 @@ function EditPage({assignment, onClose}: EditPageProps){
       if (!response.ok) {
         throw new Error('Failed to update assignment: ' + responseText);
       }
+      const updatedAssignment: Assignment = {
+      ...assignment,
+      className: formData.className,
+      Name: formData.name,
+      Details: formData.details,
+      DueDate: formData.dueDate,
+    };
 
       // Success! Reload assignments and close modal
-      alert('Assignment updated successfully!');
-      window.location.reload();
+      //window.location.reload(); // this is probably dumb
+      onSave(updatedAssignment);
       onClose();
     } catch (err) {
       console.error(err);
@@ -204,6 +216,8 @@ export default function EditAssignments() {
     const [hoveredAssignment, setHoveredAssignment] = useState<number | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [confirmingAssignment, setConfirmingAssignment] = useState<string | null>(null);
+    // const { assignments, doneSet, error, markAsDone } = useAssignments();
+   const [assignmentsState, setAssignmentsState] = useState<Assignment[]>(assignments);
 
     //delete assignment
     const handleDelete = async (aId: string, assignmentName: string) => {
@@ -242,7 +256,7 @@ export default function EditAssignments() {
             <h1 className="text-xl font-semibold mb-4">Your Assignments</h1>
             {error && <p className="text-red-500">{error}</p>}
 
-            <ul className="space-y-4 overflow-auto">
+            <ul className="space-y-4 overflow-auto" style={{padding: '0px 0px 150px 0px'}} >
               {assignments.map((a, index) => {
                 const due = new Date(a.DueDate);
                 const formattedDue = due.toLocaleString('en-US', { 
@@ -366,6 +380,11 @@ export default function EditAssignments() {
                 key={currentAssignment.Id ?? currentAssignment.ClassId ?? currentAssignment.Name}
                 assignment={currentAssignment}
                 onClose={() => setEditOpen(false)}
+                onSave={(updated) => {
+  setAssignmentsState((prev) =>
+    prev.map((a) => (a.Id === updated.Id ? updated : a))
+  );
+}}
               />
             )}
         </div>

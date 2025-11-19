@@ -5,6 +5,8 @@ import { getClassColorNumber } from '@/app/colors/classColors';
 import { createClient } from '@/utils/supabase/client';
 import { useAssignments } from '@/app/context/AssignmentContext';
 import Image from "next/image";
+import { editAssignment } from "../api/apiConstant";
+import editAssignments from "../assignments/editAssignments";
 
 
 const supabase = createClient();
@@ -73,7 +75,7 @@ export default function Calendar(){
         }
 
         alert(`${assignmentName} successfully deleted!`);
-        window.location.reload();
+        window.location.reload(); // this is stupid
         setConfirmingAssignment(null);
       } catch (err) {
           console.error(err);
@@ -235,25 +237,27 @@ export default function Calendar(){
       try {
         const assignmentId = (assignment as any).Id || (assignment as any).id;
         
-        console.log('Assignment object:', assignment);
-        console.log('Assignment ID:', assignmentId);
-        
+        // const supabase = createClient();
+        // const {data: {session}, error: sessionError} = await supabase.auth.getSession(); // this is insecure but temporary
         if (!assignmentId) {
           throw new Error("Assignment ID not found");
         }
-  
-        const response = await fetch(`/api/update-assignment/${assignmentId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            className: formData.className,
-            name: formData.name,
-            details: formData.details,
-            dueDate: formData.dueDate
-          })
-        });
+
+        const response = await editAssignments(assignmentId,formData);
+        // const response = await fetch(`/api/fetchUpdate/`, {
+        //   method: 'PUT',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //     "Authorization": `Bearer ${session?.access_token}`
+        //   },
+        //   body: JSON.stringify({
+        //     Id: assignmentId,
+        //     className: formData.className,
+        //     Name: formData.name,
+        //     Details: formData.details,
+        //     DueDate: formData.dueDate
+        //   })
+        // });
   
         console.log('Response status:', response.status);
         const responseText = await response.text();
@@ -264,8 +268,8 @@ export default function Calendar(){
         }
   
         // Success! Reload assignments and close modal
-        alert('Assignment updated successfully!');
-        window.location.reload();
+        // alert('Assignment updated successfully!');
+        // window.location.reload();
         onClose();
       } catch (err) {
         console.error(err);
@@ -441,7 +445,7 @@ export default function Calendar(){
           </div>
         
           {/* Assignment bars */}
-          <div className="relative p-2">
+          <div className="relative p-2" style={{padding: '0px 0px 100px 0px'}}>
             {assignmentRows.map((row, rowIndex) => (
               <div key={rowIndex} className="relative mb-1" style={{ height: 'auto', minHeight: '100px' }}>
                 {row.map((assignment, assignmentIndex) => {
