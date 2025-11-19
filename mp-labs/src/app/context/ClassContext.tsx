@@ -109,8 +109,12 @@ export function ClassProvider({ children }: { children: ReactNode }) {
     try {
       console.log("Attempting to delete:", classId);
 
-      const response = await fetch(`/api/deleteClass?classId=${classId}`, {
+      const response = await fetch(`/api/deleteClass`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ classId }),
       });
 
       console.log(response);

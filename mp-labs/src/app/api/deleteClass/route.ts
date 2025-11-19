@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const classId = searchParams.get("classId");
+    //const { searchParams } = new URL(req.url);
+    const body = await req.json();
+    const classId = body.classId;
+    //const classId = searchParams.get("classId");
 
     if (!classId) {
       return NextResponse.json({ error: "Missing classId" }, { status: 400 });
