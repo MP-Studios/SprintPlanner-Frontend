@@ -483,12 +483,13 @@ export default function Calendar(){
                     >
                       {/* Button - only show on hover */}
                       {isHovered && (
-                        <div className="flex justify-center items-center mt-1" style={{ position: 'absolute', bottom: '3px', left: '8px', right: '8px' }}>
+                        <div className="flex items-center mt-1" style={{ position: 'absolute', bottom: '3px', left: '8px', right: '8px' }}>
                           <div
                             className="checkbox-wrapper-31"
+                            style={{ bottom: '4px', left: '5px' }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              markAsDone(globalIndex); // your handler
+                              markAsDone(globalIndex);
                             }}
                           >
                             <input type="checkbox" checked={isDone} readOnly />
