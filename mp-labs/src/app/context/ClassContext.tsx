@@ -131,7 +131,7 @@ export function ClassProvider({ children }: { children: ReactNode }) {
         return updated;
       });
       console.log("classes: " + classes);
-      window.location.reload();
+      //window.location.reload();
 
   
       console.log("ClassProvider: Class deleted successfully.");

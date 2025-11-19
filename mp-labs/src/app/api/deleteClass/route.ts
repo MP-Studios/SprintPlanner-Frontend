@@ -11,11 +11,12 @@ export async function DELETE(req: Request) {
 
     const backendUrl = process.env.API_BASE;
 
-    const response = await fetch(`${backendUrl}/api/class/${classId}`, {
+    const response = await fetch(`${backendUrl}/api/class/delete`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify({ classId }),
     });
 
     const data = await response.text();
