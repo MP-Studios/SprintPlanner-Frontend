@@ -28,7 +28,15 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Sprint-Planner",
-  description: "Organize your Homework",
+  description: "Organize your homework with Planlli!",
+  icons: {
+    icon: [
+      { url: '/icon.png' },
+      { url: '/icon.png', sizes: '192x192', type: 'image/png' },
+    ],
+    shortcut: ['/icon.png'],
+    apple: ['/icon.png'],
+  },
 };
 
 export default async function RootLayout({
