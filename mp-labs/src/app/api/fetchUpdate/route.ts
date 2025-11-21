@@ -1,52 +1,47 @@
 // src/app/api/fetchUpdate/[id]/route.ts
 
 import { NextResponse } from "next/server";
-import { updateAssignment } from "../apiConstant"; 
+import { editAssignment } from "../apiConstant"; 
+import { Assignment } from "@/app/assignments/assignment";
 
-type UpdateAssignmentRequest = {
+// I don't like this but I don't wanna fix it
+export type AssignmentForUpdate = {
+  Id: string;
+  Name: string;
   className: string;
-  name: string;
-  dueDate: string;
-  details: string;
+  DueDate: string;
+  Details: string;
+  ClassId?: string | null;
 };
 
+
 export async function PUT(request: Request) {
-  try {
-    const body: UpdateAssignmentRequest = await request.json();
-    const assignmentId =request.headers.get('Id');
+  const Header = request.headers.get('Authorization');
 
-    const response = await fetch(updateAssignment + "/" + assignmentId, {
+  console.log("We are reaching the route!");
+  if (!Header) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  const form: AssignmentForUpdate = await request.json();
+  console.log(editAssignment);
+  const response = await fetch(editAssignment, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        className: body.className,
-        name: body.name,
-        dueDate: body.dueDate,
-        details: body.details,
-      }),
+      headers: { 
+        "Content-Type": "application/json" ,
+        "Authorization": Header
+      }, 
+      body: JSON.stringify(form),
     });
+  const result = await response.json();
 
-    const responseText = await response.text();
-
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: "Failed to update assignment", details: responseText },
-        { status: response.status }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "Assignment updated successfully",
-    });
-  } catch (error) {
-    return NextResponse.json(
-      {
-        error: "Failed to update assignment",
-        details:
-          error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
+  if (!response.ok || result?.success?.status >= 400) {
+    console.error("Assignment update failed:", result);
+    throw new Error(
+      result?.success?.error || "Failed to update your assignment."
     );
   }
+
+return NextResponse.json({ success: result.success });
+
 }

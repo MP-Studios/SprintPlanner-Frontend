@@ -12,9 +12,9 @@ export  async function POST(request: Request)  {
   }
 
     const form: Assignment = await request.json(); 
-    const backendUrl = process.env.API_BASE;
+    
 
-    const response = await fetch(`${backendUrl}/api/supabase/saveAssignment`, {
+    const response = await fetch(saveAssignments, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -24,7 +24,7 @@ export  async function POST(request: Request)  {
     });
 
     if (!response.ok) throw Error("Failed to save your assignment.");
-    
+    console.debug(response.body);
     const success = await response.json();
     return NextResponse.json({success});
     

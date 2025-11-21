@@ -5,6 +5,45 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import SettingsDrawer from './SettingsDrawer';
+
+// --- HoverLink component for links with hover color swap ---
+function HoverLink({ href, children }: { href: string; children: React.ReactNode }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <Link
+      href={href}
+      style={{
+        color: hover ? "#edf7f2" : "#3a554c",
+        padding: "3px 6px",
+        cursor: "pointer",
+      }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {children}
+    </Link>
+  );
+}
+
+// --- HoverButton component for buttons with hover color swap ---
+function HoverButton({ onClick, children }: { onClick?: () => void; children: React.ReactNode }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        color: hover ? "#edf7f2" : "#3a554c",
+        padding: "3px 6px",
+        cursor: "pointer",
+      }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {children}
+    </button>
+  );
+}
 
 type LoggedInNavBarProps = {
   user: User;
@@ -14,6 +53,7 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
   const router = useRouter();
   const supabase = createClient();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -25,20 +65,23 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const closeDropdown = () => setIsDropdownOpen(false);
 
-  // Get user display name
+  const handleSettingsClick = () => {
+    setIsDropdownOpen(false);
+    setIsSettingsOpen(true);
+  };
+
   const getDisplayName = () => {
     if (user?.user_metadata?.name) return user.user_metadata.name;
     if (user?.email) return user.email.split('@')[0];
     return "User";
   };
 
-  // Get user initials
   const getInitials = () => {
     if (user?.user_metadata?.initials) return user.user_metadata.initials;
   
     const name = user?.user_metadata?.name;
     if (typeof name === "string" && name.trim().length > 0) {
-      const names = name.trim().split(/\s+/); // split by any whitespace
+      const names = name.trim().split(/\s+/);
       return names.map(n => n[0]?.toUpperCase() ?? "").join("").slice(0, 2);
     }
   
@@ -47,43 +90,56 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
   };
 
   return (
-    <nav className="navbar">
-      <Link className="globalButton" href="/">Home</Link>
-      <Link className="globalButton" href="/timer">Timer</Link>
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLSfAqPRd7dXe7OBVJVjyqtjnAUxPhzFbenmyk_2k-OBP9qlznQ/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer">
-        <button className = "globalButton">
-          Give Feedback
-        </button>
-      </a>
-      
-      <div className="navbar-right">
-        <span className="greeting">Hi {getDisplayName()}!</span>
-        <div className="dropdown-container">
-          <button
-            onClick={toggleDropdown}
-            className="avatar-button"
-            style={{ backgroundColor: "#FFB6C1" }}
-          >
-            {getInitials()}
-          </button>
-          {isDropdownOpen && (
-            <>
-              <div className="dropdown-overlay" onClick={closeDropdown} />
-              <div className="dropdown-menu">
-                <Link href="/settings" onClick={closeDropdown} className="dropdown-item">
-                  Settings
-                </Link>
-                <Link href="/stats" onClick={closeDropdown} className="dropdown-item">
-                  Stats
-                </Link>
-                <button onClick={handleSignOut} className="dropdown-item dropdown-button">
-                  Sign Out
-                </button>
-              </div>
-            </>
-          )}
+    <>
+      <nav className="navbar">
+        <HoverLink href="/">Home</HoverLink>
+        <HoverLink href="/timer">Timer</HoverLink>
+
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSfAqPRd7dXe7OBVJVjyqtjnAUxPhzFbenmyk_2k-OBP9qlznQ/viewform?usp=header"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <HoverButton>Give Feedback</HoverButton>
+        </a>
+
+        <div className="navbar-right">
+          <span className="greeting" style={{color: "#3a554c"}}>Hi {getDisplayName()}!</span>
+          <div className="dropdown-container">
+            <button
+              onClick={toggleDropdown}
+              className="avatar-button"
+              style={{ backgroundColor: "#FFB6C1" }}
+            >
+              {getInitials()}
+            </button>
+            {isDropdownOpen && (
+              <>
+                <div className="dropdown-overlay" onClick={closeDropdown} />
+                <div className="dropdown-menu">
+                  <button 
+                    onClick={handleSettingsClick} 
+                    className="dropdown-item dropdown-button"
+                  >
+                    Settings
+                  </button>
+                  <Link href="/stats" onClick={closeDropdown} className="dropdown-item">
+                    Stats
+                  </Link>
+                  <button onClick={handleSignOut} className="dropdown-item dropdown-button">
+                    Sign Out
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      <SettingsDrawer
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
+    </>
   );
 }

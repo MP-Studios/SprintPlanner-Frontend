@@ -5,6 +5,10 @@
   --foreground: #171717;
 }
 
+:root {
+  font-size: 13px; /* Default is 16px, so this is 87.5% scale */
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -277,7 +281,7 @@ body {
 }
 
 .assignment {
-  height: 100vh;
+  height: 95vh;
   width: auto;
   background-color: #e9f8eb;
   overflow: hidden;
@@ -451,18 +455,19 @@ body .dribbble {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: clamp(32px, 5vw, 40px);
+  height: clamp(32px, 5vw, 40px);
   background: #a2c9b8;
   border: 2px solid #a2c9b8;
   border-radius: 4px;
   transition: all .35s;
   cursor: pointer;
+  margin-bottom: 140px;
 }
 
 .prev-week-details svg {
-  width: 24px;
-  height: 24px;
+  width: clamp(18px, 3vw, 24px);
+  height: clamp(18px, 3vw, 24px);
   transform: rotate(180deg);
   transition: all .35s;
   fill: #ffffff;
@@ -471,6 +476,7 @@ body .dribbble {
 .prev-week-details:hover {
   background: transparent;
   transform: translateX(-10px);
+  cursor: pointer;
 }
 
 .prev-week-details:hover svg{
@@ -489,9 +495,9 @@ body .dribbble {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 200px;
-  height: 40px;
-  line-height:40px;
+  width: clamp(150px, 20vw, 200px);
+  height: clamp(32px, 5vw, 40px);
+  line-height: clamp(32px, 5vw, 40px);
   font-weight: bold;
   text-decoration: none;
   background: #a2c9b8;
@@ -502,7 +508,31 @@ body .dribbble {
   border: 2px solid #a2c9b8;
   transition: all .35s;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+  margin-bottom: 140px;
+  margin-right: 25px;
+}
+
+.next-week-arrow{
+  width: clamp(32px, 5vw, 40px);
+  height: clamp(32px, 5vw, 40px);
+  border: 2px solid transparent;
+  position: absolute;
+  transform: rotate(45deg);
+  right: 0;
+  top: clamp(-3px, -0.5vw, -3px);
+  z-index: 0;
+  transition: all .35s;
+}
+
+.next-week-arrow svg{
+  width: clamp(18px, 3vw, 24px);
+  position: absolute;
+  top: calc(50% - clamp(9px, 1.5vw, 12px));
+  left: calc(50% - clamp(9px, 1.5vw, 12px));
+  transform: rotate(-45deg);
+  transition: all .35s;
+  fill: #ffffff;
 }
 
 .next-week-details a{
@@ -510,33 +540,12 @@ body .dribbble {
   pointer-events: none;
 }
 
-.next-week-arrow{
-  width: 40px;
-  height: 40px;
-  border: 2px solid transparent;
-  position: absolute;
-  transform: rotate(45deg);
-  right: 0;
-  top: -3px;
-  z-index: 0;
-  transition: all .35s;
-}
-
-.next-week-arrow svg{
-  width: 24px;
-  position: absolute;
-  top: calc(50% - 12px);
-  left: calc(50% - 12px);
-  transform: rotate(-45deg);
-  transition: all .35s;
-  fill: #ffffff;
-}
-
 .next-week-details:hover{
   width: 160px;
   border: 2px solid #a2c9b8;
   background: transparent;
   color: #000000;
+  cursor: pointer;
 }
 
 .next-week-details:hover .next-week-arrow{
@@ -550,15 +559,14 @@ body .dribbble {
 
 .globalButton {
   background-color: #a2c9b8;
+  color: #edf7f2;
   padding-left: 3px;
   padding-right: 3px;
 }
 
 .globalButton:hover {
   cursor: pointer;
-  color: #3a554c;
-  transform: scale(1.1);
-  transition: all .2s ease-in-out;
+  background-color: #3a554c;
 }
 
 .modalClass {
@@ -570,11 +578,10 @@ body .dribbble {
   display: flex;
   gap: 1rem;
   padding: 0.5rem;
-  background: #a2c9b8
-
-  ;
+  background: #a2c9b8;
   position: relative;
   align-items: center;
+  font-size: 1.25rem;
 }
 
 .navbar-right {
@@ -922,6 +929,7 @@ body .dribbble {
   border-radius: 0.5rem;
   border-left-width: 4px;
   transition: background-color 0.2s;
+  position: relative;
 }
 
 .class-badge {
@@ -972,4 +980,199 @@ body .dribbble {
   padding-bottom: 10px;
   padding-left: 10px;
   padding-right: 10px;
+}
+
+/* Delete Assignment Bin */
+.delete-container {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(0.8);
+  transform-origin: bottom right;
+  margin: 0;
+  z-index: 20;
+}
+
+.delete-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+.delete-lid {
+  position: relative;
+  top: 2px;
+  width: 24px;
+  height: 6px;
+  background: white;
+  border: solid 2px rgb(100, 100, 100);
+  transition: all 0.2s ease-in-out;
+  transform-origin: left;
+  transform: rotate(0deg) translateY(0px);
+}
+
+.delete-lid:before,
+.delete-lid:after {
+  content: '';
+  position: absolute;
+}
+
+.delete-lid:before {
+  width: 10px;
+  height: 5px;
+  top: -5px;
+  left: 5px;
+  background: rgb(100, 100, 100);
+}
+
+.delete-lid:after {
+  width: 6px;
+  height: 4px;
+  top: -3px;
+  left: 7px;
+  background: white;
+}
+
+.delete-can {
+  position: relative;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: solid 2px rgb(100, 100, 100);
+  border-radius: 0 0 3px 3px;
+}
+
+.delete-can:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  box-shadow: 4px 5px 0px 1px rgb(100, 100, 100),
+    4px 7px 0px 1px rgb(100, 100, 100),
+    4px 9px 0px 1px rgb(100, 100, 100),
+    4px 11px 0px 1px rgb(100, 100, 100),
+    4px 13px 0px 1px rgb(100, 100, 100),
+    8px 5px 0px 1px rgb(100, 100, 100),
+    8px 7px 0px 1px rgb(100, 100, 100),
+    8px 9px 0px 1px rgb(100, 100, 100),
+    8px 11px 0px 1px rgb(100, 100, 100),
+    8px 13px 0px 1px rgb(100, 100, 100),
+    12px 5px 0px 1px rgb(100, 100, 100),
+    12px 7px 0px 1px rgb(100, 100, 100),
+    12px 9px 0px 1px rgb(100, 100, 100),
+    12px 11px 0px 1px rgb(100, 100, 100),
+    12px 13px 0px 1px rgb(100, 100, 100);
+}
+
+.delete-wrapper:hover .delete-lid {
+  transform: rotate(-30deg) translateY(-2px);
+}
+
+.delete-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  pointer-events: auto;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.delete-dialog {
+  width: 300px;
+  min-height: 100px;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  transform: scale(0.95);
+}
+
+.delete-dialog p {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  line-height: 1.4;
+}
+
+.delete-dialog.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.checkbox-wrapper-31:hover .check {
+  stroke-dashoffset: 0;
+  stroke: #FFF;
+  stroke-dasharray: 22;
+  transition: ease all 0.5s;
+}
+
+.checkbox-wrapper-31 {
+  position: relative;
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+}
+
+.checkbox-wrapper-31 .background {
+  fill: #6f8a7f;
+  transition: ease all 0.6s;
+  stroke-dasharray: 20;
+}
+
+.checkbox-wrapper-31 .stroke {
+  fill: none;
+  stroke: #FFF;
+  stroke-miterlimit: 10;
+  stroke-width: 2px;
+  stroke-dashoffset: 100;
+  stroke-dasharray: 100;
+  transition: ease all 0.6s;
+}
+
+.checkbox-wrapper-31 .check {
+  fill: none;
+  stroke: #a2c9b8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.7px;
+  stroke-dashoffset: 0;
+}
+
+.checkbox-wrapper-31 input[type=checkbox] {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  margin: 0;
+  opacity: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.checkbox-wrapper-31 input[type=checkbox]:hover {
+  cursor: pointer;
+}
+
+.checkbox-wrapper-31 input[type=checkbox]:checked + svg .background {
+  fill: rgb(100,100,100);
+}
+
+.checkbox-wrapper-31 input[type=checkbox]:checked + svg .stroke {
+  stroke-dashoffset: 0;
+}
+
+.checkbox-wrapper-31 input[type=checkbox]:checked + svg .check {
+  stroke-dashoffset: 0;
 }
