@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Calendar from "./calendarSprintView";
 import ICAL from "ical.js";
 import { Assignment } from "../assignments/assignment";
 import loadata from "../auth/loadData";
+import { useClasses } from "../context/ClassContext";
 
 type CalendarEvent = {
   summary: string;
@@ -16,6 +17,9 @@ type CalendarEvent = {
 
 export default function AssignmentContainer() {
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const { refreshClasses } = useClasses();
+  const hasSaved = useRef(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -37,10 +41,12 @@ export default function AssignmentContainer() {
     });
 
   useEffect(() => {
-    if (assignments.length === 0) return;
+    if (assignments.length === 0 || hasSaved.current) return;
 
     async function saveAllAssignments() {
       try {
+        hasSaved.current = true;
+        setIsSaving(true);
         const userId = await loadata();
         await Promise.all(
           assignments.map((assignment) =>
@@ -55,18 +61,21 @@ export default function AssignmentContainer() {
           )
         );
         console.log("All assignments saved successfully!");
+        await refreshClasses();
+        setIsSaving(false);
       } catch (error) {
         console.error("Error saving assignments:", error);
+        hasSaved.current = false;
+        setIsSaving(false);
       }
     }
-
     saveAllAssignments();
-  }, [assignments]);
+  }, [assignments, refreshClasses]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
+    hasSaved.current = false;
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;

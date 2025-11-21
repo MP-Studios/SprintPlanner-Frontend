@@ -29,7 +29,7 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
   const [email, setEmail] = React.useState('');
   const [newPassword, setNewPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
-  const {classes, removeClass} = useClasses();
+  const {classes, deleteClass} = useClasses();
   const [enrollmentOpen, setEnrollmentOpen] = React.useState(false);
   const [selectedClassId, setSelectedClassId] = React.useState('');
 
@@ -426,7 +426,7 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
                           '&:hover': { backgroundColor: '#b91c1c' }
                         }} 
                         onClick={() => {
-                          removeClass(selectedClassId);
+                          deleteClass(selectedClassId);
                           setSelectedClassId('');
                         }}
                       >
