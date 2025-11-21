@@ -9,6 +9,9 @@ import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
 import TextField from '@mui/material/TextField';
 import { createClient } from '@/utils/supabase/client';
+import Divider from '@mui/material/Divider';
+import MenuItem from '@mui/material/MenuItem';
+import {useClasses} from '@/app/context/ClassContext';
 
 type SettingsDrawerProps = {
   isOpen: boolean;
@@ -26,6 +29,9 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
   const [email, setEmail] = React.useState('');
   const [newPassword, setNewPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
+  const {classes, removeClass} = useClasses();
+  const [enrollmentOpen, setEnrollmentOpen] = React.useState(false);
+  const [selectedClassId, setSelectedClassId] = React.useState('');
 
   const supabase = createClient();
 
@@ -360,6 +366,76 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
                     </Button>
                   </Box>
                 </Box>
+              )}
+            </Box>
+          </Collapse>
+        </List>
+        
+        <Divider sx={{ my: 2, borderColor: textColor }} />
+          
+          {/* Enrollment Section */}
+          <List>
+            <ListItemButton onClick={() => setEnrollmentOpen(!enrollmentOpen)}>
+              <ListItemText primary="Enrollment" />
+              <span>{enrollmentOpen ? '−' : '+'}</span>
+            </ListItemButton>
+            <Collapse in={enrollmentOpen} timeout="auto" unmountOnExit>
+              <Box sx={{ pl: 3, pr: 3, pt: 2 }}>
+              {classes.length === 0 ? (
+                <p className="text-sm text-gray-500 mb-3">Please add your classes.</p>
+              ) : (
+                <>
+                <TextField
+                  select
+                  fullWidth
+                  label="Delete Class"
+                  value={selectedClassId}
+                  onChange={(e) => {
+                    setSelectedClassId(e.target.value)}
+                  }
+                  margin="normal"
+                >
+                  {classes.map((cls) => (
+                    <MenuItem key={cls.id} value={cls.id}>{cls.name}</MenuItem>
+                  ))}
+                </TextField>
+                {selectedClassId && (
+                  <Box sx={{ mt: 3, p: 2, border: '1px solid #ccc', borderRadius: 2, backgroundColor: backgroundColor, textAlign: 'center' }}>
+                    <p className="font-semibold mb-4">
+                      Delete {classes.find(c => c.id === selectedClassId)?.name}?
+                    </p>
+                    <p className="mb-4">
+                      This will permanently remove this class and all its assignments. This cannot be undone!
+                    </p>
+                    <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+                      <Button 
+                        variant="contained" 
+                        onClick={() => setSelectedClassId('')}
+                        sx={{ 
+                          backgroundColor: backgroundColor,
+                          '&:hover': { backgroundColor: '#d1e7dd' }
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        variant="contained" 
+                        sx={{
+                          backgroundColor: backgroundColor,
+                          color: 'white',
+                          '&:hover': { backgroundColor: '#b91c1c' }
+                        }} 
+                        onClick={() => {
+                          removeClass(selectedClassId);
+                          setSelectedClassId('');
+                        }}
+                      >
+                        Yes, Delete
+                      </Button>
+                    </Box>
+                  </Box>
+                  )}
+                </>
               )}
             </Box>
           </Collapse>
