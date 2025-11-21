@@ -8,7 +8,6 @@ import Image from "next/image";
 import { editAssignment } from "../api/apiConstant";
 import editAssignments from "../assignments/editAssignments";
 
-
 const supabase = createClient();
 
 type Assignment = {
@@ -75,7 +74,6 @@ export default function Calendar(){
         }
 
         alert(`${assignmentName} successfully deleted!`);
-        window.location.reload(); // this is stupid
         setConfirmingAssignment(null);
       } catch (err) {
           console.error(err);
@@ -137,20 +135,33 @@ export default function Calendar(){
 
   // Calculate which columns an assignment should span
   const getAssignmentSpan = (assignment: Assignment) => {
-
     const weekSunday = getCurrentWeekSunday();
     const dueDate = new Date(assignment.DueDate);
-    const assignmentStart = new Date(assignment.DueDate);
-    assignmentStart.setDate(dueDate.getDate() - 14);
-    
-    // Calculate start column (0-6)
-    const startCol = Math.max(0, Math.floor((assignmentStart.getTime() - weekSunday.getTime()) / (1000 * 60 * 60 * 24)));
-    
+    dueDate.setHours(0, 0, 0, 0);
+
+    const dueDateSunday = new Date(dueDate);
+    const dueDateDayOfWeek = dueDate.getDay();
+    dueDateSunday.setDate(dueDate.getDate() - dueDateDayOfWeek);
+    dueDateSunday.setHours(0, 0, 0, 0);
+
+    const weekBeforeSunday = new Date(dueDateSunday);
+    weekBeforeSunday.setDate(dueDateSunday.getDate() - 7)
+
+    const currentWeekTime = weekSunday.getTime();
+    const dueWeekTime = dueDateSunday.getTime();
+    const weekBeforeTime = weekBeforeSunday.getTime();
+
+    if(currentWeekTime !== dueWeekTime && currentWeekTime !== weekBeforeTime){
+      return null;
+    }
+
+    const assignmentStart = new Date(weekSunday);
+    const startCol = 0;
     // Calculate end column (0-6)
     const endCol = Math.min(6, Math.floor((dueDate.getTime() - weekSunday.getTime()) / (1000 * 60 * 60 * 24)));
 
     // Only show if it overlaps with current week
-    if (endCol < 0 || startCol > 6) return null;
+    if (endCol < 0) return null;
 
     return { startCol, endCol };
   };
@@ -236,29 +247,12 @@ export default function Calendar(){
       
       try {
         const assignmentId = (assignment as any).Id || (assignment as any).id;
-        
-        // const supabase = createClient();
-        // const {data: {session}, error: sessionError} = await supabase.auth.getSession(); // this is insecure but temporary
         if (!assignmentId) {
           throw new Error("Assignment ID not found");
         }
 
         const response = await editAssignments(assignmentId,formData);
-        // const response = await fetch(`/api/fetchUpdate/`, {
-        //   method: 'PUT',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //     "Authorization": `Bearer ${session?.access_token}`
-        //   },
-        //   body: JSON.stringify({
-        //     Id: assignmentId,
-        //     className: formData.className,
-        //     Name: formData.name,
-        //     Details: formData.details,
-        //     DueDate: formData.dueDate
-        //   })
-        // });
-  
+
         console.log('Response status:', response.status);
         const responseText = await response.text();
         console.log('Response body:', responseText);
@@ -266,10 +260,7 @@ export default function Calendar(){
         if (!response.ok) {
           throw new Error('Failed to update assignment: ' + responseText);
         }
-  
-        // Success! Reload assignments and close modal
-        // alert('Assignment updated successfully!');
-        // window.location.reload();
+
         onClose();
       } catch (err) {
         console.error(err);
