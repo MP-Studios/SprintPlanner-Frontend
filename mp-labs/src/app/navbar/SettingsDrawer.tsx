@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
@@ -12,6 +13,7 @@ import { createClient } from '@/utils/supabase/client';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import {useClasses} from '@/app/context/ClassContext';
+import Image from 'next/image';
 
 type SettingsDrawerProps = {
   isOpen: boolean;
@@ -24,6 +26,10 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
   const [editEmailOpen, setEditEmailOpen] = React.useState(false);
   const [editPasswordOpen, setEditPasswordOpen] = React.useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+  const [showDeleteCalendarConfirm, setShowDeleteCalendarConfirm] = React.useState(false);
+  const [isDeletingCalendar, setIsDeletingCalendar] = React.useState(false);
+  const [isImageLoaded, setIsImageLoaded] = React.useState(false);
+  const [showZs, setShowZs] = React.useState(false);
 
   const [username, setUsername] = React.useState('');
   const [email, setEmail] = React.useState('');
@@ -193,6 +199,57 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
     }
   };
 
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = '/sleepy.png';
+    img.onload = () => setIsImageLoaded(true);
+  }, []);
+
+  const handleDeleteCalendar = async () => {
+    try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
+        alert('Not authenticated. Please log in.');
+        return;
+      }
+  
+      console.log('Calling delete calendar API');
+      setIsDeletingCalendar(true);
+      setShowZs(false);
+
+      const res = await fetch('/api/deleteCalendar', {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+  
+      console.log('API response status:', res.status);
+  
+      const data = await res.json();
+      console.log('API response data:', data);
+  
+      // Check if response is OK (status 200-299) OR if data.success is true
+      if (res.ok) {
+        console.log('Calendar deletion successful...');
+        setShowDeleteCalendarConfirm(false);
+        setIsDeletingCalendar(false);
+        setShowZs(false);
+        onClose();
+      } else {
+        console.error('Calendar deletion failed:', data);
+        setIsDeletingCalendar(false);
+        setShowZs(false)
+        alert(`Failed to delete Calendar: ${data.error || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error('Error in handleDeleteCalendar:', err);
+      setIsDeletingCalendar(false);
+      setShowZs(false)
+      alert('Error deleting calendar.');
+    }
+  };
+  
   return (
     <Drawer anchor="right" open={isOpen} onClose={onClose}>
       <Box
@@ -437,10 +494,113 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
                   )}
                 </>
               )}
+              {/* delete calendar */}
+              {classes.length > 0 && (
+              <>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  color="error"
+                  sx={{ mt: 2, '&:hover': { backgroundColor: '#dc2626' } }}
+                  onClick={() => setShowDeleteCalendarConfirm(true)}
+                >
+                  Delete My Calendar
+                </Button>
+
+                {showDeleteCalendarConfirm && (
+                  <Box sx={{ 
+                    mt: 3, 
+                    p: 2, 
+                    border: '2px solid #dc2626', 
+                    borderRadius: 2, 
+                    backgroundColor: '#fee',
+                    color: '#991b1b'
+                  }}>
+                    <h3 className="font-bold text-lg mb-2">Warning: Permanent Deletion</h3>
+                    <p className="mb-2">This action will permanently delete:</p>
+                    <ul className="list-disc list-inside mb-4 text-sm">
+                      <li>All your assignments</li>
+                      <li>All your classes</li>
+                    </ul>
+                    <p className="font-bold mb-4">This action CANNOT be undone!</p>
+                    <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+                      <Button 
+                        variant="contained" 
+                        onClick={() => setShowDeleteCalendarConfirm(false)}
+                        sx={{ 
+                          backgroundColor: '#10b981',
+                          '&:hover': { backgroundColor: '#059669' }
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        variant="contained" 
+                        color="error" 
+                        sx={{ 
+                          backgroundColor: '#dc2626',
+                          '&:hover': { backgroundColor: '#991b1b' }
+                        }} 
+                        onClick={handleDeleteCalendar}
+                      >
+                        Yes, Delete Calendar
+                      </Button>
+                    </Box>
+                  </Box>
+                )}
+              </>
+              )}
             </Box>
           </Collapse>
         </List>
       </Box>
+      {isDeletingCalendar && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+          }}
+        >
+          <div className="loading-container">
+            <Image 
+              src="/sleepy.png" 
+              alt="Deleting calendar..." 
+              width={300} 
+              height={300}
+              priority
+              onLoad={() => {
+                setIsImageLoaded(true);
+                setTimeout(() => setShowZs(true), 100);
+              }}
+            />
+            {showZs && (
+              <div className="z-container">
+                <div className="z z-1">Z</div>
+                <div className="z z-2">Z</div>
+                <div className="z z-3">Z</div>
+                <div className="z z-4">Z</div>
+              </div>
+            )}
+          </div>
+          <p style={{ 
+            color: 'white', 
+            marginTop: '20px', 
+            fontSize: '18px',
+            fontWeight: 'bold' 
+          }}>
+            Deleting your calendar...
+          </p>
+        </Box>
+      )}
     </Drawer>
   );
 }
