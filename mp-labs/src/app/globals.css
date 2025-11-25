@@ -1176,3 +1176,54 @@ body .dribbble {
 .checkbox-wrapper-31 input[type=checkbox]:checked + svg .check {
   stroke-dashoffset: 0;
 }
+
+/* loading sleepy pebble */
+.loading-container {
+  position: relative;
+  display: inline-block;
+}
+
+.z-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 100px;
+  height: 120px;
+}
+
+.z {
+  position: absolute;
+  font-size: 32px;
+  opacity: 0;
+  color: #6f8a7f;
+  font-weight: bold;
+  left: 0;
+  bottom: 0;
+}
+
+.z-1 {
+  animation: swayUpToRight 2s ease-out 0.3s infinite;
+}
+
+.z-2 {
+  animation: swayUpToRight 2s ease-out 0.8s infinite;
+}
+
+.z-3 {
+  animation: swayUpToRight 2s ease-out 1.3s infinite;
+}
+
+.z-4 {
+  animation: swayUpToRight 2s ease-out 1.8s infinite;
+}
+
+@keyframes swayUpToRight {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(80px, -100px) rotate(30deg);
+    opacity: 0;
+  }
+}
