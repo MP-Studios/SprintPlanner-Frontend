@@ -14,6 +14,7 @@ import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import {useClasses} from '@/app/context/ClassContext';
 import Image from 'next/image';
+import { useAssignments } from '@/app/context/AssignmentContext';
 
 type SettingsDrawerProps = {
   isOpen: boolean;
@@ -28,14 +29,16 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
   const [showDeleteCalendarConfirm, setShowDeleteCalendarConfirm] = React.useState(false);
   const [isDeletingCalendar, setIsDeletingCalendar] = React.useState(false);
+  const [isDeletingClass, setIsDeletingClass] = React.useState(false);
   const [isImageLoaded, setIsImageLoaded] = React.useState(false);
   const [showZs, setShowZs] = React.useState(false);
+  const {refreshAssignments} = useAssignments();
 
   const [username, setUsername] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [newPassword, setNewPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
-  const {classes, deleteClass} = useClasses();
+  const {classes, deleteClass, refreshClasses} = useClasses();
   const [enrollmentOpen, setEnrollmentOpen] = React.useState(false);
   const [selectedClassId, setSelectedClassId] = React.useState('');
 
@@ -232,6 +235,11 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
       // Check if response is OK (status 200-299) OR if data.success is true
       if (res.ok) {
         console.log('Calendar deletion successful...');
+        await Promise.all([
+          refreshAssignments(),
+          refreshClasses()
+        ]);
+        localStorage.removeItem('app-classes');
         setShowDeleteCalendarConfirm(false);
         setIsDeletingCalendar(false);
         setShowZs(false);
@@ -457,7 +465,7 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
                   ))}
                 </TextField>
                 {selectedClassId && (
-                  <Box sx={{ mt: 3, p: 2, border: '1px solid #ccc', borderRadius: 2, backgroundColor: backgroundColor, textAlign: 'center' }}>
+                  <Box sx={{ mt: 3, p: 2, border: '2px solid #dc2626', borderRadius: 2, backgroundColor: '#fee', color: '#991b1b' }}>
                     <p className="font-semibold mb-4">
                       Delete {classes.find(c => c.id === selectedClassId)?.name}?
                     </p>
@@ -482,9 +490,26 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
                           color: 'white',
                           '&:hover': { backgroundColor: '#b91c1c' }
                         }} 
-                        onClick={() => {
-                          deleteClass(selectedClassId);
-                          setSelectedClassId('');
+                        onClick={async () => {
+                          setIsDeletingClass(true);
+                          setShowZs(false);
+                          
+                          try {
+                            const success = await deleteClass(selectedClassId);
+                            
+                            if (success) {
+                              await refreshAssignments();
+                              setSelectedClassId('');
+                            } else {
+                              alert('Failed to delete class');
+                            }
+                          } catch (error) {
+                            console.error('Error deleting class:', error);
+                            alert('Error deleting class');
+                          } finally {
+                            setIsDeletingClass(false);
+                            setShowZs(false);
+                          }
                         }}
                       >
                         Yes, Delete
@@ -598,6 +623,53 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
             fontWeight: 'bold' 
           }}>
             Deleting your calendar...
+          </p>
+        </Box>
+      )}
+      {isDeletingClass && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+          }}
+        >
+          <div className="loading-container">
+            <Image 
+              src="/sleepy.png" 
+              alt="Deleting class..." 
+              width={300} 
+              height={300}
+              priority
+              onLoad={() => {
+                setIsImageLoaded(true);
+                setTimeout(() => setShowZs(true), 100);
+              }}
+            />
+            {showZs && (
+              <div className="z-container">
+                <div className="z z-1">Z</div>
+                <div className="z z-2">Z</div>
+                <div className="z z-3">Z</div>
+                <div className="z z-4">Z</div>
+              </div>
+            )}
+          </div>
+          <p style={{ 
+            color: 'white', 
+            marginTop: '20px', 
+            fontSize: '18px',
+            fontWeight: 'bold' 
+          }}>
+            Deleting your class...
           </p>
         </Box>
       )}
