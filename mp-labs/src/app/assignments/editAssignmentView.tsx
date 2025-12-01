@@ -1,10 +1,9 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useAssignments } from '@/app/context/AssignmentContext';
-import { getClassColorNumber } from '@/app/colors/classColors';
-import { on } from 'events';
-import { editAssignment } from '../api/apiConstant';
+import { useClasses } from '@/app/context/ClassContext';
 import editAssignments from './editAssignments';
+import AssignmentCard from './AssignmentCard';
 
 type Assignment = {
   className: string;
@@ -34,7 +33,9 @@ const formatDateTimeLocal = (dateString: string) => {
 };
 
 function EditPage({assignment, onClose, onSave}: EditPageProps){
-  
+  const { refreshAssignments } = useAssignments();
+  const { refreshClasses } = useClasses();
+
   const [formData, setFormData] = useState({
     className: assignment.className,
     name: assignment.Name,
@@ -64,21 +65,7 @@ function EditPage({assignment, onClose, onSave}: EditPageProps){
         throw new Error("Assignment ID not found");
       }
 
-      const response = await editAssignments(assignmentId,formData);
-      // const response2 = await fetch(`/api/updateAssignmentStatus/`, {
-      //   method: 'PUT',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${assignmentId}`,
-      //   },
-      //   body: JSON.stringify({
-      //     className: formData.className,
-      //     name: formData.name,
-      //     details: formData.details,
-      //     dueDate: formData.dueDate
-      //   })
-      // });
-
+      const response = await editAssignments(assignmentId, formData);
       console.log('Response status:', response.status);
       const responseText = await response.text();
       console.log('Response body:', responseText);
@@ -94,8 +81,11 @@ function EditPage({assignment, onClose, onSave}: EditPageProps){
       DueDate: formData.dueDate,
     };
 
-      // Success! Reload assignments and close modal
-      //window.location.reload(); // this is probably dumb
+    await Promise.all([
+      refreshClasses(),
+      refreshAssignments(),
+    ]);
+
       onSave(updatedAssignment);
       onClose();
     } catch (err) {
@@ -210,177 +200,39 @@ function EditPage({assignment, onClose, onSave}: EditPageProps){
 }
 
 export default function EditAssignments() {
-    const { assignments, doneSet, error, markAsDone } = useAssignments();
+    const { assignments, doneSet, error, markAsDone, refreshAssignments } = useAssignments();
     const [editOpen, setEditOpen] = useState(false);
     const [currentAssignment, setCurrentAssignment] = useState<Assignment | null>(null);
     const [hoveredAssignment, setHoveredAssignment] = useState<number | null>(null);
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [confirmingAssignment, setConfirmingAssignment] = useState<string | null>(null);
-    // const { assignments, doneSet, error, markAsDone } = useAssignments();
-   const [assignmentsState, setAssignmentsState] = useState<Assignment[]>(assignments);
-
-    //delete assignment
-    const handleDelete = async (aId: string, assignmentName: string) => {
-      setIsDeleting(true);
-      try {
-        const response = await fetch("api/deleteAssignment", {
-          method: "DELETE",
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({assignmentId: aId})
-        });
-
-        console.log('Response status:', response.status);
-        const responseText = await response.text();
-        console.log('Response body:', responseText);
-
-        if (!response.ok) {
-          throw new Error('Failed to delete assignment: ' + responseText);
-        }
-
-        alert(`${assignmentName} successfully deleted!`);
-        window.location.reload();
-        setConfirmingAssignment(null);
-      } catch (err) {
-          console.error(err);
-      } finally {
-          setIsDeleting(false);
-      }
-    };
-
-    const handleCancel = () => {
-      setConfirmingAssignment(null);
-    };
-
+    const [assignmentsState, setAssignmentsState] = useState<Assignment[]>(assignments);
+   
     return (
         <div className="editAssignment p-6 shadow-lg overflow-hidden h-screen flex flex-col">
             <h1 className="text-xl font-semibold mb-4">Your Assignments</h1>
             {error && <p className="text-red-500">{error}</p>}
 
             <ul className="space-y-4 overflow-auto" style={{padding: '0px 0px 150px 0px'}} >
-              {assignments.map((a, index) => {
-                const due = new Date(a.DueDate);
-                const formattedDue = due.toLocaleString('en-US', { 
-                  year: 'numeric', 
-                  month: 'short', 
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  timeZoneName: 'short'
-                });
-                
-                const colorNumber = getClassColorNumber(a.ClassId);
-                const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
-                const isDone = doneSet.has(index);
-                const isHovered = hoveredAssignment === index;
-                return (
-                  <li
-                    key={`${a.ClassId}-${index}`}
-                    className={`assignment-card ${colorClass} cursor-pointer transition-all hover:shadow-lg relative z-10`}
-                    style={{ opacity: isDone ? 0.6 : 1 }}
-                    onMouseEnter={() => {if (!confirmingAssignment) setHoveredAssignment(index)}}
-                    onMouseLeave={() => {if (!confirmingAssignment) setHoveredAssignment(null)}}
-                    onClick={() => {
-                      if (confirmingAssignment) return;
+              {assignments.map((a, index) => (
+                <li key={a.Id ?? `${a.ClassId ?? 'no-class'}-${a.Name}-${index}`}>
+                  <AssignmentCard
+                    assignment={a}
+                    index={index}
+                    isDone={doneSet.has(index)}
+                    isHovered={hoveredAssignment === index}
+                    showDetails={true}
+                    showDueDate={true}
+                    showCheckbox={true}
+                    showDeleteButton={true}
+                    onEdit={() => {
                       setCurrentAssignment(a);
                       setEditOpen(true);
                     }}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="class-badge">
-                            {a.className}
-                          </span>
-                        </div>
-                        <div className="assignment-title">
-                          {a.Name}
-                        </div>
-                        <div className="text-sm text-gray-600 mb-2">
-                          <strong>Due:</strong> {formattedDue}
-                        </div>
-                        {a.Details && (
-                          <div className="text-sm text-gray-700 mt-2 p-2 rounded">
-                            {a.Details}
-                          </div>
-                        )}
-                      </div>
-                      {isHovered && (
-                        <div className="flex flex-col gap-2 ml-4">
-                          <div
-                            className="checkbox-wrapper-31"
-                            style={{ left: '6px' }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              markAsDone(index);
-                            }}
-                          >
-                            <input type="checkbox" checked={isDone} readOnly />
-                            <svg viewBox="0 0 35.6 35.6">
-                              <circle className="background" cx="17.8" cy="17.8" r="17.8"></circle>
-                              <circle className="stroke" cx="17.8" cy="17.8" r="14.37"></circle>
-                              <polyline
-                                className="check"
-                                points="11.78 18.12 15.55 22.23 25.17 12.87"
-                              ></polyline>
-                            </svg>
-                          </div>
-                          <div 
-                            className="delete-container"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                              <label onClick={() => setConfirmingAssignment(a.Id || `${a.ClassId}-${index}`)}>
-                                <div className="delete-wrapper">
-                                  <div className="delete-lid"></div>
-                                  <div className="delete-can"></div>
-                                </div>
-                              </label>
-                            </div>
-                            {confirmingAssignment === (a.Id || `${a.ClassId}-${index}`) && (
-                              <div 
-                                className="delete-dialog-overlay" 
-                                onClick={(e) => {
-                                  if (e.target === e.currentTarget) {
-                                    e.stopPropagation();
-                                    handleCancel();
-                                  }
-                                }}
-                              >
-                                <div
-                                  className="modalClass delete-dialog show z-50 rounded-2xl shadow-lg flex flex-col items-center justify-center max-w-[90%] sm:max-w-[400px] mx-auto p-4"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                <p className="text-lg font-semibold mb-4 text-center break-words whitespace-normal w-full max-w-full min-w-0">
-                                  Are you sure you want to delete <br />
-                                  this assignment:{" "}
-                                  <span className="font-bold break-words whitespace-normal block text-wrap">
-                                    {a.Name}
-                                  </span>
-                                </p>
-                                <div className="flex justify-center gap-8 flex-wrap">
-                                <button
-                                  onClick={() => handleDelete(a.Id!, a.Name!)}
-                                  disabled={isDeleting}
-                                  className="globalButton px-4 py-2 rounded-md"
-                                >
-                                  Yes, Delete
-                                </button>
-
-                                <button
-                                  onClick={handleCancel}
-                                  className="globalButton px-4 py-2 rounded-md"
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        </div>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
+                    onMarkDone={() => markAsDone(index)}
+                    onDelete={() => refreshAssignments()}
+                    onHoverChange={(hovered) => setHoveredAssignment(hovered ? index : null)}
+                  />
+                </li>
+              ))}
             </ul>
 
             {/* Edit modal */}
@@ -390,10 +242,10 @@ export default function EditAssignments() {
                 assignment={currentAssignment}
                 onClose={() => setEditOpen(false)}
                 onSave={(updated) => {
-  setAssignmentsState((prev) =>
-    prev.map((a) => (a.Id === updated.Id ? updated : a))
-  );
-}}
+                  setAssignmentsState((prev) =>
+                    prev.map((a) => (a.Id === updated.Id ? updated : a))
+                  );
+                }}
               />
             )}
         </div>

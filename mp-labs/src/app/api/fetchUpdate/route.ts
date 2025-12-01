@@ -2,7 +2,6 @@
 
 import { NextResponse } from "next/server";
 import { editAssignment } from "../apiConstant"; 
-import { Assignment } from "@/app/assignments/assignment";
 
 // I don't like this but I don't wanna fix it
 export type AssignmentForUpdate = {
@@ -35,13 +34,14 @@ export async function PUT(request: Request) {
     });
   const result = await response.json();
 
-  if (!response.ok || result?.success?.status >= 400) {
+  if (!response.ok || result !== true) {
     console.error("Assignment update failed:", result);
-    throw new Error(
-      result?.success?.error || "Failed to update your assignment."
-    );
+    const message =
+      (typeof result === "object" && (result as any)?.error) ||
+      "Failed to update your assignment.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 
-return NextResponse.json({ success: result.success });
+return NextResponse.json({ success: true });
 
 }
