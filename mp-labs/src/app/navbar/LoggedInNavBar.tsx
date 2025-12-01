@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import SettingsDrawer from './SettingsDrawer';
+import { useLoading } from "../context/LoadingContext";
 
 // --- HoverLink component for links with hover color swap ---
 function HoverLink({ href, children }: { href: string; children: React.ReactNode }) {
@@ -54,12 +55,15 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
   const supabase = createClient();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { showLoading, hideLoading } = useLoading();
 
   async function handleSignOut() {
+    showLoading("Signing out...");
     await supabase.auth.signOut();
     setIsDropdownOpen(false);
     router.push("/login");
     router.refresh();
+    hideLoading();
   }
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);

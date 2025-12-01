@@ -2,15 +2,20 @@
 
 import { login, signup } from './actions'
 import { useState } from 'react'
+import { useLoading } from '../context/LoadingContext'
 
 export default function Login(){
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const { showLoading, hideLoading } = useLoading()
 
   async function handleLogin(formData: FormData) {
+    showLoading('Signing in...')
     const result = await login(formData)
     if (result?.error) {
+      hideLoading();
       setErrorMsg('Invalid email or password. Please try again.')
     } else {
+      hideLoading();
       setErrorMsg(null)
       window.location.href = '/'
     }

@@ -940,12 +940,20 @@ body .dribbble {
   font-weight: 500;
   background-color: white;
   border-width: 1px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .assignment-title {
   font-size: 1.125rem;
   font-weight: 600;
   margin-bottom: 0.25rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Assignment List Styling */

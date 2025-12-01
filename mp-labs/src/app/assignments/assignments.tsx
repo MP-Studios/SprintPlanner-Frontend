@@ -3,6 +3,8 @@ import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 import { Assignment } from './assignment';
 import { createClient } from '@/utils/supabase/client';
 import { useClasses } from '@/app/context/ClassContext';
+import { useLoading } from '@/app/context/LoadingContext';
+import { useAssignments } from '@/app/context/AssignmentContext';
 
 type AssignmentsPageProps = {
   onClose?: () => void;
@@ -13,6 +15,9 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
   const [error, setError] = useState<string | null>(null);
   const [showNewClassInput, setShowNewClassInput] = useState(false);
   const [newClassName, setNewClassName] = useState('');
+  const {showLoading, hideLoading} = useLoading();
+  const {refreshAssignments} = useAssignments();
+  const { refreshClasses } = useClasses();
   
   const { classes, addClass } = useClasses();
 
@@ -96,10 +101,12 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
     }
 
     try {
+      showLoading('Saving assignment...');
       const supabase = createClient();
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError || !session) {
+        hideLoading();
         setError('Not authenticated. Please log in.');
         return;
       }
@@ -127,6 +134,7 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
       });  
       
       if (!res.ok) {
+        hideLoading();
         const errorText = await res.text();
         alert("Error saving assignment");
         return;
@@ -134,17 +142,21 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
 
       const data = await res.json();
       if (!data) {
+        hideLoading();
         alert("Error saving assignment.");
         return;
       }
 
       // Add the class to localStorage if it's not already there
       addClass({id: crypto.randomUUID(), name: form.className});
-      
       // reset form
       setForm({ className: '', Name: '', DueDate: '', Details: '' });
       // re-fetch the list
-      window.location.reload();
+      await Promise.all([
+        refreshClasses(),
+        refreshAssignments(),
+      ]);
+      hideLoading();
       if (onClose) onClose();
     } catch (err) {
       console.error(err);

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEffect } from 'react';
+//import { useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
@@ -13,8 +13,8 @@ import { createClient } from '@/utils/supabase/client';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import {useClasses} from '@/app/context/ClassContext';
-import Image from 'next/image';
 import { useAssignments } from '@/app/context/AssignmentContext';
+import { useLoading } from '@/app/context/LoadingContext';
 
 type SettingsDrawerProps = {
   isOpen: boolean;
@@ -28,17 +28,14 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
   const [editPasswordOpen, setEditPasswordOpen] = React.useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
   const [showDeleteCalendarConfirm, setShowDeleteCalendarConfirm] = React.useState(false);
-  const [isDeletingCalendar, setIsDeletingCalendar] = React.useState(false);
-  const [isDeletingClass, setIsDeletingClass] = React.useState(false);
-  const [isImageLoaded, setIsImageLoaded] = React.useState(false);
-  const [showZs, setShowZs] = React.useState(false);
-  const {refreshAssignments} = useAssignments();
 
   const [username, setUsername] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [newPassword, setNewPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
-  const {classes, deleteClass, refreshClasses} = useClasses();
+  const { classes, deleteClass, refreshClasses } = useClasses();
+  const { refreshAssignments } = useAssignments();
+  const { showLoading, hideLoading } = useLoading();
   const [enrollmentOpen, setEnrollmentOpen] = React.useState(false);
   const [selectedClassId, setSelectedClassId] = React.useState('');
 
@@ -50,8 +47,10 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
   // Save username to backend
   const handleSaveUsername = async () => {
     try {
+      showLoading('Saving username...');
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !session) {
+        hideLoading();
         alert('Not authenticated. Please log in.');
         return;
       }
@@ -65,15 +64,17 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
         body: JSON.stringify({ newUsername: username }),
       });
 
+      hideLoading();
+
       if (!res.ok) {
         alert('Failed to update username.');
         return;
       }
 
-      alert('Username updated successfully!');
       setEditUsernameOpen(false);
     } catch (err) {
       console.error(err);
+      hideLoading();
       alert('Error updating username.');
     }
   };
@@ -81,8 +82,10 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
   // Save email to backend
   const handleSaveEmail = async () => {
     try {
+      showLoading('Saving email...');
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !session) {
+        hideLoading();
         alert('Not authenticated. Please log in.');
         return;
       }
@@ -96,15 +99,16 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
         body: JSON.stringify({ email }),
       });
 
+      hideLoading();
       if (!res.ok) {
         alert('Failed to update email.');
         return;
       }
 
-      alert('Email updated successfully!');
       setEditEmailOpen(false);
     } catch (err) {
       console.error(err);
+      hideLoading();
       alert('Error updating email.');
     }
   };
@@ -123,9 +127,11 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
         alert('Password must include at least 15 characters, one upper-case, one lower-case, one number, and one special character.');
         return;
       }
+      showLoading('Changing password...');
 
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !session) {
+        hideLoading();
         alert('Not authenticated. Please log in.');
         return;
       }
@@ -140,26 +146,29 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
       });
 
       const data = await res.json();
+      hideLoading();
 
       if (!res.ok) {
         alert(`Failed to change password: ${data.message || 'Unknown error'}`);
         return;
       }
 
-      alert('Password changed successfully!');
       setEditPasswordOpen(false);
       setNewPassword('');
       setConfirmPassword('');
     } catch (err) {
-      console.error(err);
-      alert('Error changing password.');
+        hideLoading();
+        console.error(err);
+        alert('Error changing password.');
     }
   };
 
   const handleDeleteAccount = async () => {
     try {
+      showLoading('Deleting account...');
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !session) {
+        hideLoading();
         alert('Not authenticated. Please log in.');
         return;
       }
@@ -181,6 +190,7 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
   
       // Check if response is OK (status 200-299) OR if data.success is true
       if (res.ok || data.success) {
+        hideLoading();
         console.log('Account deletion successful, signing out...');
         
         // Sign out the user after successful deletion
@@ -193,32 +203,28 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
         // Redirect to login page
         window.location.href = '/login';
       } else {
+        hideLoading();
         console.error('Account deletion failed:', data);
         alert(`Failed to delete account: ${data.message || 'Unknown error'}`);
       }
     } catch (err) {
+      hideLoading();
       console.error('Error in handleDeleteAccount:', err);
       alert('Error deleting account.');
     }
   };
 
-  useEffect(() => {
-    const img = new window.Image();
-    img.src = '/sleepy.png';
-    img.onload = () => setIsImageLoaded(true);
-  }, []);
-
   const handleDeleteCalendar = async () => {
     try {
+      showLoading('Deleting calendar...');
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !session) {
+        hideLoading();
         alert('Not authenticated. Please log in.');
         return;
       }
   
       console.log('Calling delete calendar API');
-      setIsDeletingCalendar(true);
-      setShowZs(false);
 
       const res = await fetch('/api/deleteCalendar', {
         method: 'DELETE',
@@ -240,21 +246,36 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
           refreshClasses()
         ]);
         localStorage.removeItem('app-classes');
+        hideLoading();
         setShowDeleteCalendarConfirm(false);
-        setIsDeletingCalendar(false);
-        setShowZs(false);
         onClose();
       } else {
+        hideLoading();
         console.error('Calendar deletion failed:', data);
-        setIsDeletingCalendar(false);
-        setShowZs(false)
         alert(`Failed to delete Calendar: ${data.error || 'Unknown error'}`);
       }
     } catch (err) {
       console.error('Error in handleDeleteCalendar:', err);
-      setIsDeletingCalendar(false);
-      setShowZs(false)
+      hideLoading();
       alert('Error deleting calendar.');
+    }
+  };
+
+  const handleDeleteClass = async () => {
+    try {
+      showLoading('Deleting class...');
+      const success = await deleteClass(selectedClassId);                      
+      if (success) {
+        await refreshAssignments();
+        setSelectedClassId('');
+      } else {
+        alert('Failed to delete class');
+      }
+      hideLoading();      
+    } catch (error) {
+      console.error('Error deleting class:', error);
+      hideLoading();
+      alert('Error deleting class');
     }
   };
   
@@ -455,9 +476,7 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
                   fullWidth
                   label="Delete Class"
                   value={selectedClassId}
-                  onChange={(e) => {
-                    setSelectedClassId(e.target.value)}
-                  }
+                  onChange={(e) => {setSelectedClassId(e.target.value)}}
                   margin="normal"
                 >
                   {classes.map((cls) => (
@@ -490,27 +509,7 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
                           color: 'white',
                           '&:hover': { backgroundColor: '#b91c1c' }
                         }} 
-                        onClick={async () => {
-                          setIsDeletingClass(true);
-                          setShowZs(false);
-                          
-                          try {
-                            const success = await deleteClass(selectedClassId);
-                            
-                            if (success) {
-                              await refreshAssignments();
-                              setSelectedClassId('');
-                            } else {
-                              alert('Failed to delete class');
-                            }
-                          } catch (error) {
-                            console.error('Error deleting class:', error);
-                            alert('Error deleting class');
-                          } finally {
-                            setIsDeletingClass(false);
-                            setShowZs(false);
-                          }
-                        }}
+                        onClick={handleDeleteClass}
                       >
                         Yes, Delete
                       </Button>
@@ -579,100 +578,6 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
           </Collapse>
         </List>
       </Box>
-      {isDeletingCalendar && (
-        <Box
-          sx={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-          }}
-        >
-          <div className="loading-container">
-            <Image 
-              src="/sleepy.png" 
-              alt="Deleting calendar..." 
-              width={300} 
-              height={300}
-              priority
-              onLoad={() => {
-                setIsImageLoaded(true);
-                setTimeout(() => setShowZs(true), 100);
-              }}
-            />
-            {showZs && (
-              <div className="z-container">
-                <div className="z z-1">Z</div>
-                <div className="z z-2">Z</div>
-                <div className="z z-3">Z</div>
-                <div className="z z-4">Z</div>
-              </div>
-            )}
-          </div>
-          <p style={{ 
-            color: 'white', 
-            marginTop: '20px', 
-            fontSize: '18px',
-            fontWeight: 'bold' 
-          }}>
-            Deleting your calendar...
-          </p>
-        </Box>
-      )}
-      {isDeletingClass && (
-        <Box
-          sx={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-          }}
-        >
-          <div className="loading-container">
-            <Image 
-              src="/sleepy.png" 
-              alt="Deleting class..." 
-              width={300} 
-              height={300}
-              priority
-              onLoad={() => {
-                setIsImageLoaded(true);
-                setTimeout(() => setShowZs(true), 100);
-              }}
-            />
-            {showZs && (
-              <div className="z-container">
-                <div className="z z-1">Z</div>
-                <div className="z z-2">Z</div>
-                <div className="z z-3">Z</div>
-                <div className="z z-4">Z</div>
-              </div>
-            )}
-          </div>
-          <p style={{ 
-            color: 'white', 
-            marginTop: '20px', 
-            fontSize: '18px',
-            fontWeight: 'bold' 
-          }}>
-            Deleting your class...
-          </p>
-        </Box>
-      )}
     </Drawer>
   );
 }

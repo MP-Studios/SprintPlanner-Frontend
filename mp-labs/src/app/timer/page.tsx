@@ -1,6 +1,7 @@
 "use client";
 import { useTimer } from "./TimerContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLoading } from '../context/LoadingContext';
 
 export default function Page() {
   const { timerValue, isActive, mode, totalTime, repeatSound, setIsActive, setRepeatSound, resetTimer, stopSound } = useTimer();
@@ -9,12 +10,22 @@ export default function Page() {
   const [pomodoroTime, setPomodoroTime] = useState(25);
   const [shortBreakTime, setShortBreakTime] = useState(5);
   const [longBreakTime, setLongBreakTime] = useState(15);
+  const { showLoading, hideLoading } = useLoading();
 
   const formatTime = (seconds: number) => {
     const min = Math.floor(seconds / 60);
     const sec = seconds % 60;
     return `${min}:${sec < 10 ? "0" : ""}${sec}`;
   };
+
+  useEffect(() => {
+    showLoading('Loading timer...');
+    const timer = setTimeout(() => {
+      hideLoading();
+    }, 1500);      
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleModeChange = (newMode: "Pomodoro" | "Short Break" | "Long Break", minutes: number) => {
     resetTimer(newMode, minutes);
