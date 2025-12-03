@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import SettingsDrawer from './SettingsDrawer';
@@ -54,6 +54,33 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
   const supabase = createClient();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [username, setUsername] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        const res = await fetch('/api/updateNavbar');
+        console.log('Response status:', res.status);
+        
+        if (res.ok) {
+          const data = await res.json();
+          console.log('Response data:', data);
+          console.log('Username from data:', data.username);
+          
+          if (data.username) {
+            setUsername(data.username);
+            console.log('Username set to:', data.username);
+          } else {
+            console.log('No username in response');
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch username:', error);
+      }
+    };
+    fetchUsername();
+  }, []);
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -71,6 +98,7 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
   };
 
   const getDisplayName = () => {
+    if (username) return username;
     if (user?.user_metadata?.name) return user.user_metadata.name;
     if (user?.email) return user.email.split('@')[0];
     return "User";

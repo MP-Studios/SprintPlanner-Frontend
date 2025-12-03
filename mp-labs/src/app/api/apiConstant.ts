@@ -8,3 +8,4 @@ export const updateAssignmentStatus = `${API_BASE}/api/assignments/update-status
 export const editAssignment = `${API_BASE}/api/assignments/edit`;
 export const getStartDates = `${API_BASE}/api/fetchSprintDates`;
 export const getAllAssignments = `${API_BASE}/api/fetchStats`;
+export const getUserProfile = `${API_BASE}/api/user/profile`;
