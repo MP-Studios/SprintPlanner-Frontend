@@ -10,7 +10,8 @@ export default function AssignmentContainer() {
 
     return (
         <div className="assignment p-6 bg-white shadow-lg flex flex-col">
-            <div className="flex items-center justify-end mb-4">
+            <div className="flex items-center justify-between mb-4 ">
+            <h1 className="text-xl font-semibold flex-grow">Your Assignments</h1>
             <label className="collection">
                 <input 
                     type="checkbox"
