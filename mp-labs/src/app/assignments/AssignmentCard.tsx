@@ -200,7 +200,7 @@ export default function AssignmentCard({
             <p className="text-lg font-semibold mb-4 text-center break-words whitespace-normal w-full max-w-full min-w-0">
               Are you sure you want to delete <br />
               this assignment:{" "}
-              <span className="font-bold break-words whitespace-normal block text-wrap">
+              <span className="font-bold break-words whitespace-normal block text-wrap" style= {{margin:'12px'}}>
                 {assignment.Name}
               </span>
             </p>
@@ -210,14 +210,14 @@ export default function AssignmentCard({
                 disabled={isDeleting}
                 className="globalButton px-4 py-2 rounded-md"
               >
-                {isDeleting ? 'Deleting...' : 'Yes, Delete'}
+                {isDeleting ? 'Deleting...' : 'Yes'}
               </button>
 
               <button
                 onClick={() => setConfirmingDelete(false)}
                 className="globalButton px-4 py-2 rounded-md"
               >
-                Cancel
+                No
               </button>
             </div>
           </div>
