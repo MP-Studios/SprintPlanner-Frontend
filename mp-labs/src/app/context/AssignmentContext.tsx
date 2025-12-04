@@ -77,6 +77,24 @@ export function AssignmentProvider({ children }: { children: ReactNode }) {
       alert("Cannot update assignment: Missing ID");
       return;
     }
+
+    // Update local state to reflect the change
+    setAssignments(prevAssignments => 
+      prevAssignments.map((a, i) => 
+        i === index ? { ...a, Status: newStatus } : a
+      )
+    );
+
+    // Update doneSet for UI purposes
+    setDoneSet((prev) => {
+      const newSet = new Set(prev);
+      if (newStatus === 1) {
+        newSet.add(index);
+      } else {
+        newSet.delete(index);
+      }
+      return newSet;
+    });
   
     // Toggle status: if currently 1 (done), set to 0; otherwise set to 1
     const currentStatus = assignment.Status || 0;
@@ -110,24 +128,6 @@ export function AssignmentProvider({ children }: { children: ReactNode }) {
       }
   
       console.log(`Assignment ${assignment.Id} status updated to ${newStatus}`);
-  
-      // Update local state to reflect the change
-      setAssignments(prevAssignments => 
-        prevAssignments.map((a, i) => 
-          i === index ? { ...a, Status: newStatus } : a
-        )
-      );
-  
-      // Update doneSet for UI purposes
-      setDoneSet((prev) => {
-        const newSet = new Set(prev);
-        if (newStatus === 1) {
-          newSet.add(index);
-        } else {
-          newSet.delete(index);
-        }
-        return newSet;
-      });
   
     } catch (error) {
       console.error("Error updating assignment status:", error);
