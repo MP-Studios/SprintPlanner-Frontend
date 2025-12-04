@@ -317,6 +317,17 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
           </ListItemButton>
 
           <Collapse in={profileOpen} timeout="auto" unmountOnExit>
+            {/* Delete Account */}
+            <Button
+                fullWidth
+                variant="outlined"
+                color="error"
+                sx={{ mt: 2, '&:hover': { backgroundColor: '#dc2626' } }}
+                onClick={() => setShowDeleteConfirm(true)}
+              >
+                Delete My Account
+            </Button>
+
             <Box sx={{ pl: 3, pr: 3, pt: 2 }}>
               {/* Username */}
               <ListItemButton onClick={() => setEditUsernameOpen(!editUsernameOpen)}>
@@ -397,17 +408,6 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
                   </Button>
                 </Box>
               </Collapse>
-
-              {/* Delete Account */}
-              <Button
-                fullWidth
-                variant="outlined"
-                color="error"
-                sx={{ mt: 2, '&:hover': { backgroundColor: '#dc2626' } }}
-                onClick={() => setShowDeleteConfirm(true)}
-              >
-                Delete My Account
-              </Button>
 
               {showDeleteConfirm && (
                 <Box sx={{ 
