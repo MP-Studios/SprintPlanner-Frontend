@@ -35,7 +35,7 @@ export default function AssignmentContainer() {
                 onClick={() => setShowAlternativeView(false)}
             >
                 <div 
-                    className="relative newAssignmentModal modalClass z-50 rounded-2xl shadow-lg w-96 h-90 flex flex-col"
+                    className="relative newAssignmentModal modalClass z-50 rounded-2xl shadow-lg w-96 h-80 flex flex-col"
                     onClick={(e) => e.stopPropagation()}
                 >
                 <h2 className="mb-4 text-xl font-bold text-black text-center">Create New Assignment</h2>
