@@ -17,12 +17,21 @@ export default function StatsPage() {
   const [selectedClass, setSelectedClass] = useState<string>('all');
   const { showLoading, hideLoading } = useLoading();
 
+  useEffect(() => {
+    if (loading) {
+      showLoading("Loading statistics...");
+    } else {
+      hideLoading();
+    }
+  }, [loading, showLoading, hideLoading]);
+
   if (loading) {
     return (
-      showLoading("Loading statistics...")
+      <div className="min-h-screen bg-[#e9f8eb] flex items-center justify-center">
+        <div className="text-xl font-semibold text-[#3a554c]">Loading statistics...</div>
+      </div>
     );
   }
-  hideLoading();
 
   if (error) {
     return (
