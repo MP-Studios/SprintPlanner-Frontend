@@ -29,10 +29,9 @@ export default function Dashboard() {
           const containerWidth = containerRef.current.offsetWidth;
           const newWidth = (e.clientX / containerWidth) * 100;
           
-          // If dragged to less than 10%, close the sidebar
-          if (newWidth < 10) {
+          if (newWidth < 17) {
               setIsSidebarOpen(false);
-              setSidebarWidth(35); // Reset to default for next open
+              setSidebarWidth(17); 
           } else if (newWidth >= 10 && newWidth <= 60) {
               setIsSidebarOpen(true);
               setSidebarWidth(newWidth);

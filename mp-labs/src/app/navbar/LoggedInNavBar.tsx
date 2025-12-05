@@ -98,6 +98,7 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
       <nav className="navbar">
         <HoverLink href="/">Home</HoverLink>
         <HoverLink href="/timer">Timer</HoverLink>
+        <HoverLink href="/stats">Stats</HoverLink>
 
         <a
           href="https://docs.google.com/forms/d/e/1FAIpQLSfAqPRd7dXe7OBVJVjyqtjnAUxPhzFbenmyk_2k-OBP9qlznQ/viewform?usp=header"
@@ -127,9 +128,7 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
                   >
                     Settings
                   </button>
-                  <Link href="/stats" onClick={closeDropdown} className="dropdown-item">
-                    Stats
-                  </Link>
+  
                   <button onClick={handleSignOut} className="dropdown-item dropdown-button">
                     Sign Out
                   </button>
