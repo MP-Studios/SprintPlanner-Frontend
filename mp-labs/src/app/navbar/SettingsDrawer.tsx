@@ -49,8 +49,7 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
 
   const textColor = '#3a554c';
   const backgroundColor = '#edf7f2';
-  //const backgroundColor = '#f3f2ed';
-
+  
   React.useEffect(() => {
     const saved = getCustomPalette();
     if (saved) {
@@ -76,26 +75,40 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
   }, [isOpen, classes, selectedPalette]);
 
   const handlePaletteChange = async (paletteId: string) => {
-    if (paletteId === 'custom') {
-      setCustomPaletteOpen(true);
-      setSelectedPalette('custom');
-      setPalette('custom');
-      return;
-    }
-    setCustomPaletteOpen(false);
-
-    const success = setPalette(paletteId);
-    if (success) {
-      setSelectedPalette(paletteId);
-      await refreshClassColors(supabase);
-      
-      Promise.all([
-        refreshAssignments(),
-        refreshClasses()
-      ]);
-      setForceRefresh(prev => prev + 1);
-    } else {
-      alert('Failed to change palette');
+    try {
+      showLoading('Updating colors...');
+  
+      if (paletteId === 'custom') {
+        setCustomPaletteOpen(true);
+        setSelectedPalette('custom');
+        setPalette('custom');
+  
+        await Promise.all([
+          refreshAssignments(),
+          refreshClasses(),
+        ]);
+  
+        return;
+      }
+  
+      setCustomPaletteOpen(false);
+  
+      const success = setPalette(paletteId);
+      if (success) {
+        setSelectedPalette(paletteId);
+  
+        await Promise.all([
+          refreshAssignments(),
+          refreshClasses(),
+        ]);
+      } else {
+        alert('Failed to change palette');
+      }
+    } catch (err) {
+      console.error('Error changing palette:', err);
+      alert('Error changing palette. Please try again.');
+    } finally {
+      hideLoading();
     }
   };
 

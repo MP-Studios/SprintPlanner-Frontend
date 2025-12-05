@@ -391,7 +391,7 @@ function EditPage({assignment, onClose}: EditPageProps){
                 console.log('Clicking on:', d);
                 setWeekdayModalOpen(true);
               }}
-              className={`flex justify-center p-2 rounded ${isToday ? 'font-bold text-2xl text-black bg-[rgb(200,230,220)] rounded-md' : ''}`}
+              className={`flex justify-center p-2 rounded ${isToday ? 'font-bold text-2xl text-black rounded-md' : ''}`}
             >
               {d}
             </button>
