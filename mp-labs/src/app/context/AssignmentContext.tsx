@@ -21,6 +21,7 @@ type AssignmentContextType = {
   error: string | null;
   markAsDone: (index: number) => Promise<void>;
   refreshAssignments: () => Promise<void>;
+  //isLoading: boolean;
 };
 
 const AssignmentContext = createContext<AssignmentContextType | undefined>(undefined);

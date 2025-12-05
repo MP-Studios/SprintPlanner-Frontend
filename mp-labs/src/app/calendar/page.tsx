@@ -23,6 +23,7 @@ export default function AssignmentContainer() {
   const { refreshAssignments } = useAssignments();
   const { showLoading, hideLoading } = useLoading();
   const hasSaved = useRef(false);
+  const fileInputRef = useRef<HTMLInputElement>(null); 
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -52,23 +53,39 @@ export default function AssignmentContainer() {
         showLoading("Saving your assignments...");
 
         const userId = await loadata();
-        await Promise.all(
-          assignments.map((assignment) =>
-            fetch("/api/fetchSaveAssignment", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${userId}`
-              },
-              body: JSON.stringify(assignment),
-            })
-          )
-        );
+
+        const seen = new Set<string>();
+        const dedupedAssignments = assignments.filter(a => {
+          const key = `${a.className}||${a.Name}||${a.DueDate}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+          
+        for (const assignment of dedupedAssignments) {
+          const res = await fetch("/api/fetchSaveAssignment", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${userId}`
+            },
+            body: JSON.stringify(assignment),
+          });
+          if (!res.ok) {
+            throw new Error("Failed to save your assignment.");
+          }
+        }
         console.log("All assignments saved successfully!");
         await Promise.all([
           refreshAssignments(),
           refreshClasses()
         ]);
+
+        setCalendarEvents([]);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+
         hideLoading();
       } catch (error) {
         console.error("Error saving assignments:", error);
@@ -77,7 +94,7 @@ export default function AssignmentContainer() {
       }
     }
     saveAllAssignments();
-  }, [assignments, refreshClasses, refreshAssignments]);
+  }, [assignments, refreshClasses, refreshAssignments, showLoading, hideLoading]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -115,6 +132,7 @@ export default function AssignmentContainer() {
         <label className="globalButton px-4 py-2 rounded cursor-pointer">
           Upload calendar
           <input
+            ref={fileInputRef}
             type="file"
             accept=".ics"
             onChange={handleFileUpload}

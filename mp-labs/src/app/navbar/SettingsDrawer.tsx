@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-//import { useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
@@ -15,6 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 import {useClasses} from '@/app/context/ClassContext';
 import { useAssignments } from '@/app/context/AssignmentContext';
 import { useLoading } from '@/app/context/LoadingContext';
+import { getCurrentPalette, setPalette, getAvailablePalettes, saveCustomPalette, getCustomPalette, clearColorMap, removeClassColor, refreshClassColors, refreshColorAssignments, getAllClassColors, type CustomColor } from '@/app/colors/classColors';
 
 type SettingsDrawerProps = {
   isOpen: boolean;
@@ -39,10 +39,122 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
   const [enrollmentOpen, setEnrollmentOpen] = React.useState(false);
   const [selectedClassId, setSelectedClassId] = React.useState('');
 
+  const [colorPaletteOpen, setColorPaletteOpen] = React.useState(false);
+  const [selectedPalette, setSelectedPalette] = React.useState(getCurrentPalette());
+  const [customPaletteOpen, setCustomPaletteOpen] = React.useState(false);
+  const [customColors, setCustomColors] = React.useState<CustomColor[]>([]);
+  const [forceRefresh, setForceRefresh] = React.useState(0);
+
   const supabase = createClient();
 
   const textColor = '#3a554c';
   const backgroundColor = '#edf7f2';
+  //const backgroundColor = '#f3f2ed';
+
+  React.useEffect(() => {
+    const saved = getCustomPalette();
+    if (saved) {
+      setCustomColors(saved);
+    } else {
+      setCustomColors(Array(8).fill(null).map(() => ({
+        background: '#F9FAFB',
+        hover: '#D1D5DB',
+        text: '#111827',
+      })));
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (isOpen && classes.length > 0) {
+      const classIds = classes.map(c => c.id);
+      refreshColorAssignments(classIds);
+    }
+
+    if (isOpen && selectedPalette === 'custom') {
+      setCustomPaletteOpen(true);
+    }
+  }, [isOpen, classes, selectedPalette]);
+
+  const handlePaletteChange = async (paletteId: string) => {
+    if (paletteId === 'custom') {
+      setCustomPaletteOpen(true);
+      setSelectedPalette('custom');
+      setPalette('custom');
+      return;
+    }
+    setCustomPaletteOpen(false);
+
+    const success = setPalette(paletteId);
+    if (success) {
+      setSelectedPalette(paletteId);
+      await refreshClassColors(supabase);
+      
+      Promise.all([
+        refreshAssignments(),
+        refreshClasses()
+      ]);
+      setForceRefresh(prev => prev + 1);
+    } else {
+      alert('Failed to change palette');
+    }
+  };
+
+  const handleCustomColorChange = (index: number, field: keyof CustomColor, value: string) => {
+    const newColors = [...customColors];
+    newColors[index] = { ...newColors[index], [field]: value };
+    setCustomColors(newColors);
+  };
+
+  const handleAddCustomColor = () => {
+    setCustomColors([...customColors, {
+      background: '#F9FAFB',
+      hover: '#D1D5DB',
+      text: '#111827',
+    }]);
+  };
+
+  const handleRemoveCustomColor = (index: number) => {
+    if (customColors.length <= 1) {
+      alert('You must have at least one color in your palette');
+      return;
+    }
+    setCustomColors(customColors.filter((_, i) => i !== index));
+  };
+
+  const handleSaveCustomPalette = async () => {
+    const success = saveCustomPalette(customColors);
+    if (success) {
+      setPalette('custom');
+      setSelectedPalette('custom');
+      
+      await refreshClassColors(supabase);
+      await Promise.all([
+        refreshAssignments(),
+        refreshClasses()
+      ]);
+      
+      setForceRefresh(prev => prev + 1);
+    } else {
+      alert('Failed to save custom palette');
+    }
+  };
+
+  const handleRevertCustomPalette = () => {
+    const defaultCustomColors = Array(8).fill(null).map(() => ({
+      background: '#F9FAFB',
+      hover: '#D1D5DB',
+      text: '#111827',
+    }));
+    setCustomColors(defaultCustomColors);
+  };
+
+  const getClassNameForColorIndex = (index: number): string => {
+    const classWithColor = classes.find(cls => {
+      const colorNum = getAllClassColors()[cls.id];
+      return colorNum === index;
+    });
+    return classWithColor ? classWithColor.name : `Color ${index + 1}`;
+  };
 
   // Save username to backend
   const handleSaveUsername = async () => {
@@ -241,11 +353,13 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
       // Check if response is OK (status 200-299) OR if data.success is true
       if (res.ok) {
         console.log('Calendar deletion successful...');
+        clearColorMap();
+        localStorage.removeItem('app-classes');
         await Promise.all([
           refreshAssignments(),
           refreshClasses()
         ]);
-        localStorage.removeItem('app-classes');
+        refreshColorAssignments([]);
         hideLoading();
         setShowDeleteCalendarConfirm(false);
         onClose();
@@ -266,7 +380,12 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
       showLoading('Deleting class...');
       const success = await deleteClass(selectedClassId);                      
       if (success) {
-        await refreshAssignments();
+        removeClassColor(selectedClassId);
+        await Promise.all([
+          refreshAssignments(),
+          refreshClasses()
+        ]);
+        await refreshClassColors(supabase);
         setSelectedClassId('');
       } else {
         alert('Failed to delete class');
@@ -449,6 +568,114 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
                       onClick={handleDeleteAccount}
                     >
                       Yes, Delete Everything
+                    </Button>
+                  </Box>
+                </Box>
+              )}
+            </Box>
+          </Collapse>
+        </List>
+        
+        <Divider sx={{ my: 2, borderColor: textColor }} />
+        {/* custom color palette */}
+        <List>
+          <ListItemButton onClick={() => setColorPaletteOpen(!colorPaletteOpen)}>
+            <ListItemText primary="Color Palette" />
+            <span>{colorPaletteOpen ? '−' : '+'}</span>
+          </ListItemButton>
+          <Collapse in={colorPaletteOpen} timeout="auto" unmountOnExit>
+            <Box sx={{ pl: 3, pr: 3, pt: 2 }}>
+              <TextField
+                select
+                fullWidth
+                label="Select Palette"
+                value={selectedPalette}
+                onChange={(e) => handlePaletteChange(e.target.value)}
+                margin="normal"
+              >
+                {getAvailablePalettes().map((palette) => (
+                  <MenuItem key={palette.id} value={palette.id}>
+                    {palette.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+
+              {/* Custom Palette Editor */}
+              {customPaletteOpen && (
+                <Box sx={{ mt: 2, p: 2, border: `1px solid ${textColor}`, borderRadius: 2 }}>
+                  <h3 className="font-bold mb-3" style={{ color: textColor }}>
+                    Custom Palette Editor
+                  </h3>
+                  <p className="text-sm mb-3" style={{ color: textColor }}>
+                    Create your own color palette. Each class will be assigned one of these colors.
+                  </p>
+                  {classes.length === 0 && (
+                    <p className="text-sm mb-3 italic" style={{ color: '#666' }}>
+                      Add classes to see their names here. Colors will be assigned to classes as you create them.
+                    </p>
+                  )}
+                  {customColors.map((color, index) => (
+                    <Box key={index} sx={{ mb: 3, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
+                      {/* <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}> */}
+                      <Box sx={{ mb: 2 }}>
+                        <h4 className="font-semibold" style={{ color: textColor }}>{getClassNameForColorIndex(index)}</h4>
+                      </Box>
+                      <TextField
+                        fullWidth
+                        label="Background Color"
+                        type="color"
+                        value={color.background}
+                        onChange={(e) => handleCustomColorChange(index, 'background', e.target.value)}
+                        margin="dense"
+                        size="small"
+                      />
+                      <TextField
+                        fullWidth
+                        label="Hover Color"
+                        type="color"
+                        value={color.hover}
+                        onChange={(e) => handleCustomColorChange(index, 'hover', e.target.value)}
+                        margin="dense"
+                        size="small"
+                      />
+                      <TextField
+                        fullWidth
+                        label="Text Color"
+                        type="color"
+                        value={color.text}
+                        onChange={(e) => handleCustomColorChange(index, 'text', e.target.value)}
+                        margin="dense"
+                        size="small"
+                      />
+                      {customColors.length > 1 && (
+                        <Button
+                          fullWidth
+                          size="small"
+                          color="error"
+                          variant="outlined"
+                          onClick={() => handleRemoveCustomColor(index)}
+                          sx={{ mt: 1 }}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </Box>
+                  ))}
+                  <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      onClick={handleSaveCustomPalette}
+                    >
+                      Save Custom Palette
+                    </Button>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      color="warning"
+                      onClick={handleRevertCustomPalette}
+                    >
+                      Reset Palette
                     </Button>
                   </Box>
                 </Box>
