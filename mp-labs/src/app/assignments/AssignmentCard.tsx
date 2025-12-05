@@ -145,7 +145,7 @@ export default function AssignmentCard({
               {showCheckbox && onMarkDone && (
                 <div
                   className="checkbox-wrapper-31"
-                  style={{ left: '6px' }}
+                  style={{ left: '6.5px' }}
                   onClick={(e) => {
                     e.stopPropagation();
                     onMarkDone();

@@ -1133,10 +1133,11 @@ body .dribbble {
 }
 
 .checkbox-wrapper-31 .background {
-  fill: #6f8a7f;
+  fill: none;
   transition: ease all 0.6s;
-  stroke-dasharray: 20;
 }
+
+
 
 .checkbox-wrapper-31 .stroke {
   fill: none;
@@ -1150,7 +1151,7 @@ body .dribbble {
 
 .checkbox-wrapper-31 .check {
   fill: none;
-  stroke: #a2c9b8;
+  stroke: rgb(100, 100, 100);
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 2.7px;
