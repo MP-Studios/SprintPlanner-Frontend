@@ -516,9 +516,9 @@ function EditPage({assignment, onClose}: EditPageProps){
                   alt="No assignments today. Rest up!"
                   width={300} 
                   height={300}
-                  className="mb-4"
+                  className="mb-10"
                 />
-                <p className="text-gray-600 text-center">
+                <p className="text-gray-600 text-center text-xl">
                   No assignments for {selectedWeekday}. Rest up!
                 </p>
               </div>
