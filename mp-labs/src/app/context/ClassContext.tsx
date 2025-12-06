@@ -12,6 +12,7 @@ type ClassContextType = {
   addClass: (ClassItem: ClassItem) => void;
   deleteClass: (classId: string) => Promise<boolean>;
   refreshClasses: () => Promise<void>;
+  isLoading: boolean;
 };
 
 const ClassContext = createContext<ClassContextType | undefined>(undefined);
@@ -23,6 +24,7 @@ export function ClassProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshClasses = async () => {
+    setIsLoading(true);
     try {
       const supabase = createClient();
       const { data: { session } } = await supabase.auth.getSession();
@@ -35,23 +37,25 @@ export function ClassProvider({ children }: { children: ReactNode }) {
         });
         
         if (res.ok) {
-            const assignments = await res.json();
-            if (Array.isArray(assignments)) {
-              const uniqueClasses = [
-                ...new Map(
-                  assignments
-                    .filter((a: any) => a.className && a.ClassId)
-                    .map((a: any) => [a.ClassId, { id: a.ClassId, name: a.className }])
-                ).values(),
-              ];
-              console.log('ClassProvider: Fetched classes: ', uniqueClasses);
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(uniqueClasses));
-              setClasses(uniqueClasses);
-            }
+          const assignments = await res.json();
+          if (Array.isArray(assignments)) {
+            const uniqueClasses = [
+              ...new Map(
+                assignments
+                  .filter((a: any) => a.className && a.ClassId)
+                  .map((a: any) => [a.ClassId, { id: a.ClassId, name: a.className }])
+              ).values(),
+            ];
+            console.log('ClassProvider: Fetched classes: ', uniqueClasses);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(uniqueClasses));
+            setClasses(uniqueClasses);
+          }
         }
       }
     } catch (err) {
       console.error('ClassProvider: Failed to fetech classes', err);
+    } finally {
+      setIsLoading(false);
     }
   };
   
@@ -64,14 +68,14 @@ export function ClassProvider({ children }: { children: ReactNode }) {
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
-            const classNames = JSON.parse(stored) as ClassItem[];
-            setClasses(classNames);
+          const classNames = JSON.parse(stored) as ClassItem[];
+          setClasses(classNames);
         }
       } catch (err) {
         console.error('ClassProvider: Failed to load classes from localStorage', err);
       }
-      refreshClasses();
-      setIsLoading(false);
+      await refreshClasses();
+      //setIsLoading(false);
     };    
     initializeClasses();
   }, []);
@@ -103,16 +107,14 @@ export function ClassProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({ classId }),
       });
-
       console.log(response);
-  
+
       if (!response.ok) {
         const errText = await response.text();
         console.error("Failed to delete class:", errText);
         return false;
       }
-      
-      console.log("deleting this ho:", classId);
+
       setClasses((prev) => {
         const updated = prev.filter(c => c.id !== classId);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
@@ -134,12 +136,8 @@ export function ClassProvider({ children }: { children: ReactNode }) {
   
   console.log('ClassProvider: Rendering with classes:', classes);
   
-  if (isLoading) {
-    return null; // or a loading spinner
-  }
-  
   return (
-    <ClassContext.Provider value={{ classes, addClass, deleteClass, refreshClasses }}>
+    <ClassContext.Provider value={{ classes, addClass, deleteClass, refreshClasses, isLoading, }}>
       {children}
     </ClassContext.Provider>
   );

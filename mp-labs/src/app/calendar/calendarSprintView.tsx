@@ -206,6 +206,7 @@ function EditPage({assignment, onClose}: EditPageProps){
     const [hoveredDailyAssignment, setHoveredDailyAssignment] = useState<number | null>(null);
     const [dailyAssignments, setDailyAssignments] = useState<Assignment[]>([]);
     const [weekOffset, setWeekOffset] = useState(0);
+    const todayIndex = new Date().getDay();
 
     useEffect(() => {
       const init = async () => {
@@ -381,6 +382,7 @@ function EditPage({assignment, onClose}: EditPageProps){
       <div className="calendar-week-days grid grid-cols-7 font-medium mb-2 text-gray-700">
         {daysOfWeek.map((d, index) => {
           const fullNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+          const isToday = weekOffset === 0 && index === todayIndex;
           return (
             <button
               key={d}
@@ -389,7 +391,7 @@ function EditPage({assignment, onClose}: EditPageProps){
                 console.log('Clicking on:', d);
                 setWeekdayModalOpen(true);
               }}
-              className="flex justify-center p-2 rounded"
+              className={`flex justify-center p-2 rounded ${isToday ? 'font-bold text-2xl text-black rounded-md' : ''}`}
             >
               {d}
             </button>
@@ -444,7 +446,7 @@ function EditPage({assignment, onClose}: EditPageProps){
                         isDone={doneSet.has(globalIndex)}
                         isHovered={hoveredCalendarAssignment === globalIndex}
                         showDetails={true}
-                        showDueDate={false}
+                        showDueDate={true}
                         showCheckbox={true}
                         showDeleteButton={true}
                         onEdit={() => handleOpenEdit(assignment)}

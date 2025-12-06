@@ -165,7 +165,7 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
   };
 
   return (
-    <div className="p-40 mx-auto rounded-2xl h-90 flex flex-col">
+    <div className="p-40 mx-auto rounded-2xl flex flex-col">
       <form onSubmit={handleSubmit} className="p-6 space-y-4 flex flex-col">
         <div className="w-full">
           <label className="p-6 text-lg font-medium text-black">
@@ -262,7 +262,7 @@ export default function AssignmentsPage({onClose}: AssignmentsPageProps) {
           />
         </div>
         
-        <div className="createAssignment w-full flex justify-end pr-6 mt-6">
+        <div className="createAssignment w-full flex justify-center pr-6 mt-6">
           <button 
             type="submit"
             className="globalButton mt-4 px-4 py-2 rounded"

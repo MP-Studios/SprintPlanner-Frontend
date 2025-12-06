@@ -283,7 +283,7 @@ body {
 .assignment {
   height: 95vh;
   width: auto;
-  background-color: #e9f8eb;
+  background-color: #f3f2ed;
   overflow: hidden;
   padding: 20px 10px 10px 20px;
   color: #3a554c;
@@ -770,159 +770,6 @@ body .dribbble {
   color: #111827;
 }
 
-/* Color 0: Blue */
-.assignment-card.color-0 {
-  background-color: #b5e5fc;
-  border-left-color: #66C7F4;
-}
-
-.assignment-card.color-0:hover {
-  background-color: #66C7F4;
-}
-
-.assignment-card.color-0 .class-badge {
-  color: #1E3A8A;
-  border-color: #93C5FD;
-}
-
-.assignment-card.color-0 .assignment-title {
-  color: #1E3A8A;
-}
-
-/* Color 1: Purple */
-.assignment-card.color-1 {
-  background-color: #cbb9ff;
-  border-left-color: #a082fb;
-}
-
-.assignment-card.color-1:hover {
-  background-color: #a082fb;
-}
-
-.assignment-card.color-1 .class-badge {
-  color: #371F76;
-  border-color: #D8B4FE;
-}
-
-.assignment-card.color-1 .assignment-title {
-  color: #371F76;
-}
-
-/* Color 2: Green */
-.assignment-card.color-2 {
-  background-color: #C1F376;
-  border-left-color: #79D021;
-}
-
-.assignment-card.color-2:hover {
-  background-color: #79D021;
-}
-
-.assignment-card.color-2 .class-badge {
-  color: #14532D;
-  border-color: #79D021;
-}
-
-.assignment-card.color-2 .assignment-title {
-  color: #14532D;
-}
-
-/* Color 3: Orange */
-.assignment-card.color-3 {
-  background-color: #FFD4A1;
-  border-left-color: #FFB347;
-}
-
-.assignment-card.color-3:hover {
-  background-color: #FFB347;
-}
-
-.assignment-card.color-3 .class-badge {
-  color: #7C2D12;
-  border-color: #FDBA74;
-}
-
-.assignment-card.color-3 .assignment-title {
-  color: #7C2D12;
-}
-
-/* Color 4: Pink */
-.assignment-card.color-4 {
-  background-color: #FCE7F3;
-  border-left-color: #F9A8D4;
-}
-
-.assignment-card.color-4:hover {
-  background-color: #F9A8D4;
-}
-
-.assignment-card.color-4 .class-badge {
-  color: #831843;
-  border-color: #F9A8D4;
-}
-
-.assignment-card.color-4 .assignment-title {
-  color: #831843;
-}
-
-/* Color 5: Teal */
-.assignment-card.color-5 {
-  background-color: #CCFBF1;
-  border-left-color: #5EEAD4;
-}
-
-.assignment-card.color-5:hover {
-  background-color: #5EEAD4;
-}
-
-.assignment-card.color-5 .class-badge {
-  color: #134E4A;
-  border-color: #5EEAD4;
-}
-
-.assignment-card.color-5 .assignment-title {
-  color: #134E4A;
-}
-
-/* Color 6: Yellow */
-.assignment-card.color-6 {
-  background-color: #FEF9C3;  /* light yellow */
-  border-left-color: #FACC15;  /* brighter yellow accent */
-}
-
-.assignment-card.color-6:hover {
-  background-color: #FACC15;  /* medium yellow on hover */
-}
-
-.assignment-card.color-6 .class-badge {
-  color: #92400E;              /* dark brown for contrast */
-  border-color: #FCD34D;       /* pale yellow border for badge */
-}
-
-.assignment-card.color-6 .assignment-title {
-  color: #78350F;              /* darker brown/orange for title */
-}
-
-
-/* Color 7: Rose */
-.assignment-card.color-7 {
-  background-color: #FFE4E6;
-  border-left-color: #FB7185;
-}
-
-.assignment-card.color-7:hover {
-  background-color: #FB7185;
-}
-
-.assignment-card.color-7 .class-badge {
-  color: #881337;
-  border-color: #FB7185;
-}
-
-.assignment-card.color-7 .assignment-title {
-  color: #881337;
-}
-
 /* Base styles for assignment cards */
 .assignment-card {
   padding: 1rem;
@@ -1133,10 +980,11 @@ body .dribbble {
 }
 
 .checkbox-wrapper-31 .background {
-  fill: #6f8a7f;
+  fill: none;
   transition: ease all 0.6s;
-  stroke-dasharray: 20;
 }
+
+
 
 .checkbox-wrapper-31 .stroke {
   fill: none;
@@ -1150,7 +998,7 @@ body .dribbble {
 
 .checkbox-wrapper-31 .check {
   fill: none;
-  stroke: #a2c9b8;
+  stroke: rgb(100, 100, 100);
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 2.7px;
