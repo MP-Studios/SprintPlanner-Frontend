@@ -810,17 +810,17 @@ body .dribbble {
 
 /* Color 2: Green */
 .assignment-card.color-2 {
-  background-color: #5bb450;
-  border-left-color: #8bca84;
+  background-color: #C1F376;
+  border-left-color: #79D021;
 }
 
 .assignment-card.color-2:hover {
-  background-color: #5bb450;
+  background-color: #79D021;
 }
 
 .assignment-card.color-2 .class-badge {
   color: #14532D;
-  border-color: #5bb450;
+  border-color: #79D021;
 }
 
 .assignment-card.color-2 .assignment-title {
