@@ -62,52 +62,69 @@ export default function Dashboard() {
     }, [isDragging]);
 
     return (
-        <div ref={containerRef} className="flex h-full w-full relative"
-        style={{ userSelect: isDragging ? 'none' : 'auto' }}
-        >
-
-            {/* LEFT PANEL */}
-            <div
-                className="h-full overflow-auto transition-all"
-                style={{ width: isLeftOpen ? `${leftWidth}%` : '0%', transition: isDragging ? 'none' : 'width 0.3s' }}
-            >
-                {isLeftOpen && <AssignmentContainer />}
-            </div>
-
-            {/* LEFT HANDLE WHEN CLOSED */}
-            {!isLeftOpen && (
-                <div
-                    onMouseDown={() => { setIsLeftOpen(true); setLeftWidth(25); setIsDragging(true); }}
-                    className="w-4 bg-gray-200 hover:bg-[#a2c9b8] cursor-col-resize flex-shrink-0"
-                    title="Drag to open assignments"
-                />
-            )}
-
-            {/* MIDDLE DIVIDER */}
-            {isLeftOpen && isRightOpen && (
-                <div
-                    onMouseDown={() => setIsDragging(true)}
-                    className="w-2 bg-gray-300 hover:bg-[#a2c9b8] cursor-col-resize flex-shrink-0"
-                />
-            )}
-
-            {/* RIGHT PANEL */}
-            <div
-                className="h-full overflow-auto transition-all"
-                style={{ width: isRightOpen ? `${100 - (isLeftOpen ? leftWidth : 0)}%` : '0%', transition: isDragging ? 'none' : 'width 0.3s' }}
-            >
-                {isRightOpen && <CalendarView />}
-            </div>
-
-            {/* RIGHT HANDLE WHEN CLOSED */}
-            {!isRightOpen && (
-                <div
-                    onMouseDown={() => { setIsRightOpen(true); setLeftWidth(70); setIsDragging(true); }}
-                    className="w-5 bg-gray-200 hover:bg-[#a2c9b8] cursor-col-resize flex-shrink-0"
-                    title="Drag to open calendar"
-                />
-            )}
-
-        </div>
-    );
+      <div 
+          ref={containerRef} 
+          className="flex h-full w-full relative"
+          style={{ 
+              userSelect: isDragging ? 'none' : 'auto',
+              WebkitUserSelect: isDragging ? 'none' : 'auto'
+          }}
+      >
+  
+          {/* LEFT PANEL */}
+          <div
+              className="h-full overflow-auto transition-all"
+              style={{ 
+                  width: isLeftOpen ? `${leftWidth}%` : '0%', 
+                  transition: isDragging ? 'none' : 'width 0.3s',
+                  userSelect: isDragging ? 'none' : 'auto',
+                  WebkitUserSelect: isDragging ? 'none' : 'auto',
+                  pointerEvents: isDragging ? 'none' : 'auto'
+              }}
+          >
+              {isLeftOpen && <AssignmentContainer />}
+          </div>
+  
+          {/* LEFT HANDLE WHEN CLOSED */}
+          {!isLeftOpen && (
+              <div
+                  onMouseDown={() => { setIsLeftOpen(true); setLeftWidth(35); setIsDragging(true); }}
+                  className="w-4 bg-gray-200 hover:bg-[#a2c9b8] cursor-col-resize flex-shrink-0"
+                  title="Drag to open assignments"
+              />
+          )}
+  
+          {/* MIDDLE DIVIDER */}
+          {isLeftOpen && isRightOpen && (
+              <div
+                  onMouseDown={() => setIsDragging(true)}
+                  className="w-2 bg-gray-300 hover:bg-[#a2c9b8] cursor-col-resize flex-shrink-0"
+              />
+          )}
+  
+          {/* RIGHT PANEL */}
+          <div
+              className="h-full overflow-auto transition-all"
+              style={{ 
+                  width: isRightOpen ? `${100 - (isLeftOpen ? leftWidth : 0)}%` : '0%', 
+                  transition: isDragging ? 'none' : 'width 0.3s',
+                  userSelect: isDragging ? 'none' : 'auto',
+                  WebkitUserSelect: isDragging ? 'none' : 'auto',
+                  pointerEvents: isDragging ? 'none' : 'auto'
+              }}
+          >
+              {isRightOpen && <CalendarView />}
+          </div>
+  
+          {/* RIGHT HANDLE WHEN CLOSED */}
+          {!isRightOpen && (
+              <div
+                  onMouseDown={() => { setIsRightOpen(true); setLeftWidth(65); setIsDragging(true); }}
+                  className="w-4 bg-gray-200 hover:bg-[#a2c9b8] cursor-col-resize flex-shrink-0"
+                  title="Drag to open calendar"
+              />
+          )}
+  
+      </div>
+  );
 }
