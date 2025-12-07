@@ -17,12 +17,21 @@ export default function StatsPage() {
   const [selectedClass, setSelectedClass] = useState<string>('all');
   const { showLoading, hideLoading } = useLoading();
 
+  useEffect(() => {
+    if (loading) {
+      showLoading("Loading statistics...");
+    } else {
+      hideLoading();
+    }
+  }, [loading, showLoading, hideLoading]);
+
   if (loading) {
     return (
-      showLoading("Loading statistics...")
+      <div className="min-h-screen bg-[#e9f8eb] flex items-center justify-center">
+        <div className="text-xl font-semibold text-[#3a554c]">Loading statistics...</div>
+      </div>
     );
   }
-  hideLoading();
 
   if (error) {
     return (
@@ -125,14 +134,16 @@ export default function StatsPage() {
               {/* SVG Pie Chart */}
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                 {/* Background circle (pending) */}
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  fill="none"
-                  stroke="#FCD34D"
-                  strokeWidth="20"
-                />
+                {completionRate < 100 && (
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      fill="none"
+                      stroke="#BBBBBB"
+                      strokeWidth="20"
+                    />
+                  )}
                 {/* Completed segment */}
                 {displayTotal > 0 && (
                   <circle
@@ -142,7 +153,8 @@ export default function StatsPage() {
                     fill="none"
                     stroke={pieChartCompletedColor}
                     strokeWidth="20"
-                    strokeDasharray={`${(completedDegrees / 360) * 251.2} 251.2`}
+                    strokeLinecap="round"
+                    strokeDasharray={completionRate === 100 ? '251.2 251.2' : `${(completedDegrees / 360) * 251.2} 251.2`}
                     className="transition-all duration-1000"
                   />
                 )}
@@ -171,7 +183,7 @@ export default function StatsPage() {
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-yellow-400 rounded"></div>
+                <div className="w-4 h-4 bg-[#BBBBBB] rounded"></div>
                 <span className="font-medium">
                   Pending: <span className="text-[#3a554c] font-bold">{displayPending}</span>
                 </span>
@@ -189,9 +201,9 @@ export default function StatsPage() {
               <div className="text-3xl font-bold text-green-900">{displayCompleted}</div>
               <div className="text-sm text-green-600 mt-1">Completed</div>
             </div>
-            <div className="bg-yellow-50 rounded-lg p-4 text-center">
-              <div className="text-3xl font-bold text-yellow-900">{displayPending}</div>
-              <div className="text-sm text-yellow-600 mt-1">Pending</div>
+            <div className="bg-[#CCCCCC] rounded-lg p-4 text-center">
+              <div className="text-3xl font-bold text-[#545454]">{displayPending}</div>
+              <div className="text-sm text-[#555555] mt-1">Pending</div>
             </div>
           </div>
         </div>

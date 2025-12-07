@@ -42,7 +42,7 @@ const PALETTE_COLORS: Record<string, CustomColor[]> = {
   default: [
     { background: '#b5e5fc', hover: '#66C7F4', text: '#1E3A8A' },
     { background: '#cbb9ff', hover: '#a082fb', text: '#371F76' },
-    { background: '#DCFCE7', hover: '#86EFAC', text: '#14532D' },
+    { background: '#C1F376', hover: '#79D021', text: '#14532D' },
     { background: '#FFD4A1', hover: '#FFB347', text: '#7C2D12' },
     { background: '#FCE7F3', hover: '#F9A8D4', text: '#831843' },
     { background: '#CCFBF1', hover: '#5EEAD4', text: '#134E4A' },
