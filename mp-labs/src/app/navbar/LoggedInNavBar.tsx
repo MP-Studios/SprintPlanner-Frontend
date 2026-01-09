@@ -97,7 +97,12 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
     <>
       <nav className="navbar">
         <HoverLink href="/">Home</HoverLink>
-        <HoverLink href="/timer">Timer</HoverLink>
+        <a href="https://buymeacoffee.com/planlli"
+         target="_blank"
+         rel="noopner noreferrer" // important for seo
+        >
+          <HoverButton>Buy me a Coffee</HoverButton>
+        </a>
         <HoverLink href="/stats">Stats</HoverLink>
 
         <a
