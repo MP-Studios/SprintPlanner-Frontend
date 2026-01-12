@@ -27,6 +27,7 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
   const [editEmailOpen, setEditEmailOpen] = React.useState(false);
   const [editPasswordOpen, setEditPasswordOpen] = React.useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+  const [showDeleteLinkConfirm, setShowDeleteLinkConfirm] = React.useState(false);
   const [showDeleteCalendarConfirm, setShowDeleteCalendarConfirm] = React.useState(false);
 
   const [username, setUsername] = React.useState('');
@@ -387,7 +388,45 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
       alert('Error deleting calendar.');
     }
   };
+const handleDeleteLink = async () => {
+  try {
+    showLoading('Deleting calendar link...');
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !session) {
+      hideLoading();
+      alert('Not authenticated. Please log in.');
+      return;
+    }
 
+    console.log('Calling delete link API');
+
+    const res = await fetch('/api/assignment/deleteLink', {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    });
+
+    console.log('API response status:', res.status);
+
+    const data = await res.json();
+    console.log('API response data:', data);
+
+    if (res.ok) {
+      console.log('Calendar link deletion successful');
+      hideLoading();
+      alert('Calendar link deleted successfully');
+    } else {
+      hideLoading();
+      console.error('Link deletion failed:', data);
+      alert(`Failed to delete link: ${data.error || 'Unknown error'}`);
+    }
+  } catch (err) {
+    console.error('Error in handleDeleteLink:', err);
+    hideLoading();
+    alert('Error deleting calendar link.');
+  }
+};
   const handleDeleteClass = async () => {
     try {
       showLoading('Deleting class...');
@@ -758,6 +797,60 @@ export default function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps)
                   )}
                 </>
               )}
+              
+              {/* Delete ICS Link */}
+              <Button
+                fullWidth
+                variant="outlined"
+                color="warning"
+                sx={{ mt: 2, '&:hover': { backgroundColor: '#f59e0b' } }}
+                onClick={() => setShowDeleteLinkConfirm(true)}
+              >
+                Delete ICS Link
+              </Button>
+
+              {showDeleteLinkConfirm && (
+                <Box sx={{ 
+                  mt: 3, 
+                  p: 2, 
+                  border: '2px solid #f59e0b', 
+                  borderRadius: 2, 
+                  backgroundColor: '#fef3c7',
+                  color: '#92400e'
+                }}>
+                  <h3 className="font-bold text-lg mb-2">⚠️ Warning: Delete ICS Link</h3>
+                  <p className="mb-2">This action will:</p>
+                  <ul className="list-disc list-inside mb-4 text-sm">
+                    <li>Remove your saved calendar link</li>
+                    <li>Stop automatic assignment updates</li>
+                  </ul>
+                  <p className="font-bold mb-4">You can always re-upload a new link later.</p>
+                  <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+                    <Button 
+                      variant="contained" 
+                      onClick={() => setShowDeleteLinkConfirm(false)}
+                      sx={{ 
+                        backgroundColor: '#10b981',
+                        '&:hover': { backgroundColor: '#059669' }
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      variant="contained" 
+                      sx={{ 
+                        backgroundColor: '#f59e0b',
+                        color: 'white',
+                        '&:hover': { backgroundColor: '#d97706' }
+                      }} 
+                      onClick={handleDeleteLink}
+                    >
+                      Yes, Delete Link
+                    </Button>
+                  </Box>
+                </Box>
+              )}
+
               {/* delete calendar */}
               {classes.length > 0 && (
               <>
