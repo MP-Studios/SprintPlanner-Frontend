@@ -1,148 +1,113 @@
 'use client';
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import Calendar from "./calendarSprintView";
-import ICAL from "ical.js";
-import { Assignment } from "../assignments/assignment";
 import loadata from "../auth/loadData";
 import { useClasses } from "../context/ClassContext";
 import { useAssignments } from '@/app/context/AssignmentContext';
 import { useLoading } from '../context/LoadingContext';
 
-type CalendarEvent = {
-  summary: string;
-  start: Date;
-  end: Date;
-  location?: string;
-  description?: string;
-};
-
 export default function AssignmentContainer() {
-  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const [icsLink, setIcsLink] = useState("");
+  const [showModal, setShowModal] = useState(false);
   const { refreshClasses } = useClasses();
   const { refreshAssignments } = useAssignments();
   const { showLoading, hideLoading } = useLoading();
-  const hasSaved = useRef(false);
-  const fileInputRef = useRef<HTMLInputElement>(null); 
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const handleLinkUpload = async () => {
+    const feedUrl = icsLink.trim();
+    
+    if (!feedUrl) return;
 
-  const assignments: Assignment[] = calendarEvents
-    .filter(ev => new Date(ev.end) > new Date())
-    .map(ev => {
-      const match = ev.summary.match(/^(.*?)(\s*\[.*\])$/);
-      const name = match ? match[1].trim() : ev.summary;
-      const className = match ? match[2].trim() : ev.summary;
+    try {
+      showLoading("Saving assignments from calendar link...");
+      setShowModal(false);
 
-      return {
-        className,
-        Name: name,
-        DueDate: ev.end.toUTCString(),
-        Details: "",
-        ClassId: null,
-      };
-    });
+      const userId = await loadata();
 
-    useEffect(() => {
-      if (assignments.length === 0 || hasSaved.current) return;
+      const response = await fetch("/api/supabase/saveAssignmentFromLink", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${userId}`
+        },
+        body: JSON.stringify({ icsLink: feedUrl }),
+      });
 
-    async function saveAllAssignments() {
-      try {
-        hasSaved.current = true;
-        showLoading("Saving your assignments...");
-
-        const userId = await loadata();
-
-        const seen = new Set<string>();
-        const dedupedAssignments = assignments.filter(a => {
-          const key = `${a.className}||${a.Name}||${a.DueDate}`;
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        });
-          
-        for (const assignment of dedupedAssignments) {
-          const res = await fetch("/api/fetchSaveAssignment", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${userId}`
-            },
-            body: JSON.stringify(assignment),
-          });
-          if (!res.ok) {
-            throw new Error("Failed to save your assignment.");
-          }
-        }
-        console.log("All assignments saved successfully!");
+      if (response.ok && (await response.text()).toLowerCase() === 'true') {
+        console.log("Assignments saved successfully from link!");
+        
         await Promise.all([
           refreshAssignments(),
           refreshClasses()
         ]);
 
-        setCalendarEvents([]);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-
-        hideLoading();
-      } catch (error) {
-        console.error("Error saving assignments:", error);
-        hasSaved.current = false;
-        hideLoading();
+        setIcsLink("");
+      } else {
+        throw new Error("Failed to save assignments from link.");
       }
+
+      hideLoading();
+    } catch (error) {
+      console.error("Error saving assignments from link:", error);
+      hideLoading();
     }
-    saveAllAssignments();
-  }, [assignments, refreshClasses, refreshAssignments, showLoading, hideLoading]);
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    hasSaved.current = false;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      try {
-        const jcalData = ICAL.parse(text);
-        const comp = new ICAL.Component(jcalData);
-        const events = comp.getAllSubcomponents("vevent").map((vevent) => {
-          const e = new ICAL.Event(vevent);
-          return {
-            summary: e.summary,
-            start: e.startDate.toJSDate(),
-            end: e.endDate.toJSDate(),
-            location: e.location,
-            description: e.description,
-          };
-        });
-        setCalendarEvents(events);
-        console.log("Parsed events:", events);
-      } catch (err) {
-        console.error("Error parsing ICS:", err);
-      }
-    };
-    reader.readAsText(file);
   };
 
   return (
     <div className="assignment p-6 bg-white shadow-lg flex flex-col relative">
-      {/* Upload calendar */}
-      <div className="flex items-center justify-between mb-4">
-        <label className="globalButton px-4 py-2 rounded cursor-pointer">
-          Upload calendar
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".ics"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-        </label>
+      {/* Upload Link Button */}
+      <div className="flex items-center justify-between mb-6">
+        <button
+          onClick={() => setShowModal(true)}
+          className="globalButton px-4 py-2 rounded"
+        >
+          Upload Link
+        </button>
       </div>
 
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg mx-4">
+            <h2 className="text-xl font-semibold mb-3">Upload Calendar Link</h2>
+            <p className="text-sm text-gray-600 mb-6">
+              Paste your Canvas calendar feed link below
+            </p>
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="https://canvas.example.com/feeds/..."
+              value={icsLink}
+              onChange={(e) => setIcsLink(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
+              autoFocus
+            />
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setIcsLink("");
+                }}
+                className="px-6 py-2 text-gray-600 hover:text-gray-800 rounded hover:bg-gray-100 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLinkUpload}
+                className="globalButton px-6 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!icsLink.trim()}
+              >
+                Upload
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Calendar */}
-      <div className="flex-grow mb-4">
+      <div className="flex-grow">
         <Calendar/>
       </div>
     </div>

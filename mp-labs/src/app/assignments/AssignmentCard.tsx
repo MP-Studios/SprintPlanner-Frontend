@@ -53,17 +53,31 @@ export default function AssignmentCard({
   const { refreshAssignments } = useAssignments();
   const { refreshClasses } = useClasses();
 
-  // Format due date
-  const formatDueDate = () => {
-    const due = new Date(assignment.DueDate);
+const formatDueDate = () => {
+    const dateStr = assignment.DueDate; // "2026-01-13T22:59:00+00:00"
     
-    return due.toLocaleString('en-US', { 
+    // Extract date/time parts using regex
+    const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+    
+    if (!match) return dateStr; // fallback if format is unexpected
+    
+    const [_, year, month, day, hour, minute] = match;
+    
+    // Create date object in local context (treats as local time, no conversion)
+    const displayDate = new Date(
+      parseInt(year), 
+      parseInt(month) - 1, // months are 0-indexed
+      parseInt(day), 
+      parseInt(hour), 
+      parseInt(minute)
+    );
+    
+    return displayDate.toLocaleString('en-US', { 
       year: 'numeric', 
       month: 'short', 
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit',
-      timeZoneName: 'short'
+      minute: '2-digit'
     });
   };
 
