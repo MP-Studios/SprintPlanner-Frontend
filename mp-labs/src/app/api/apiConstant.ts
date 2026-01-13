@@ -8,3 +8,4 @@ export const updateAssignmentStatus = `${API_BASE}/api/assignments/update-status
 export const editAssignment = `${API_BASE}/api/assignments/update-assignment`;
 export const getStartDates = `${API_BASE}/api/fetchSprintDates`;
 export const getAllAssignments = `${API_BASE}/api/fetchStats`;
+export const saveAssignmentFromLink = `${API_BASE}/api/supabase/saveAssignmentFromLink`;
