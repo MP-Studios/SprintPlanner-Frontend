@@ -26,7 +26,7 @@ export default function AssignmentContainer() {
 
       const userId = await loadata();
 
-      const response = await fetch("/api/supabase/saveAssignmentFromLink", {
+      const response = await fetch("/api/saveAssignmentFromLink", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

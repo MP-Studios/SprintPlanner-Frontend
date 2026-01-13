@@ -400,7 +400,7 @@ const handleDeleteLink = async () => {
 
     console.log('Calling delete link API');
 
-    const res = await fetch('/api/assignment/deleteLink', {
+    const res = await fetch('/api/deleteLink', {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${session.access_token}`,
