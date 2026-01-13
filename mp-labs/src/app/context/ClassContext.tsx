@@ -1,3 +1,6 @@
+// ============================================
+// UPDATED ClassContext.tsx
+// ============================================
 'use client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createClient } from '@/utils/supabase/client';
@@ -12,6 +15,7 @@ type ClassContextType = {
   addClass: (ClassItem: ClassItem) => void;
   deleteClass: (classId: string) => Promise<boolean>;
   refreshClasses: () => Promise<void>;
+  updateClassNameLocal: (classId: string, newName: string) => void;
   isLoading: boolean;
 };
 
@@ -30,7 +34,7 @@ export function ClassProvider({ children }: { children: ReactNode }) {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session) {
-        const res = await fetch("/api/fetchBacklog/", { //database only hit on reload! (the rest the page also hits database on reload)
+        const res = await fetch("/api/fetchBacklog/", {
           headers: {
             "Authorization": `Bearer ${session.access_token}`
           },
@@ -53,18 +57,16 @@ export function ClassProvider({ children }: { children: ReactNode }) {
         }
       }
     } catch (err) {
-      console.error('ClassProvider: Failed to fetech classes', err);
+      console.error('ClassProvider: Failed to fetch classes', err);
     } finally {
       setIsLoading(false);
     }
   };
   
-  // Load classes from localStorage and migrate from backlog if needed
   useEffect(() => {
     const initializeClasses = async () => {
       console.log('ClassProvider: Initializing...');
       
-      // Load from localStorage normally
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
@@ -75,7 +77,6 @@ export function ClassProvider({ children }: { children: ReactNode }) {
         console.error('ClassProvider: Failed to load classes from localStorage', err);
       }
       await refreshClasses();
-      //setIsLoading(false);
     };    
     initializeClasses();
   }, []);
@@ -83,15 +84,24 @@ export function ClassProvider({ children }: { children: ReactNode }) {
   const addClass = (classItem: ClassItem) => {
     console.log('ClassProvider: addClass called with:', classItem);
     setClasses(prev => {
-      console.log('ClassProvider: Current classes:', prev);
       if (prev.some(c => c.id === classItem.id)) {
-        console.log('ClassProvider: Class already exists, skipping');
         return prev;
       }
       const updated = [...prev, classItem];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // UPDATED: This now properly updates the class name
+  const updateClassNameLocal = (classId: string, newName: string) => {
+    console.log('ClassProvider: Updating class name locally:', classId, newName);
+    setClasses(prev => {
+      const updated = prev.map(c => 
+        c.id === classId ? { ...c, name: newName } : c
+      );
       console.log('ClassProvider: Updated classes:', updated);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      console.log('ClassProvider: Saved to localStorage');
       return updated;
     });
   };
@@ -107,7 +117,6 @@ export function ClassProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({ classId }),
       });
-      console.log(response);
 
       if (!response.ok) {
         const errText = await response.text();
@@ -118,11 +127,8 @@ export function ClassProvider({ children }: { children: ReactNode }) {
       setClasses((prev) => {
         const updated = prev.filter(c => c.id !== classId);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        console.log("ClassProvider: Class removed and saved to localStorage:", updated);
-        console.log("updated: " + updated);
         return updated;
       });
-      console.log("classes: " + classes);
   
       console.log("ClassProvider: Class deleted successfully.");
       return true;
@@ -133,11 +139,15 @@ export function ClassProvider({ children }: { children: ReactNode }) {
     }
   };
   
-  
-  console.log('ClassProvider: Rendering with classes:', classes);
-  
   return (
-    <ClassContext.Provider value={{ classes, addClass, deleteClass, refreshClasses, isLoading, }}>
+    <ClassContext.Provider value={{ 
+      classes, 
+      addClass, 
+      deleteClass, 
+      refreshClasses, 
+      updateClassNameLocal,
+      isLoading 
+    }}>
       {children}
     </ClassContext.Provider>
   );
