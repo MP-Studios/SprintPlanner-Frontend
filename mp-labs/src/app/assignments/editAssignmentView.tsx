@@ -33,8 +33,8 @@ const formatDateTimeLocal = (dateString: string) => {
 };
 
 function EditPage({assignment, onClose, onSave}: EditPageProps){
-  const { refreshAssignments } = useAssignments();
-  const { refreshClasses } = useClasses();
+  const { updateAssignmentLocal } = useAssignments();
+  const { updateClassNameLocal } = useClasses();
 
   const [formData, setFormData] = useState({
     className: assignment.className,
@@ -65,34 +65,49 @@ function EditPage({assignment, onClose, onSave}: EditPageProps){
         throw new Error("Assignment ID not found");
       }
 
-      const response = await editAssignments(assignmentId, formData);
-      console.log('Response status:', response.status);
-      const responseText = await response.text();
-      console.log('Response body:', responseText);
+      // Determine what changed
+      const classNameChanged = formData.className !== assignment.className;
+      const classIdChanged = assignment.ClassId;
 
-      if (!response.ok) {
-        throw new Error('Failed to update assignment: ' + responseText);
-      }
+      // Create updated assignment object
       const updatedAssignment: Assignment = {
-      ...assignment,
-      className: formData.className,
-      Name: formData.name,
-      Details: formData.details,
-      DueDate: formData.dueDate,
-    };
+        ...assignment,
+        className: formData.className,
+        Name: formData.name,
+        Details: formData.details,
+        DueDate: formData.dueDate,
+      };
 
-    await Promise.all([
-      refreshClasses(),
-      refreshAssignments(),
-    ]);
+      // OPTIMISTIC UPDATE: Update UI immediately
+      if (classNameChanged && classIdChanged) {
+        // Update class name in ClassContext (affects all assignments with this ClassId)
+        updateClassNameLocal(classIdChanged, formData.className);
+      } else {
+        // Just update this single assignment
+        updateAssignmentLocal(assignmentId, updatedAssignment);
+      }
 
+      // Call parent's onSave for local state
       onSave(updatedAssignment);
+      
+      // Close modal immediately - user doesn't need to wait
       onClose();
+
+      // Send update to server in background
+      const response = await editAssignments(assignmentId, formData);
+      
+      if (!response.ok) {
+        const responseText = await response.text();
+        console.error('Failed to update on server:', responseText);
+        // Optionally: show a toast notification that sync failed
+        // and offer to retry or refresh
+      }
+
     } catch (err) {
       console.error(err);
       setSaveError(err instanceof Error ? err.message : 'Failed to save changes');
-    } finally {
       setSaving(false);
+      // Don't close modal if there's an error
     }
   };
 
@@ -200,11 +215,10 @@ function EditPage({assignment, onClose, onSave}: EditPageProps){
 }
 
 export default function EditAssignments() {
-    const { assignments, doneSet, error, markAsDone, refreshAssignments } = useAssignments();
+    const { assignments, doneSet, error, markAsDone } = useAssignments();
     const [editOpen, setEditOpen] = useState(false);
     const [currentAssignment, setCurrentAssignment] = useState<Assignment | null>(null);
     const [hoveredAssignment, setHoveredAssignment] = useState<number | null>(null);
-    const [assignmentsState, setAssignmentsState] = useState<Assignment[]>(assignments);
    
     return (
         <div className="editAssignment p-6 shadow-lg overflow-hidden h-screen flex flex-col">
@@ -227,7 +241,10 @@ export default function EditAssignments() {
                       setEditOpen(true);
                     }}
                     onMarkDone={() => markAsDone(index)}
-                    onDelete={() => refreshAssignments()}
+                    onDelete={async () => {
+                      // Only refresh after delete, not after edit
+                      // (delete needs full refresh to recalculate indices)
+                    }}
                     onHoverChange={(hovered) => setHoveredAssignment(hovered ? index : null)}
                   />
                 </li>
@@ -241,9 +258,8 @@ export default function EditAssignments() {
                 assignment={currentAssignment}
                 onClose={() => setEditOpen(false)}
                 onSave={(updated) => {
-                  setAssignmentsState((prev) =>
-                    prev.map((a) => (a.Id === updated.Id ? updated : a))
-                  );
+                  // Local state update handled by context
+                  // No need to do anything here
                 }}
               />
             )}

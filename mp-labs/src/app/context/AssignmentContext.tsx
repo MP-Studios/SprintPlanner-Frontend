@@ -1,3 +1,6 @@
+// ============================================
+// UPDATED AssignmentContext.tsx
+// ============================================
 'use client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createClient } from '@/utils/supabase/client';
@@ -21,7 +24,8 @@ type AssignmentContextType = {
   error: string | null;
   markAsDone: (index: number) => Promise<void>;
   refreshAssignments: () => Promise<void>;
-  //isLoading: boolean;
+  updateAssignmentLocal: (assignmentId: string, updated: Assignment) => void;
+  updateAllAssignmentsWithClass: (classId: string, newClassName: string) => void; // NEW!
 };
 
 const AssignmentContext = createContext<AssignmentContextType | undefined>(undefined);
@@ -53,7 +57,6 @@ export function AssignmentProvider({ children }: { children: ReactNode }) {
       const dataAssignments: Assignment[] = await res.json();
       setAssignments(dataAssignments);
 
-      // Initialize doneSet based on Status
       const initialDoneSet = new Set<number>();
       dataAssignments.forEach((assignment, index) => {
         if (assignment.Status === 1) {
@@ -70,6 +73,24 @@ export function AssignmentProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Update a single assignment locally
+  const updateAssignmentLocal = (assignmentId: string, updated: Assignment) => {
+    console.log('AssignmentProvider: Updating single assignment:', assignmentId, updated);
+    setAssignments(prev => 
+      prev.map(a => a.Id === assignmentId ? updated : a)
+    );
+  };
+
+  // NEW: Update all assignments that belong to a specific class
+  const updateAllAssignmentsWithClass = (classId: string, newClassName: string) => {
+    console.log('AssignmentProvider: Updating all assignments with ClassId:', classId, 'to:', newClassName);
+    setAssignments(prev => 
+      prev.map(a => 
+        a.ClassId === classId ? { ...a, className: newClassName } : a
+      )
+    );
+  };
+
   const markAsDone = async (index: number) => {
     const assignment = assignments[index];
     
@@ -79,14 +100,16 @@ export function AssignmentProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Update local state to reflect the change
+    const currentStatus = assignment.Status || 0;
+    const newStatus = currentStatus === 1 ? 0 : 1;
+
+    // Optimistic update
     setAssignments(prevAssignments => 
       prevAssignments.map((a, i) => 
         i === index ? { ...a, Status: newStatus } : a
       )
     );
 
-    // Update doneSet for UI purposes
     setDoneSet((prev) => {
       const newSet = new Set(prev);
       if (newStatus === 1) {
@@ -97,12 +120,7 @@ export function AssignmentProvider({ children }: { children: ReactNode }) {
       return newSet;
     });
   
-    // Toggle status: if currently 1 (done), set to 0; otherwise set to 1
-    const currentStatus = assignment.Status || 0;
-    const newStatus = currentStatus === 1 ? 0 : 1;
-  
     try {
-      // Get auth token
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError || !session) {
@@ -110,7 +128,6 @@ export function AssignmentProvider({ children }: { children: ReactNode }) {
         return;
       }
   
-      // Call API to update status in database
       const response = await fetch('/api/updateAssignmentStatus', {
         method: 'POST',
         headers: {
@@ -133,6 +150,21 @@ export function AssignmentProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Error updating assignment status:", error);
       alert("Failed to update assignment status. Please try again.");
+      // Rollback on error
+      setAssignments(prevAssignments => 
+        prevAssignments.map((a, i) => 
+          i === index ? { ...a, Status: currentStatus } : a
+        )
+      );
+      setDoneSet((prev) => {
+        const newSet = new Set(prev);
+        if (currentStatus === 1) {
+          newSet.add(index);
+        } else {
+          newSet.delete(index);
+        }
+        return newSet;
+      });
     }
   };
 
@@ -148,7 +180,9 @@ export function AssignmentProvider({ children }: { children: ReactNode }) {
         loading, 
         error, 
         markAsDone,
-        refreshAssignments: loadAssignments
+        refreshAssignments: loadAssignments,
+        updateAssignmentLocal,
+        updateAllAssignmentsWithClass // NEW!
       }}
     >
       {children}

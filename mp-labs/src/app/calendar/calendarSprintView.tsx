@@ -42,6 +42,9 @@ const formatDateTimeLocal = (dateString: string) => {
 };
 
 function EditPage({assignment, onClose}: EditPageProps){
+  const { updateAssignmentLocal, updateAllAssignmentsWithClass } = useAssignments();
+  const { updateClassNameLocal } = useClasses();
+
   const [formData, setFormData] = useState({
     className: assignment.className,
     name: assignment.Name,
@@ -51,8 +54,6 @@ function EditPage({assignment, onClose}: EditPageProps){
 
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const { refreshAssignments } = useAssignments();
-  const { refreshClasses } = useClasses();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -72,25 +73,67 @@ function EditPage({assignment, onClose}: EditPageProps){
         throw new Error("Assignment ID not found");
       }
 
-      const response = await editAssignments(assignmentId,formData);
+      // Determine what changed
+      const classNameChanged = formData.className !== assignment.className;
+      const classId = assignment.ClassId;
 
-      console.log('Response status:', response.status);
-      const responseText = await response.text();
-      console.log('Response body:', responseText);
-  
-      if (!response.ok) {
-        throw new Error('Failed to update assignment: ' + responseText);
+      // Convert datetime-local format to ICS format (yyyyMMdd'T'HHmmss'Z')
+      const localDate = new Date(formData.dueDate);
+      const year = localDate.getFullYear();
+      const month = String(localDate.getMonth() + 1).padStart(2, '0');
+      const day = String(localDate.getDate()).padStart(2, '0');
+      const hours = String(localDate.getHours()).padStart(2, '0');
+      const minutes = String(localDate.getMinutes()).padStart(2, '0');
+      const seconds = String(localDate.getSeconds()).padStart(2, '0');
+      
+      // Format for backend: 20260106T074500Z
+      const dueDateForBackend = `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
+      
+      // Format for display: 2026-01-06T07:45:00
+      const dueDateFormattedForDisplay = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+
+      // Send to backend with ICS format
+      const backendFormData = {
+        ...formData,
+        dueDate: dueDateForBackend
+      };
+
+      // Send update to server in background (with ICS formatted date)
+      const response = await editAssignments(assignmentId, backendFormData);
+
+      // Create updated assignment with display-friendly format FOR UI ONLY
+      const updatedAssignment: Assignment = {
+        ...assignment,
+        className: formData.className,
+        Name: formData.name,
+        Details: formData.details,
+        DueDate: dueDateFormattedForDisplay,
+      };
+
+      // OPTIMISTIC UPDATE: Update UI immediately
+      if (classNameChanged && classId) {
+        // Update class name affects all assignments with this ClassId
+        updateClassNameLocal(classId, formData.className);
+        updateAllAssignmentsWithClass(classId, formData.className);
+      } else {
+        // Just update this single assignment
+        updateAssignmentLocal(assignmentId, updatedAssignment);
       }
-      await Promise.all([
-        refreshClasses(),
-        refreshAssignments(),
-      ]);
+
+      // Close modal immediately - user doesn't need to wait
       onClose();
+      
+      if (!response.ok) {
+        const responseText = await response.text();
+        console.error('Failed to update on server:', responseText);
+        // TODO: Show toast notification that sync failed
+      }
+
     } catch (err) {
       console.error(err);
       setSaveError(err instanceof Error ? err.message : 'Failed to save changes');
-    } finally {
       setSaving(false);
+      // Don't close modal if there's an error
     }
   };
 
@@ -194,57 +237,56 @@ function EditPage({assignment, onClose}: EditPageProps){
   );
 }
 
-  export default function Calendar(){
-    const { assignments, doneSet, error, markAsDone, refreshAssignments } = useAssignments();
-    const [editOpen, setEditOpen] = useState(false);
-    const [currentAssignment, setCurrentAssignment] = useState<Assignment | null>(null);
-    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const [weekdayModalOpen, setWeekdayModalOpen] = useState(false);
-    const [selectedWeekday, setSelectedWeekday] = useState<string | null>(null);
-    const [sprintDates, setSprintDates] = useState<SprintDates | null>(null);
-    const [hoveredCalendarAssignment, setHoveredCalendarAssignment] = useState<number | null>(null);
-    const [hoveredDailyAssignment, setHoveredDailyAssignment] = useState<number | null>(null);
-    const [dailyAssignments, setDailyAssignments] = useState<Assignment[]>([]);
-    const [weekOffset, setWeekOffset] = useState(0);
-    const todayIndex = new Date().getDay();
+export default function Calendar(){
+  const { assignments, doneSet, error, markAsDone } = useAssignments();
+  const [editOpen, setEditOpen] = useState(false);
+  const [currentAssignment, setCurrentAssignment] = useState<Assignment | null>(null);
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const [weekdayModalOpen, setWeekdayModalOpen] = useState(false);
+  const [selectedWeekday, setSelectedWeekday] = useState<string | null>(null);
+  const [sprintDates, setSprintDates] = useState<SprintDates | null>(null);
+  const [hoveredCalendarAssignment, setHoveredCalendarAssignment] = useState<number | null>(null);
+  const [hoveredDailyAssignment, setHoveredDailyAssignment] = useState<number | null>(null);
+  const [dailyAssignments, setDailyAssignments] = useState<Assignment[]>([]);
+  const [weekOffset, setWeekOffset] = useState(0);
+  const todayIndex = new Date().getDay();
 
-    useEffect(() => {
-      const init = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
+  useEffect(() => {
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await fetchSprintDates(session);
+      }
+  
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
         if (session) {
-          await fetchSprintDates(session);
+          fetchSprintDates(session);
+        } else {
+          setSprintDates(null);
         }
-    
-        const {
-          data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
-          if (session) {
-            fetchSprintDates(session);
-          } else {
-            setSprintDates(null);
-          }
+      });
+  
+      return () => subscription.unsubscribe();
+    };
+  
+    const fetchSprintDates = async (session: any) => {
+      try {
+        const resDates = await fetch('api/fetchSprintDates', {
+          headers: { 'Authorization': `Bearer ${session.access_token}` },
         });
-    
-        return () => subscription.unsubscribe();
-      };
-    
-      const fetchSprintDates = async (session: any) => {
-        try {
-          const resDates = await fetch('api/fetchSprintDates', {
-            headers: { 'Authorization': `Bearer ${session.access_token}` },
-          });
-          if (!resDates.ok) throw new Error('Failed to fetch sprint dates');
-          const dataDates: SprintDates = await resDates.json();
-          setSprintDates(dataDates);
-        } catch (err) {
-          console.error('Error loading sprint dates:', err);
-        }
-      };
-    
-      init();
-    }, []);
-    
-
+        if (!resDates.ok) throw new Error('Failed to fetch sprint dates');
+        const dataDates: SprintDates = await resDates.json();
+        setSprintDates(dataDates);
+      } catch (err) {
+        console.error('Error loading sprint dates:', err);
+      }
+    };
+  
+    init();
+  }, []);
+  
   // Get the current week's Sunday
   const getCurrentWeekSunday = () => {
     const now = new Date();
@@ -279,10 +321,8 @@ function EditPage({assignment, onClose}: EditPageProps){
 
     const assignmentStart = new Date(weekSunday);
     const startCol = 0;
-    // Calculate end column (0-6)
     const endCol = Math.min(6, Math.floor((dueDate.getTime() - weekSunday.getTime()) / (1000 * 60 * 60 * 24)));
 
-    // Only show if it overlaps with current week
     if (endCol < 0) return null;
 
     return { startCol, endCol };
@@ -296,14 +336,12 @@ function EditPage({assignment, onClose}: EditPageProps){
       const span = getAssignmentSpan(assignment);
       if (!span) return;
 
-      // Find a row where this assignment doesn't overlap
       let placedInRow = false;
       for (let row of rows) {
         let canPlace = true;
         for (let existingAssignment of row) {
           const existingSpan = getAssignmentSpan(existingAssignment);
           if (existingSpan) {
-            // Check if they overlap
             if (!(span.endCol < existingSpan.startCol || span.startCol > existingSpan.endCol)) {
               canPlace = false;
               break;
@@ -317,7 +355,6 @@ function EditPage({assignment, onClose}: EditPageProps){
         }
       }
 
-      // If no row works, create a new row
       if (!placedInRow) {
         rows.push([assignment]);
       }
@@ -326,7 +363,7 @@ function EditPage({assignment, onClose}: EditPageProps){
     return rows;
   };
 
-  //compile daily lists
+  // Compile daily lists
   useEffect(() => {
     const weekSunday = getCurrentWeekSunday();
     const fullNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -341,25 +378,34 @@ function EditPage({assignment, onClose}: EditPageProps){
 
     setDailyAssignments(dailyList);
   }, [assignments, selectedWeekday, weekOffset]);
-    const assignmentRows = arrangeAssignments();
 
-    const getWeekDateRange = () => {
-      const weekSunday = getCurrentWeekSunday();
-      const weekSaturday = new Date(weekSunday);
-      weekSaturday.setDate(weekSunday.getDate() + 6);
-      const formatDate = (date: Date) => {
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      };
-      return `${formatDate(weekSunday)} - ${formatDate(weekSaturday)}`;
+  const assignmentRows = arrangeAssignments();
+
+  const getWeekDateRange = () => {
+    const weekSunday = getCurrentWeekSunday();
+    const weekSaturday = new Date(weekSunday);
+    weekSaturday.setDate(weekSunday.getDate() + 6);
+    const formatDate = (date: Date) => {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     };
+    return `${formatDate(weekSunday)} - ${formatDate(weekSaturday)}`;
+  };
 
-    const handleOpenEdit = (assignment: Assignment) => {
-      setCurrentAssignment(assignment);
-      setEditOpen(true);
-      setWeekdayModalOpen(false);
-    }
+  const handleOpenEdit = (assignment: Assignment) => {
+    setCurrentAssignment(assignment);
+    setEditOpen(true);
+    setWeekdayModalOpen(false);
+  }
 
-    return(
+  // DELETE HANDLER - only refresh on delete since indices change
+  const handleDelete = async () => {
+    // Note: AssignmentCard handles the actual delete API call
+    // We just need to handle what happens after
+    // For now, do nothing - the context will handle the state update
+    // In future, you might want to add optimistic delete here too
+  };
+
+  return(
     <div className="flex-1 flex flex-col h-full relative">
       {error && <p className="text-red-500 mb-2">{error}</p>}
 
@@ -388,7 +434,6 @@ function EditPage({assignment, onClose}: EditPageProps){
               key={d}
               onClick={() => {
                 setSelectedWeekday(fullNames[index]);
-                console.log('Clicking on:', d);
                 setWeekdayModalOpen(true);
               }}
               className={`flex justify-center p-2 rounded ${isToday ? 'font-bold text-2xl text-black rounded-md' : ''}`}
@@ -396,14 +441,13 @@ function EditPage({assignment, onClose}: EditPageProps){
               {d}
             </button>
           );
-          })}
+        })}
       </div>
 
       {/* Gantt chart view */}
       <div className="relative border-t border-gray-300 overflow-auto h-[calc(100vh-10rem)]">
-        {/* Assignment bars */}
         <div className="relative p-2 min-h-full">
-          {/* Column dividers - moved inside scrollable content */}
+          {/* Column dividers */}
           <div className="absolute inset-0 grid grid-cols-7 pointer-events-none" style={{ height: '100%', minHeight: '100%' }}>
             {daysOfWeek.map((day, index) => (
               <div
@@ -451,7 +495,7 @@ function EditPage({assignment, onClose}: EditPageProps){
                         showDeleteButton={true}
                         onEdit={() => handleOpenEdit(assignment)}
                         onMarkDone={() => markAsDone(globalIndex)}
-                        onDelete={() => refreshAssignments()}
+                        onDelete={handleDelete}
                         onHoverChange={(hovered) => setHoveredCalendarAssignment(hovered ? globalIndex : null)}
                       />
                     </div>
@@ -466,81 +510,79 @@ function EditPage({assignment, onClose}: EditPageProps){
       {/* Edit modal */}
       {editOpen && currentAssignment && (
         <EditPage
-          key={currentAssignment.Id || `${currentAssignment.ClassId}-${currentAssignment.Name }`}
+          key={currentAssignment.Id || `${currentAssignment.ClassId}-${currentAssignment.Name}`}
           assignment={currentAssignment}
           onClose={() => setEditOpen(false)}
         />
       )}
-      {/* Daily List */}
+
+      {/* Daily List Modal */}
       {weekdayModalOpen && selectedWeekday && (
         <div className="fixed inset-0 flex justify-center items-center z-50">
-        <div className="daily-list modalClass rounded shadow-lg w-120 h-100 flex flex-col">
-        {/* Header */}
-          <h2 className="text-lg font-bold p-6 pb-2 text-center w-full">{selectedWeekday} Details</h2>
+          <div className="daily-list modalClass rounded shadow-lg w-120 h-100 flex flex-col">
+            <h2 className="text-lg font-bold p-6 pb-2 text-center w-full">{selectedWeekday} Details</h2>
 
-          {/* Scrollable content */}
-          <div 
-            className="flex-grow overflow-y-auto px-6"
-            style={{
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#cbd5e1 #f1f5f9'
-            }}
+            <div 
+              className="flex-grow overflow-y-auto px-6"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#cbd5e1 #f1f5f9'
+              }}
             >
-            {dailyAssignments.length > 0 ? (
-              <ul className="space-y-4 py-4 p-4">
-                <p className="text-center font-semibold mb-2 pt-2">Assignments due:</p>
-                {dailyAssignments.map((assignment, dailyIndex) => {
-                  const globalIndex = assignments.indexOf(assignment);
-                  return (
-                    <li key={assignment.Id ?? `${assignment.ClassId ?? 'no-class'}-${assignment.Name}-${dailyIndex}`}>
-                      <AssignmentCard
-                        assignment={assignment}
-                        index={globalIndex}
-                        isDone={doneSet.has(globalIndex)}
-                        isHovered={hoveredDailyAssignment === globalIndex}
-                        showDetails={true}
-                        showDueDate={false}
-                        showCheckbox={true}
-                        showDeleteButton={true}
-                        onEdit={() => handleOpenEdit(assignment)}
-                        onMarkDone={() => markAsDone(globalIndex)}
-                        onDelete={() => refreshAssignments()}
-                        onHoverChange={(hovered) => setHoveredDailyAssignment(hovered ? globalIndex : null)}
-                      />
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-16">
-                <Image 
-                  src="/sleepy.png" 
-                  alt="No assignments today. Rest up!"
-                  width={300} 
-                  height={300}
-                  className="mb-10"
-                />
-                <p className="text-gray-600 text-center text-xl">
-                  No assignments for {selectedWeekday}. Rest up!
-                </p>
-              </div>
-            )}
-          </div>
+              {dailyAssignments.length > 0 ? (
+                <ul className="space-y-4 py-4 p-4">
+                  <p className="text-center font-semibold mb-2 pt-2">Assignments due:</p>
+                  {dailyAssignments.map((assignment, dailyIndex) => {
+                    const globalIndex = assignments.indexOf(assignment);
+                    return (
+                      <li key={assignment.Id ?? `${assignment.ClassId ?? 'no-class'}-${assignment.Name}-${dailyIndex}`}>
+                        <AssignmentCard
+                          assignment={assignment}
+                          index={globalIndex}
+                          isDone={doneSet.has(globalIndex)}
+                          isHovered={hoveredDailyAssignment === globalIndex}
+                          showDetails={true}
+                          showDueDate={false}
+                          showCheckbox={true}
+                          showDeleteButton={true}
+                          onEdit={() => handleOpenEdit(assignment)}
+                          onMarkDone={() => markAsDone(globalIndex)}
+                          onDelete={handleDelete}
+                          onHoverChange={(hovered) => setHoveredDailyAssignment(hovered ? globalIndex : null)}
+                        />
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <Image 
+                    src="/sleepy.png" 
+                    alt="No assignments today. Rest up!"
+                    width={300} 
+                    height={300}
+                    className="mb-10"
+                  />
+                  <p className="text-gray-600 text-center text-xl">
+                    No assignments for {selectedWeekday}. Rest up!
+                  </p>
+                </div>
+              )}
+            </div>
 
-          {/* Close button */}
-          <div className="flex justify-end h-5 w-115">
-            <button
-              onClick={() => setWeekdayModalOpen(false)}
-              className="globalButton rounded h-6"
-            >
-              Close
-            </button>
+            <div className="flex justify-end h-5 w-115">
+              <button
+                onClick={() => setWeekdayModalOpen(false)}
+                className="globalButton rounded h-6"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    )}
+      )}
 
-    {/* next & previous week buttons */}
+      {/* Navigation buttons */}
       <div className="prev-week-link">
         <button 
           onClick={() => setWeekOffset(weekOffset - 1)}
