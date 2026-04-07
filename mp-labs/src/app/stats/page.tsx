@@ -25,22 +25,6 @@ export default function StatsPage() {
     }
   }, [loading, showLoading, hideLoading]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#e9f8eb] flex items-center justify-center">
-        <div className="text-xl font-semibold text-[#3a554c]">Loading statistics...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-[#e9f8eb] flex items-center justify-center">
-        <div className="text-xl font-semibold text-red-600">{error}</div>
-      </div>
-    );
-  }
-
   // Calculate stats from assignments - now using Status field from database
   const total = assignments.length;
   const completed = assignments.filter(a => a.Status === 1).length;
