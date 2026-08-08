@@ -104,7 +104,7 @@ export default function LoggedInNavBar({ user }: LoggedInNavBarProps) {
           <HoverButton>Buy me a Coffee</HoverButton>
         </a>
         <HoverLink href="/stats">Stats</HoverLink>
-
+        <HoverLink href="/timer">Timer</HoverLink>
         <a
           href="https://docs.google.com/forms/d/e/1FAIpQLSfAqPRd7dXe7OBVJVjyqtjnAUxPhzFbenmyk_2k-OBP9qlznQ/viewform?usp=header"
           target="_blank"

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef } from "react";
-import Calendar from "./calendarSprintView";
+import Calendar from "./calendar";
+import GantChart from "./calendarSprintView";
 import loadata from "../auth/loadData";
 import { useClasses } from "../context/ClassContext";
 import { useAssignments } from '@/app/context/AssignmentContext';
@@ -10,6 +11,7 @@ import { useLoading } from '../context/LoadingContext';
 export default function AssignmentContainer() {
   const [icsLink, setIcsLink] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
   const { refreshClasses } = useClasses();
   const { refreshAssignments } = useAssignments();
   const { showLoading, hideLoading } = useLoading();
@@ -65,6 +67,12 @@ export default function AssignmentContainer() {
         >
           Upload Link
         </button>
+        <button 
+        onClick={()=> setShowCalendar(prev => !prev)}
+          className="globalButton px-4 py-2 rounded"
+        >
+          Swap views
+        </button>
       </div>
 
       {/* Modal */}
@@ -107,9 +115,20 @@ export default function AssignmentContainer() {
       )}
 
       {/* Calendar */}
+      {showCalendar && (
       <div className="flex-grow">
         <Calendar/>
       </div>
+       )}
+
+      {/* Gant Chart view */}
+       {!showCalendar && (
+        <div className="flex-grow">
+          <GantChart/>
+          </div>
+       )} 
+
+
     </div>
   );
 }
