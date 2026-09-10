@@ -4,8 +4,10 @@ import { useState } from "react";
 import { getClassColorNumber } from '@/app/colors/classColors';
 import { useClasses } from '@/app/context/ClassContext';
 import { useAssignments } from '@/app/context/AssignmentContext';
+import { editAssignment } from "../api/apiConstant";
+import { Assignment } from "@mui/icons-material";
 
-type Assignment = {
+export type Assignment = {
     className: string;
     Name: string;
     DueDate: string;
@@ -24,6 +26,8 @@ type AssignmentCardProps = {
   showDueDate?: boolean;
   showCheckbox?: boolean;
   showDeleteButton?: boolean;
+  isEditing?: boolean;
+  onSave?: (Assignment: Assignment) => void;
   onEdit?: () => void;
   onMarkDone?: () => void;
   onDelete?: () => void;
@@ -48,6 +52,8 @@ export default function AssignmentCard({
 }: AssignmentCardProps) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedAssignment, setEditedAssignment] = useState<Assignment>(assignment);
   const colorNumber = getClassColorNumber(assignment.ClassId);
   const colorClass = colorNumber === -1 ? 'color-default' : `color-${colorNumber}`;
   const { refreshAssignments } = useAssignments();
@@ -132,24 +138,61 @@ const formatDueDate = () => {
               </span>
             </div>
 
-            {/* Assignment Title */}
+            {isEditing ? (
+              <input
+              type="text"
+              value={editedAssignment.Name}
+              onChange={(e) =>
+                    setEditedAssignment(prev => ({
+                      ...prev,
+                      Name:e.target.value
+                    })) 
+                  }
+                  /> 
+              
+            ) : (
+            // {/* Assignment Title */}
             <div className={`assignment-title text-base`}>
               {assignment.Name}
             </div>
+            )}
 
             {/* Due Date */}
-            {showDueDate && (
+            {isEditing ? (
+              <input
+              type="text"
+              value={editedAssignment.DueDate}
+              onChange={(e) => 
+                setEditedAssignment(prev => ({
+                  ...prev,
+                  duedate: e.target.value
+                }))
+              }
+              />
+            ) : ( showDueDate && (
               <div className="text-sm text-gray-600 mb-2">
                 <strong>Due:</strong> {formatDueDate()}
               </div>
+            )
             )}
 
             {/* Details */}
-            {showDetails && assignment.Details && (
+            {isEditing ? (
+              <input
+              type="text"
+              value={editedAssignment.Details}
+              onChange={(e) =>
+                setEditedAssignment(prev => ({
+                  ...prev,
+                  Details: e.target.value
+                }))
+              }
+              />
+            ) : (showDetails && assignment.Details && (
               <div className="text-sm text-gray-700 mt-2 p-2 rounded">
                 {assignment.Details}
               </div>
-            )}
+            ))}
           </div>
 
           {/* Action Buttons - Show on Hover */}

@@ -4,9 +4,11 @@ import Assignments from "./assignments"
 import EditAssignments from "./editAssignmentView"
 // import Assignments from "./assignment"
 import { FC, ReactNode } from "react";
-
+import AssignmentCard from "./AssignmentCard";
+import {Assignment} from "./AssignmentCard";
 export default function AssignmentContainer() {
     const [showAlternativeView, setShowAlternativeView] = useState(false);
+    const temp : Assignment =  { className: "Temporary Assignment", Name: "Tap to edit", DueDate: "", Details: "string", ClassId: "string", Id: "string", Status: 0};
 
     return (
         <div className="assignment p-6 bg-white shadow-lg flex flex-col">
@@ -27,28 +29,36 @@ export default function AssignmentContainer() {
             </a>
             </div>
             <div className="flex-grow mb-4">
-                <EditAssignments/>
-            </div>
+                {/* <EditAssignments/> */}
+            {/* </div> */}
             {showAlternativeView && (
-            <div 
-                className="fixed inset-0 flex justify-center items-center z-40"
-                onClick={() => setShowAlternativeView(false)}
-            >
-                <div 
-                    className="relative newAssignmentModal modalClass z-50 rounded-2xl shadow-lg w-96 h-80 flex flex-col"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                <h2 className="mb-4 text-xl font-bold text-black text-center">Create New Assignment</h2>
-                    <Assignments onClose={() => setShowAlternativeView(false)}/>
-                    <button
-                        onClick={() => setShowAlternativeView(false)}
-                        className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-                    >
-                        ✕
-                    </button>
-                </div>
-            </div>
+     
+                <AssignmentCard
+                    assignment={temp}
+                    index={0}
+                    isEditing={true}
+                    isDone={false}
+                    isHovered={false}
+                    showDetails={true}
+                    showDueDate={true}
+                        showCheckbox={true}
+                    showDeleteButton={true}
+                    onEdit={() => {
+                    //   isEd//
+                    //   setEditOpen(true);
+                    }}
+                    onMarkDone={() => null}
+                    onDelete={async () => {
+                      // Only refresh after delete, not after edit
+                      // (delete needs full refresh to recalculate indices)
+                    }}
+                    onHoverChange={(hovered) => null}
+                 
+            // </div>
+            />
             )}
+            <EditAssignments/>
+             </div> 
         </div>
     );    
 }

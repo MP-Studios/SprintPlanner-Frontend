@@ -78,7 +78,7 @@ export default function DailyCalendar() {
               day: "numeric",
               weekday: "long",
             })}
-            <h1>Your Assignments Due today are: </h1>
+            <h1>This is no longer usedYour Assignments Due today are: </h1>
             <div className="overflow-auto flex-1">
         {(data.length!=0) ? (<p style={{ color: 'red' }}>{"You don't have any assignments due today"}</p>) : (
           data.map((a, i) => (

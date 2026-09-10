@@ -71,7 +71,7 @@ function EditPage({assignment, onClose, onSave}: EditPageProps){
 
       // Create updated assignment object
       const updatedAssignment: Assignment = {
-        ...assignment,
+        // ...editedAssignment,
         className: formData.className,
         Name: formData.name,
         Details: formData.details,
