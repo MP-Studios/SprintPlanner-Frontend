@@ -305,6 +305,19 @@ export function getCustomPalette(): CustomColor[] | null {
     return null;
   }
 }
+export function getPaletteColor(colorIndex: number): CustomColor | null {
+  safeLoadStorage();
+
+  let colors: CustomColor[];
+
+  if (currentPalette === 'custom') {
+    colors = getCustomPalette() ?? PALETTE_COLORS.default;
+  } else {
+    colors = PALETTE_COLORS[currentPalette] ?? PALETTE_COLORS.default;
+  }
+
+  return colors[colorIndex] ?? null;
+}
 
 // dynamic css
 function generateColorCSS(colorIndex: number, color: CustomColor): string {

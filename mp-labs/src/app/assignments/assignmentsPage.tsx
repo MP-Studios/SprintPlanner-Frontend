@@ -8,8 +8,14 @@ import AssignmentCard from "./AssignmentCard";
 import {Assignment} from "./AssignmentCard";
 export default function AssignmentContainer() {
     const [showAlternativeView, setShowAlternativeView] = useState(false);
-    const temp : Assignment =  { className: "Temporary Assignment", Name: "Tap to edit", DueDate: "", Details: "string", ClassId: "string", Id: "string", Status: 0};
-
+const temp: Assignment = {
+  className: "",
+  Name: "",
+  DueDate: "",
+  Details: "",
+  ClassId: null,
+  Status: 0,
+};
     return (
         <div className="assignment p-6 bg-white shadow-lg flex flex-col">
             <div className="flex items-center justify-between mb-4 ">
@@ -44,8 +50,7 @@ export default function AssignmentContainer() {
                         showCheckbox={true}
                     showDeleteButton={true}
                     onEdit={() => {
-                    //   isEd//
-                    //   setEditOpen(true);
+                        
                     }}
                     onMarkDone={() => null}
                     onDelete={async () => {

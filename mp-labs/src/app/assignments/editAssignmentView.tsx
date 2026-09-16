@@ -71,7 +71,7 @@ function EditPage({assignment, onClose, onSave}: EditPageProps){
 
       // Create updated assignment object
       const updatedAssignment: Assignment = {
-        // ...editedAssignment,
+        // ...updatedAssignment,
         className: formData.className,
         Name: formData.name,
         Details: formData.details,
@@ -236,10 +236,10 @@ export default function EditAssignments() {
                     showDueDate={true}
                     showCheckbox={true}
                     showDeleteButton={true}
-                    onEdit={() => {
-                      setCurrentAssignment(a);
-                      setEditOpen(true);
-                    }}
+                    // onEdit={() => {
+                    //   setCurrentAssignment(a);
+                    //   setEditOpen(true);
+                    // }}
                     onMarkDone={() => markAsDone(index)}
                     onDelete={async () => {
                       // Only refresh after delete, not after edit
